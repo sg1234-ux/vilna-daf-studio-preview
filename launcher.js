@@ -1,4 +1,4 @@
-const COMBINED_BUILD = 58;
+const COMBINED_BUILD = 59;
 const APPROVED_KEY = "vilna-daf-agent-approved-v57";
 const PAGES = {
   "agent-builder": {
