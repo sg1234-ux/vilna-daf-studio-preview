@@ -361,7 +361,7 @@ async function compose(){
     $("patternReport").textContent=pattern.name.replace("inner","Rashi/Rashbam");$("fillReport").textContent=final.failures.length?"Final test failed":"Mapped amud";$("rulesReport").textContent=final.failures.length?`Review: ${final.failures.join(", ")}`:"All mapped and region rules passed";
     setComposing(false);afterCompose();status(final.failures.length?`Mapped composition failed: ${final.failures.join(", ")}.`:`Mapped composition complete — exact lines, gutter box and cascading takeovers passed for ${state.ref}.`,final.failures.length>0);return final;
   }
-  const w=weightsFor(tokens),patterns=candidates(w),globalScales=[1,.94],openingCandidates=state.agentSettings.openingLines?[state.agentSettings.openingLines]:[4,5,3],total=patterns.length*globalScales.length*openingCandidates.length;
+  const w=weightsFor(tokens),patterns=candidates(w),globalScales=[1],openingCandidates=state.agentSettings.openingLines?[state.agentSettings.openingLines]:[4],total=patterns.length*globalScales.length*openingCandidates.length;
   $("bodyGeometry").style.visibility="hidden";
   let best=null,bestPassing=null,done=0;const familyBest=new Map;
   for(const openingLines of openingCandidates)for(const scale of globalScales)for(const pattern of patterns){
@@ -369,23 +369,23 @@ async function compose(){
     if(!best||r.score<best.score)best=r;
     if(candidatePasses(r)&&(!bestPassing||r.score<bestPassing.score))bestPassing=r;
     if(!familyBest.has(family)||r.score<familyBest.get(family).score)familyBest.set(family,r);
-    done++;if(done%3===0){status(`Composition test ${Math.min(48,Math.round(done/total*48))}% — comparing takeover families…`);await nextPaint();}
+    done++;status(`Composition test ${Math.min(48,Math.round(done/total*48))}% — comparing takeover families…`);await nextPaint();
   }
   const winners=[...familyBest.values()].sort((a,b)=>a.score-b.score),mandatory=winners.filter(r=>/^cascading /.test(r.pattern.name)),shortlist=[];
   for(const r of[bestPassing||best,...mandatory,...winners])if(r&&!shortlist.some(x=>x.pattern.name===r.pattern.name)&&shortlist.length<2)shortlist.push(r);
   const fineJobs=shortlist.flatMap(coarse=>refinePatterns(coarse.pattern).map(pattern=>({pattern,scale:coarse.scale,openingLines:coarse.openingLines})));
   done=0;for(const job of fineJobs){
     $("dafPage").style.setProperty("--opening-lines",job.openingLines);const r=evaluate(job.pattern,job.scale,tokens);r.openingLines=job.openingLines;if(r.score<best.score)best=r;if(candidatePasses(r)&&(!bestPassing||r.score<bestPassing.score))bestPassing=r;
-    done++;if(done%3===0){status(`Composition test ${48+Math.min(30,Math.round(done/Math.max(1,fineJobs.length)*30))}% — refining takeover boundaries…`);await nextPaint();}
+    done++;status(`Composition test ${48+Math.min(30,Math.round(done/Math.max(1,fineJobs.length)*30))}% — refining takeover boundaries…`);await nextPaint();
   }
   if(!bestPassing&&!profile){
-    const recoveryPatterns=patterns.filter(p=>p.cascade),recoveryScales=[
+    const recoveryPatterns=patterns.filter(p=>p.cascade),recoveryOpenings=state.agentSettings.openingLines?[state.agentSettings.openingLines]:[4,5,3],recoveryScales=[
       {gemara:1.06,commentary:.92},{gemara:1.04,commentary:.90}
-    ],recoveryTotal=recoveryPatterns.length*recoveryScales.length*openingCandidates.length;
+    ],recoveryTotal=recoveryPatterns.length*recoveryScales.length*recoveryOpenings.length;
     let recoveryBest=null;done=0;
-    for(const openingLines of openingCandidates)for(const scale of recoveryScales)for(const pattern of recoveryPatterns){
+    for(const openingLines of recoveryOpenings)for(const scale of recoveryScales)for(const pattern of recoveryPatterns){
       $("dafPage").style.setProperty("--opening-lines",openingLines);const r=evaluate(pattern,scale,tokens);r.openingLines=openingLines;if(!recoveryBest||r.score<recoveryBest.score)recoveryBest=r;if(candidatePasses(r)&&(!bestPassing||r.score<bestPassing.score))bestPassing=r;
-      done++;if(done%3===0){status(`Composition test ${78+Math.min(21,Math.round(done/Math.max(1,recoveryTotal)*21))}% — balancing Gemara against commentary…`);await nextPaint();}
+      done++;status(`Composition test ${78+Math.min(21,Math.round(done/Math.max(1,recoveryTotal)*21))}% — balancing Gemara against commentary…`);await nextPaint();
     }
     if(!bestPassing&&recoveryBest)best=recoveryBest;
   }
