@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Vilna Daf Studio — Build 58 Studio</title>
+  <link rel="stylesheet" href="launcher.css?build=58">
+</head>
+<body>
+  <header class="launcher-bar">
+    <div class="brand">
+      <span class="brand-name">Vilna Daf Studio</span>
+      <span class="build-badge">Build 58 Studio</span>
+    </div>
+
+    <div class="page-picker">
+      <label for="amudSelect">Amud</label>
+      <select id="amudSelect">
+        <option value="agent-builder">Build a new amud — Agent</option>
+        <option value="pesachim-99b">פסחים צט ע״ב — Pesachim 99b (Build 44)</option>
+        <option value="bava-metzia-21a">בבא מציעא כא ע״א — Bava Metzia 21a (Build 51)</option>
+      </select>
+      <button id="openDirect" type="button">Open full page</button>
+    </div>
+  </header>
+
+  <main class="studio-frame-wrap">
+    <iframe
+      id="studioFrame"
+      title="Selected Vilna Daf Studio amud"
+      allow="microphone"
+    ></iframe>
+  </main>
+
+  <script src="launcher.js?build=58"></script>
+</body>
+</html>

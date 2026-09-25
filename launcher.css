@@ -1,0 +1,109 @@
+:root {
+  color-scheme: light;
+  font-family: Georgia, "Times New Roman", serif;
+  background: #d8d5ce;
+}
+
+* { box-sizing: border-box; }
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  display: grid;
+  grid-template-rows: 52px minmax(0, 1fr);
+}
+
+.launcher-bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 7px 14px;
+  color: #fffdf7;
+  background: #201d18;
+  border-bottom: 1px solid #080706;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+}
+
+.brand,
+.page-picker {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.brand-name {
+  font-size: 20px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.build-badge {
+  padding: 2px 5px;
+  color: #f8de85;
+  border: 1px solid #f8de85;
+  font: 700 10px/1.2 Arial, sans-serif;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.page-picker label {
+  font: 700 12px/1 Arial, sans-serif;
+}
+
+.page-picker select,
+.page-picker button {
+  height: 34px;
+  border: 1px solid #8e795a;
+  border-radius: 3px;
+  font: 600 13px/1 Arial, sans-serif;
+}
+
+.page-picker select {
+  width: min(430px, 42vw);
+  padding: 0 31px 0 9px;
+  color: #201d18;
+  background: #fffdf7;
+}
+
+.page-picker button {
+  padding: 0 12px;
+  color: #fffdf7;
+  background: #583b1d;
+  cursor: pointer;
+}
+
+.page-picker button:hover,
+.page-picker button:focus-visible {
+  background: #704d27;
+}
+
+.studio-frame-wrap,
+#studioFrame {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+#studioFrame {
+  display: block;
+  border: 0;
+  background: #d8d5ce;
+}
+
+@media (max-width: 720px) {
+  body { grid-template-rows: 92px minmax(0, 1fr); }
+  .launcher-bar { align-items: flex-start; flex-direction: column; gap: 5px; }
+  .page-picker { width: 100%; }
+  .page-picker select { flex: 1; width: auto; min-width: 0; }
+  .page-picker label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+}

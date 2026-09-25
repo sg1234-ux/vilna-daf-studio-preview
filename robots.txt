@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /
+
+# Public preview; indexing and automated collection are discouraged.

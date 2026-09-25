@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Vilna Daf Studio — Build 58 Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;600;700&family=Noto+Rashi+Hebrew:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?build=58">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">Completion-driven agent compositor <span id="buildBadge" class="build-badge">Build 58 Studio</span></p>
+      <h1>New Amud Draft</h1>
+    </div>
+    <div class="header-actions">
+      <button id="reflowEdits" class="button secondary">Reflow page edits</button>
+      <button id="excerptMode" class="button">Select excerpt</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <aside class="control-panel" aria-label="Daf controls">
+      <section class="panel-section">
+        <h2>Agent draft</h2>
+        <label for="tractateSelect" hidden>Masechta</label>
+        <select id="tractateSelect" hidden></select>
+        <label for="pageSelect" hidden>Amud</label>
+        <select id="pageSelect" hidden></select>
+        <button id="loadSelectedPage" class="button wide-button" hidden>Load selected amud</button>
+        <p id="verificationStatus" class="verification-status">Completion-driven geometry; no PDF placement map required.</p>
+        <input id="dafRef" value="Bava Metzia 21a" type="hidden">
+        <button id="loadDaf" type="button" hidden>Load</button>
+        <p id="loadStatus" class="status" role="status">Ready. A built-in sample is displayed.</p>
+      </section>
+
+      <section class="panel-section">
+        <h2>Navigate and edit</h2>
+        <div class="segmented" role="group" aria-label="Interaction mode">
+          <button id="navigateMode" class="button secondary" aria-pressed="true">Navigate</button>
+          <button id="editMode" class="button secondary" aria-pressed="false">Edit</button>
+        </div>
+        <p class="control-label">Navigate by</p>
+        <div class="segmented" role="group" aria-label="Navigation unit">
+          <button id="wordNavigation" class="button secondary" aria-pressed="true">Word by word</button>
+          <button id="phraseNavigation" class="button secondary" aria-pressed="false">Phrase by phrase</button>
+        </div>
+        <p id="navigationUnitStatus" class="status">Word-by-word navigation is active.</p>
+        <div class="focus-navigator" aria-label="Phrase focus navigator">
+          <div class="focus-heading">
+            <p class="control-label">Phrase Focus Navigator</p>
+            <button id="focusNavigatorToggle" class="button ghost" aria-pressed="false">Focus: Off</button>
+          </div>
+          <label for="focusWindowSize">Visible phrase window</label>
+          <div class="focus-window-row">
+            <select id="focusWindowSize">
+              <option value="1">1 phrase</option>
+              <option value="2">2 phrases</option>
+              <option value="3">3 phrases</option>
+              <option value="custom">Custom</option>
+            </select>
+            <input id="focusWindowCustom" type="number" min="1" max="12" value="4" aria-label="Custom phrase window" hidden>
+          </div>
+          <div class="focus-step-row">
+            <button id="focusPrevious" class="button secondary" disabled>Previous</button>
+            <button id="focusNext" class="button secondary" disabled>Next</button>
+          </div>
+          <p id="focusNavigatorStatus" class="status">Choose Phrase by phrase to use automatic page fading.</p>
+        </div>
+        <button id="notesToggle" class="button ghost wide-button" aria-pressed="false">Notes: Off</button>
+        <p class="status">In Navigate mode, click the text. Left arrow moves forward by the selected unit; right arrow moves backward.</p>
+        <div class="edit-tools" aria-label="Edit tools">
+          <p class="control-label">Focus fade</p>
+          <div class="whiteout-tools">
+            <button id="whiteoutSelection" class="button secondary" disabled>Fade selection</button>
+            <button id="restoreSelection" class="button ghost" disabled>Restore selection</button>
+          </div>
+          <button id="clearWhiteouts" class="button ghost wide-button" disabled>Restore all faded text</button>
+          <p id="whiteoutStatus" class="status">Select any words or part of a line. Faded text remains as a pale outline and is never deleted.</p>
+        </div>
+      </section>
+
+      <section class="panel-section visual-panel">
+        <h2>Lesson visuals</h2>
+        <p class="status">Attach a Google Slides or Canva link to the currently selected phrase. The icon opens it only when needed.</p>
+        <label for="visualUrl">Visual link</label>
+        <input id="visualUrl" type="url" placeholder="https://…">
+        <div class="visual-actions">
+          <button id="attachVisual" class="button" disabled>Attach</button>
+          <button id="openVisual" class="button secondary" disabled>Open</button>
+          <button id="removeVisual" class="button ghost" disabled>Remove</button>
+        </div>
+        <p id="visualStatus" class="status">Select a verified phrase to attach a visual.</p>
+      </section>
+
+      <section class="panel-section">
+        <h2>Text display</h2>
+        <div class="display-toggles" role="group" aria-label="Text display options">
+          <button id="nekudosToggle" class="button secondary wide-button" aria-pressed="true">Nekudos: On</button>
+          <button id="lineNumbersToggle" class="button secondary wide-button" aria-pressed="false">Gemara line numbers: Off</button>
+        </div>
+        <p class="control-label">Whole-page display size</p>
+        <div class="page-zoom-tools" role="group" aria-label="Whole-page display size">
+          <button id="pageZoomSmaller" class="button secondary" aria-label="Reduce whole page by 50 percent">−50%</button>
+          <output id="pageZoomValue" class="page-zoom-value">150%</output>
+          <button id="pageZoomLarger" class="button secondary" aria-label="Enlarge whole page by 50 percent">+50%</button>
+        </div>
+        <p id="pageZoomStatus" class="status">150% teaching view. The completed page is enlarged without recomposing any lines.</p>
+        <p class="status">These controls change the displayed daf without changing its source text.</p>
+      </section>
+
+      <section class="panel-section reading-panel">
+        <h2>Reading accuracy</h2>
+        <p class="status">Click the first Gemara word the student will read, then start the microphone.</p>
+        <p id="readingStartLabel" class="reading-start" dir="rtl">Starting word: not selected</p>
+        <div class="reading-actions">
+          <button id="startReading" class="button" disabled>Start reading</button>
+          <button id="stopReading" class="button secondary" disabled>Stop</button>
+          <button id="resetReading" class="button ghost" disabled>Reset</button>
+        </div>
+        <p id="readingStatus" class="status" role="status">Select a Gemara word to begin.</p>
+        <dl class="reading-report" aria-label="Reading results">
+          <div><dt>Accuracy</dt><dd id="readingAccuracy">—</dd></div>
+          <div><dt>Correct</dt><dd id="readingCorrect">0</dd></div>
+          <div><dt>Review</dt><dd id="readingReview">0</dd></div>
+          <div><dt>Missed</dt><dd id="readingMissed">0</dd></div>
+        </dl>
+        <p id="readingTranscript" class="reading-transcript" dir="rtl">Recognized words will appear here.</p>
+        <div class="reading-key" aria-label="Reading feedback key">
+          <span class="key-correct">Correct</span>
+          <span class="key-review">Review</span>
+          <span class="key-missed">Missed</span>
+        </div>
+        <p class="status">“Review” can mean either a reading error or a speech-recognition error; the teacher makes the final decision.</p>
+      </section>
+
+      <section class="panel-section">
+        <h2>Annotations</h2>
+        <button id="annotationToggle" class="button secondary wide-button" aria-pressed="false">Annotate page</button>
+        <div class="tool-grid" role="group" aria-label="Annotation tool">
+          <button class="button ghost annotation-tool" data-tool="pen" aria-pressed="true">Pen</button>
+          <button class="button ghost annotation-tool" data-tool="highlighter" aria-pressed="false">Highlighter</button>
+          <button class="button ghost annotation-tool" data-tool="eraser" aria-pressed="false">Eraser</button>
+        </div>
+        <label for="annotationColor">Color</label>
+        <input id="annotationColor" type="color" value="#b32424">
+        <label for="strokeWidth">Stroke width <span id="strokeWidthValue">3</span></label>
+        <input id="strokeWidth" type="range" min="1" max="18" value="3">
+        <div class="tool-grid compact">
+          <button id="annotationUndo" class="button ghost" disabled>Undo</button>
+          <button id="annotationRedo" class="button ghost" disabled>Redo</button>
+          <button id="clearAnnotations" class="button ghost" disabled>Clear all</button>
+        </div>
+      </section>
+
+      <section class="panel-section">
+        <h2>Project file</h2>
+        <p class="status">Save and reopen the complete daf, including edits, notes, layout, fonts and annotations.</p>
+        <div class="stacked-actions">
+          <button id="saveProject" class="button">Save project</button>
+          <button id="openProject" class="button secondary">Open project</button>
+          <input id="projectFile" type="file" accept=".vds,.json,application/json" hidden>
+        </div>
+        <p id="projectStatus" class="status">No project file opened.</p>
+      </section>
+
+      <section class="panel-section">
+        <h2>Automatic composition</h2>
+        <dl class="composition-report">
+          <div><dt>Amud</dt><dd id="amudReport">Beis</dd></div>
+          <div><dt>Pattern</dt><dd id="patternReport">Calculating…</dd></div>
+          <div><dt>Page fill</dt><dd id="fillReport">Calculating…</dd></div>
+          <div><dt>Rule check</dt><dd id="rulesReport">Calculating…</dd></div>
+        </dl>
+        <p class="status">Switch to Edit mode to change the text. Choose “Reflow page edits” when you want the geometry recalculated.</p>
+      </section>
+
+      <section class="panel-section">
+        <h2>Typography</h2>
+        <label for="typographyPreset">Daf font preset</label>
+        <select id="typographyPreset">
+          <option value="archival-open">Archival open source</option>
+          <option value="otzar-vilna">OT Vilna — installed license</option>
+          <option value="vilna-mf">Vilna MF — installed license</option>
+          <option value="build31">Build 31 comparison</option>
+        </select>
+        <p id="typographyStatus" class="status">Drugulin CLM Gemara with Mekorot Rashi-style commentary.</p>
+      </section>
+
+      <section class="panel-section instructions">
+        <h2>Excerpt workflow</h2>
+        <p>Select excerpt, then drag over the daf. Copy or download the clean, caption-free selection.</p>
+        <div class="stacked-actions">
+          <button id="downloadExactPng" class="button" disabled>Download Exact Slide PNG</button>
+          <button id="copyExcerpt" class="button" disabled>Copy excerpt</button>
+          <button id="downloadExcerpt" class="button secondary" disabled>Download Vector SVG (optional)</button>
+          <button id="clearExcerpt" class="button ghost" disabled>Clear selection</button>
+        </div>
+      </section>
+    </aside>
+
+    <section class="stage" aria-label="Daf preview">
+      <div id="pageZoomShell" class="page-zoom-shell">
+      <div id="dafPage" class="daf-page amud-b" dir="rtl">
+        <div class="daf-header">
+          <span id="dafNumber" class="daf-number">צט:</span>
+          <span id="chapterTitle" class="chapter-title">ערבי פסחים פרק עשירי פסחים</span>
+        </div>
+
+        <div class="opening-band">
+          <div id="topRight" class="commentary top-commentary"></div>
+          <div id="topLeft" class="commentary top-commentary"></div>
+        </div>
+
+        <div id="bodyGeometry" class="body-geometry"></div>
+
+        <div id="gemaraLineNumbers" class="gemara-line-numbers" aria-hidden="true"></div>
+        <canvas id="annotationCanvas" class="annotation-canvas" aria-label="Daf annotations"></canvas>
+        <div id="selectionBox" class="selection-box" hidden></div>
+      </div>
+      </div>
+    </section>
+
+  </main>
+
+  <section id="noteWindow" class="note-window" hidden aria-label="Word note editor">
+    <div id="noteWindowHandle" class="note-window-handle">
+      <strong>Word note</strong>
+      <button id="closeNoteWindow" type="button" aria-label="Close notes">×</button>
+    </div>
+    <div class="note-window-body">
+      <p id="selectedWordLabel" dir="rtl">Select a word</p>
+      <textarea id="wordNote" rows="7" placeholder="Type a note for the selected word…"></textarea>
+      <p class="status">Notes are included only when you save a project file.</p>
+    </div>
+  </section>
+
+  <script src="assets/vendor/opentype.min.js?build=51"></script>
+  <script src="app.js?build=58"></script>
+</body>
+</html>

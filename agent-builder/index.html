@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Build a New Amud — Vilna Daf Studio Build 58</title>
+  <link rel="stylesheet" href="styles.css?build=58">
+</head>
+<body>
+  <header class="builder-header">
+    <div>
+      <p class="eyebrow">Vilna Daf Studio <span>Build 58 Agent</span></p>
+      <h1>Build a New Amud</h1>
+    </div>
+    <p id="agentStatus" class="agent-status">Checking agent…</p>
+  </header>
+
+  <main class="builder-layout">
+    <aside class="builder-panel">
+      <nav class="build-steps" aria-label="Build progress">
+        <span data-step="source" class="active">1 Source</span>
+        <span data-step="compose">2 Compose</span>
+        <span data-step="validate">3 Validate</span>
+        <span data-step="approve">4 Approve</span>
+      </nav>
+      <section>
+        <h2>1. Choose the amud</h2>
+        <label for="dafRef">Sefaria reference</label>
+        <input id="dafRef" value="Bava Metzia 21b" spellcheck="false">
+        <label for="perekHint">Perek identifier <small>(optional evidence for the agent)</small></label>
+        <input id="perekHint" placeholder="For example: Bava Metzia 2 — אלו מציאות">
+        <label for="perekRashbamStatus">Rashbam status in this perek</label>
+        <select id="perekRashbamStatus">
+          <option value="unknown">Not yet verified</option>
+          <option value="first">First Rashbam amud in this perek</option>
+          <option value="continued">Rashbam appeared earlier in this perek</option>
+        </select>
+        <button id="buildDraft" class="primary">Build draft without a PDF</button>
+        <p id="buildStatus" class="status">The compositor will fetch the complete text and apply the shared Vilna rules.</p>
+      </section>
+
+      <section>
+        <h2>2. Hard-rule diagnostics</h2>
+        <dl class="diagnostics">
+          <div><dt>Pattern</dt><dd id="patternValue">—</dd></div>
+          <div><dt>Text</dt><dd id="textValue">—</dd></div>
+          <div><dt>Rashbam</dt><dd id="rashbamValue">—</dd></div>
+          <div><dt>Page fit</dt><dd id="fitValue">—</dd></div>
+          <div><dt>Occupancy</dt><dd id="occupancyValue">—</dd></div>
+          <div><dt>Transition</dt><dd id="transitionValue">—</dd></div>
+          <div><dt>Bands</dt><dd id="bandsValue">—</dd></div>
+          <div><dt>Approval</dt><dd id="approvalValue">Not tested</dd></div>
+        </dl>
+        <ul id="failureList" class="failure-list"><li>Build a draft to see its exact rule checks.</li></ul>
+      </section>
+
+      <section>
+        <h2>3. Direct the correction</h2>
+        <div class="guided-correction">
+          <p class="guided-title">Measured completion correction</p>
+          <label for="completedStream">Which stream finishes?</label>
+          <select id="completedStream">
+            <option value="">Choose only when visible on the page</option>
+            <option value="inner">Rashi / Rashbam finishes</option>
+            <option value="tosafot">Tosafos finishes</option>
+          </select>
+          <label for="survivingStream">Which commentary continues?</label>
+          <select id="survivingStream">
+            <option value="tosafot">Tosafos</option>
+            <option value="inner">Rashi / Rashbam</option>
+          </select>
+          <label for="continuationLines">Narrow continuation lines before full width</label>
+          <input id="continuationLines" type="number" min="1" max="12" value="2">
+          <button id="applyMeasuredCorrection" class="secondary" disabled>Apply measured takeover</button>
+          <p class="status">This changes only the selected transition. It cannot alter source text or bypass hard rules.</p>
+        </div>
+        <label for="targetRegion">Region needing attention</label>
+        <select id="targetRegion">
+          <option value="whole-page">Whole page</option>
+          <option value="opening">Opening commentary</option>
+          <option value="gemara">Gemara</option>
+          <option value="inner-commentary">Rashi / Rashbam</option>
+          <option value="tosafos">Tosafos</option>
+          <option value="transition">Region transition</option>
+          <option value="rashbam-heading">Rashbam heading</option>
+        </select>
+        <label for="feedback">What looks wrong?</label>
+        <textarea id="feedback" rows="4" placeholder="For example: Tosafos finishes here, so Gemara should widen from this point."></textarea>
+        <button id="askAgent" class="secondary" disabled>Ask agent to diagnose</button>
+        <p id="agentResult" class="status">The page's measured diagnostics will be sent with your region-specific correction.</p>
+        <button id="applyAgent" class="secondary" disabled>Apply agent's proposed adjustment</button>
+      </section>
+
+      <section>
+        <h2>4. Approve</h2>
+        <button id="approveDraft" class="primary" disabled>Approve and add this amud</button>
+        <p class="status">Approval stays locked while a hard rule or Rashbam policy is unresolved. The full two-line introduction is used only on the first Rashbam amud of a perek; later pages say רשב״ם.</p>
+        <div id="approvedPages" class="approved-pages"></div>
+      </section>
+    </aside>
+
+    <section class="preview-wrap" aria-label="New amud preview">
+      <iframe id="draftFrame" src="../draft-engine/index.html?builder=1" title="New amud draft" allow="microphone"></iframe>
+    </section>
+  </main>
+  <script src="app.js?build=58"></script>
+</body>
+</html>
