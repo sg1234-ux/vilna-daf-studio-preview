@@ -147,13 +147,24 @@ function localAgentReview(body) {
   const innerNamed = /rashi|rashbam|inner|רש[״"']?י|רשב/u.test(note);
   const completionNamed = /complete|finish|end|done|מסתיי/u.test(note);
   const twoLines = /\b(two|2)\s+lines?\b/u.test(note);
+  const removeGemaraDashes = targetRegion === "gemara" && /(?:remove|delete|strip|without|take out|eliminate)\b.{0,45}\b(?:dash(?:es)?|hyphen(?:s)?)\b|(?:dash(?:es)?|hyphen(?:s)?)\b.{0,45}\b(?:remove|delete|strip)|(?:הסר|להסיר|מחק|למחוק).{0,30}(?:מקפים|מקף|קווים)/u.test(note);
 
-  if (completionNamed && (tosafosNamed || innerNamed)) {
+  if (removeGemaraDashes && /^(?:Pesachim 99b|Bava Metzia 21a)$/i.test(String(body.ref||"").trim())) {
+    summary = "This approved reference page is protected.";
+    reason = "The agent cannot alter its Gemara text. Create a separate draft to propose a display change.";
+  } else if (removeGemaraDashes) {
+    changes.stripGemaraDashes = true;
+    summary = "Remove dashes from the displayed Gemara text.";
+    reason = "Hebrew letters and words remain intact. The daf will be recomposed and source-preservation checks rerun before approval.";
+  } else if (completionNamed && (tosafosNamed || innerNamed)) {
     changes.forceCascade = true;
     changes.preferredSurvivor = tosafosNamed ? "tosafot" : "inner";
     changes.continuationLines = twoLines ? 2 : 3;
     summary = `Use a completion-driven ${tosafosNamed ? "Tosafos" : "inner-commentary"} takeover.`;
     reason = `${changes.continuationLines} narrow continuation lines will remain after Gemara completes, followed by a full-width ${tosafosNamed ? "Tosafos" : "inner-commentary"} region beneath the Gemara gutter.`;
+  } else if (note) {
+    summary = "I cannot apply that comment automatically.";
+    reason = "No page change was proposed. Please give a more specific layout instruction or make the text edit in Edit mode.";
   } else if (targetRegion === "gemara") {
     changes.gemaraScale = Math.max(.78, Math.min(1.18, Number(diagnostics.settings?.gemaraScale || 1) * .98));
     summary = "Rebalance the Gemara region and rerun every hard check.";
