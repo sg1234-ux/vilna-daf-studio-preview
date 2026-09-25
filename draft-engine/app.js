@@ -369,14 +369,14 @@ async function compose(){
     if(!best||r.score<best.score)best=r;
     if(candidatePasses(r)&&(!bestPassing||r.score<bestPassing.score))bestPassing=r;
     if(!familyBest.has(family)||r.score<familyBest.get(family).score)familyBest.set(family,r);
-    done++;if(done%96===0){status(`Composition test ${Math.min(48,Math.round(done/total*48))}% — comparing takeover families…`);await nextPaint();}
+    done++;if(done%12===0){status(`Composition test ${Math.min(48,Math.round(done/total*48))}% — comparing takeover families…`);await nextPaint();}
   }
   const winners=[...familyBest.values()].sort((a,b)=>a.score-b.score),mandatory=winners.filter(r=>/^cascading /.test(r.pattern.name)),shortlist=[];
   for(const r of[bestPassing||best,...mandatory,...winners])if(r&&!shortlist.some(x=>x.pattern.name===r.pattern.name)&&shortlist.length<3)shortlist.push(r);
   const fineJobs=shortlist.flatMap(coarse=>refinePatterns(coarse.pattern).flatMap(pattern=>[coarse.scale-.006,coarse.scale,coarse.scale+.006].map(scale=>({pattern,scale,openingLines:coarse.openingLines}))));
   done=0;for(const job of fineJobs){
     $("dafPage").style.setProperty("--opening-lines",job.openingLines);const r=evaluate(job.pattern,job.scale,tokens);r.openingLines=job.openingLines;if(r.score<best.score)best=r;if(candidatePasses(r)&&(!bestPassing||r.score<bestPassing.score))bestPassing=r;
-    done++;if(done%96===0){status(`Composition test ${48+Math.min(30,Math.round(done/Math.max(1,fineJobs.length)*30))}% — refining takeover boundaries…`);await nextPaint();}
+    done++;if(done%12===0){status(`Composition test ${48+Math.min(30,Math.round(done/Math.max(1,fineJobs.length)*30))}% — refining takeover boundaries…`);await nextPaint();}
   }
   if(!bestPassing&&!profile){
     const recoveryPatterns=patterns.filter(p=>p.cascade),recoveryScales=[
@@ -385,7 +385,7 @@ async function compose(){
     let recoveryBest=null;done=0;
     for(const openingLines of openingCandidates)for(const scale of recoveryScales)for(const pattern of recoveryPatterns){
       $("dafPage").style.setProperty("--opening-lines",openingLines);const r=evaluate(pattern,scale,tokens);r.openingLines=openingLines;if(!recoveryBest||r.score<recoveryBest.score)recoveryBest=r;if(candidatePasses(r)&&(!bestPassing||r.score<bestPassing.score))bestPassing=r;
-      done++;if(done%72===0){status(`Composition test ${78+Math.min(21,Math.round(done/Math.max(1,recoveryTotal)*21))}% — balancing Gemara against commentary…`);await nextPaint();}
+      done++;if(done%12===0){status(`Composition test ${78+Math.min(21,Math.round(done/Math.max(1,recoveryTotal)*21))}% — balancing Gemara against commentary…`);await nextPaint();}
     }
     if(!bestPassing&&recoveryBest)best=recoveryBest;
   }
