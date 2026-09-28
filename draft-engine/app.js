@@ -1,4 +1,4 @@
-const BUILD_VERSION=59;window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION=60;window.VILNA_DAF_BUILD=BUILD_VERSION;
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
 rashiHtml:`<strong>סמוך למנחה.</strong> מעט קודם למנחה: <strong>לא יאכל.</strong> כדי שיאכל מצה של מצוה לתיאבון משום הידור מצוה: <strong>ואפילו עני שבישראל.</strong> לא יאכל עד שיסב כדרך בני חורין זכר לחירות במטה ועל השלחן: <strong>ארבע כוסות.</strong> כנגד ארבעה לשוני גאולה האמורים בגלות מצרים והוצאתי והצלתי וגאלתי ולקחתי:`,
@@ -286,7 +286,24 @@ function mappedCascadePattern(profile){
   const boxWalls=profile.layout.boxWalls!==false,stages=profileStages(profile),bands=stages.map((stage,index)=>{const lineHeight=stream=>stream==="gemara"?gemaraLeading:commentaryLeading,extra=stream=>index===0?(profile.layout.extraLineHeights?.[stream]||0):0,contentHeight=Math.max(...stage.streams.map(stream=>((stage.counts[stream]||0)+extra(stream))*lineHeight(stream))),wallHeight=index===0&&boxWalls&&stage.streams.includes("gemara")?gutter*2:0;return{height:0,...(index<stages.length-1?{pixelHeight:contentHeight+wallHeight}:{}),streams:stage.streams,widths:stage.widths,counts:stage.counts};});
   return{name:"PDF-mapped verified stage layout",cascade:true,mapped:true,boxWalls,bands};
 }
-function candidates(w){const three=ordered(STREAMS),top=primaryWidths(w),commentaryPair=ordered(["inner","tosafot"]),guided=state.agentSettings.forceCascade&&["inner","tosafot"].includes(state.agentSettings.preferredSurvivor);if(guided){const survivor=state.agentSettings.preferredSurvivor,lines=state.agentSettings.continuationLines||2,leading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--commentary-leading"))||12.05;return stepped(28,82,3).map(upper=>({name:`teacher-guided ${survivor} takeover (${lines} narrow lines)`,cascade:true,guided:true,bands:[{height:upper,streams:three,widths:top},{height:0,pixelHeight:lines*leading,streams:commentaryPair,widths:[50,50]},{height:100-upper,streams:[survivor],widths:[100]}]}));}const out=[{name:"continuous three-column",bands:[{height:100,streams:three,widths:top}]}];for(const cut of stepped(32,86,12))for(const owner of STREAMS)out.push({name:`${owner} lower continuation`,bands:[{height:cut,streams:three,widths:top},{height:100-cut,streams:[owner],widths:[100]}]});for(const cut of stepped(28,82,12))for(const omitted of STREAMS){const lower=ordered(STREAMS.filter(s=>s!==omitted));out.push({name:`${lower.join(" + ")} lower band`,bands:[{height:cut,streams:three,widths:top},{height:100-cut,streams:lower,widths:pairWidths(lower,w)}]});}for(const upper of stepped(28,60,16))for(const middle of stepped(12,44,16))if(upper+middle<94)for(const survivor of["inner","tosafot"])out.push({name:`cascading ${survivor} takeover`,cascade:true,bands:[{height:upper,streams:three,widths:top},{height:middle,streams:commentaryPair,widths:[50,50]},{height:100-upper-middle,streams:[survivor],widths:[100]}]});return out;}
+function candidates(w){
+  const three=ordered(STREAMS),top=primaryWidths(w),commentaryPair=ordered(["inner","tosafot"]),guided=state.agentSettings.forceCascade&&["inner","tosafot"].includes(state.agentSettings.preferredSurvivor);
+  if(guided){const survivor=state.agentSettings.preferredSurvivor,lines=state.agentSettings.continuationLines||2,leading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--commentary-leading"))||12.05;return stepped(28,82,3).map(upper=>({name:`teacher-guided ${survivor} takeover (${lines} narrow lines)`,cascade:true,guided:true,bands:[{height:upper,streams:three,widths:top},{height:0,pixelHeight:lines*leading,streams:commentaryPair,widths:[50,50]},{height:100-upper,streams:[survivor],widths:[100]}]}));}
+  const out=[{name:"continuous three-column",bands:[{height:100,streams:three,widths:top}]}];
+  for(const cut of stepped(32,86,12))for(const owner of STREAMS)out.push({name:`${owner} lower continuation`,bands:[{height:cut,streams:three,widths:top},{height:100-cut,streams:[owner],widths:[100]}]});
+  for(const cut of stepped(28,82,12))for(const omitted of STREAMS){const lower=ordered(STREAMS.filter(s=>s!==omitted));out.push({name:`${lower.join(" + ")} lower band`,bands:[{height:cut,streams:three,widths:top},{height:100-cut,streams:lower,widths:pairWidths(lower,w)}]});}
+  // Every stream can finish first. The two survivors widen, and the last survivor takes the page.
+  // Earlier builds searched only for Gemara finishing first, so a long Gemara was clipped on 21b.
+  for(const upper of [28,40,52,64,76,88])for(const middle of [10,22,34,46])if(upper+middle<94)for(const firstToFinish of STREAMS){
+    const pair=ordered(STREAMS.filter(stream=>stream!==firstToFinish));
+    for(const survivor of pair)out.push({name:`${firstToFinish} completes; ${survivor} survives`,cascade:true,bands:[
+      {height:upper,streams:three,widths:top},
+      {height:middle,streams:pair,widths:pairWidths(pair,w)},
+      {height:100-upper-middle,streams:[survivor],widths:[100]}
+    ]});
+  }
+  return out;
+}
 function buildGeometry(pattern){
   const body=$("bodyGeometry"),regions={gemara:[],inner:[],tosafot:[]},totalHeight=body.clientHeight,leading=parseFloat(getComputedStyle($("topRight")).lineHeight)||12,heights=[];
   let used=0;pattern.bands.forEach((band,i)=>{if(i===pattern.bands.length-1)heights.push(Math.max(0,totalHeight-used));else{const desired=Number.isFinite(band.pixelHeight)?band.pixelHeight:totalHeight*band.height/100,snapped=Number.isFinite(band.pixelHeight)?desired:Math.max(leading,Math.round(desired/leading)*leading);heights.push(snapped);used+=snapped;}});
@@ -314,6 +331,8 @@ function completionAudit(pattern,results){const failures=[];let maxCompletionSla
 function evaluate(pattern,scale,original,commit=false){setScale(scale);const remaining=flowOpening(original,commit),regions=buildGeometry(pattern),results={};for(const s of STREAMS)results[s]=fillStream(remaining[s],regions[s],commit);const sourceOverflow=STREAMS.reduce((n,s)=>n+results[s].rest.length,0),count=STREAMS.reduce((n,s)=>n+original[s].length,0)||1,blank=STREAMS.reduce((n,s)=>n+results[s].blankArea,0),area=STREAMS.reduce((n,s)=>n+results[s].totalArea,0)||1,blankRatio=blank/area,occupancies=STREAMS.flatMap(s=>results[s].occupancy),minOccupancy=Math.min(...occupancies),transitionOccupancies=[];for(const stream of STREAMS){const streamRegions=regions[stream],streamOccupancy=results[stream].occupancy;streamOccupancy.forEach((ratio,index)=>{const bandIndex=Number(streamRegions[index].dataset.band),continues=index<streamOccupancy.length-1,releasesEarly=index===streamOccupancy.length-1&&bandIndex<pattern.bands.length-1;if(continues||releasesEarly)transitionOccupancies.push(ratio);});}const transitionGap=transitionOccupancies.length?Math.max(...transitionOccupancies.map(r=>1-r)):0,completion=completionAudit(pattern,results),gapPenalty=transitionOccupancies.reduce((n,r)=>n+Math.pow(Math.max(0,.985-r),2),0),terminalDeadSpace=Math.pow(Math.max(0,.9-minOccupancy),2),s=scaleParts(scale),scalePenalty=Math.abs(s.gemara-1)+Math.abs(s.commentary-1),completionPenalty=completion.failures.length*1000+completion.maxCompletionSlack*.5,score=sourceOverflow/count*32+blankRatio*10+terminalDeadSpace*110+gapPenalty*120+Math.pow(transitionGap,2)*180+(pattern.bands.length-1)*.004+scalePenalty*.035+completionPenalty;return{score,overflow:sourceOverflow,sourceOverflow,blankRatio,minOccupancy,transitionGap,completionFailures:completion.failures,maxCompletionSlack:completion.maxCompletionSlack,results,scale,pattern};}
 function refinePatterns(pattern){if(pattern.bands.length<2)return[pattern];const refined=[];for(let firstDelta=-5;firstDelta<=5;firstDelta+=pattern.bands.length===2?1:2){if(pattern.bands.length===2){const first=pattern.bands[0].height+firstDelta;if(first>10&&first<90)refined.push({...pattern,bands:[{...pattern.bands[0],height:first},{...pattern.bands[1],height:100-first}]});continue;}for(let secondDelta=-5;secondDelta<=5;secondDelta+=2){const first=pattern.bands[0].height+firstDelta,second=pattern.bands[1].height+secondDelta,third=100-first-second;if(first>10&&second>8&&third>5)refined.push({...pattern,bands:[{...pattern.bands[0],height:first},{...pattern.bands[1],height:second},{...pattern.bands[2],height:third}]});}}return refined;}
 function candidatePasses(result){return result.overflow===0&&!result.completionFailures.length&&result.transitionGap<=.035&&result.blankRatio<.075&&result.minOccupancy>.78;}
+function sourceRank(result){return [result.results.gemara.rest.length,result.sourceOverflow,result.score];}
+function betterSourceCandidate(candidate,current){if(!current)return true;const next=sourceRank(candidate),old=sourceRank(current);for(let i=0;i<next.length;i++){if(next[i]<old[i])return true;if(next[i]>old[i])return false;}return false;}
 function nextPaint(){return new Promise(resolve=>requestAnimationFrame(resolve));}
 function setComposing(active){$("dafPage").classList.toggle("composing",active);$("dafPage").setAttribute("aria-busy",String(active));$("loadDaf").disabled=active;if($("loadSelectedPage"))$("loadSelectedPage").disabled=active;$("reflowEdits").disabled=active;$("typographyPreset").disabled=active;$("nekudosToggle").disabled=active;}
 function contentLines(element){const mapped=[...element.children].filter(child=>child.classList.contains("mapped-line"));if(mapped.length)return mapped.length;const probe=makeProbe(element);probe.innerHTML=element.innerHTML;const height=probe.getBoundingClientRect().height,line=parseFloat(getComputedStyle(element).lineHeight)||1;probe.remove();return height/line;}
@@ -364,35 +383,37 @@ async function compose(){
   }
   const w=weightsFor(tokens),patterns=candidates(w),globalScales=[1],openingCandidates=state.agentSettings.openingLines?[state.agentSettings.openingLines]:[4],total=patterns.length*globalScales.length*openingCandidates.length;
   $("bodyGeometry").style.visibility="hidden";
-  let best=null,bestPassing=null,done=0;const familyBest=new Map;
+  let best=null,bestPassing=null,bestSource=null,done=0;const familyBest=new Map,coarseResults=[];
+  const consider=r=>{if(!best||r.score<best.score)best=r;if(betterSourceCandidate(r,bestSource))bestSource=r;if(candidatePasses(r)&&(!bestPassing||r.score<bestPassing.score))bestPassing=r;};
   for(const openingLines of openingCandidates)for(const scale of globalScales)for(const pattern of patterns){
     $("dafPage").style.setProperty("--opening-lines",openingLines);const r=evaluate(pattern,scale,tokens),family=`${openingLines}:${pattern.name}`;r.openingLines=openingLines;
-    if(!best||r.score<best.score)best=r;
-    if(candidatePasses(r)&&(!bestPassing||r.score<bestPassing.score))bestPassing=r;
+    consider(r);coarseResults.push(r);
     if(!familyBest.has(family)||r.score<familyBest.get(family).score)familyBest.set(family,r);
     done++;status(`Composition test ${Math.min(48,Math.round(done/total*48))}% — comparing takeover families…`);await nextPaint();
   }
-  const winners=[...familyBest.values()].sort((a,b)=>a.score-b.score),mandatory=winners.filter(r=>/^cascading /.test(r.pattern.name)),shortlist=[];
-  for(const r of[bestPassing||best,...mandatory,...winners])if(r&&!shortlist.some(x=>x.pattern.name===r.pattern.name)&&shortlist.length<2)shortlist.push(r);
+  const winners=[...familyBest.values()].sort((a,b)=>a.score-b.score),shortlist=[];
+  for(const r of[bestPassing,bestSource,best,...winners])if(r&&!shortlist.some(x=>x.pattern.name===r.pattern.name)&&shortlist.length<3)shortlist.push(r);
   const fineJobs=shortlist.flatMap(coarse=>refinePatterns(coarse.pattern).map(pattern=>({pattern,scale:coarse.scale,openingLines:coarse.openingLines})));
   done=0;for(const job of fineJobs){
-    $("dafPage").style.setProperty("--opening-lines",job.openingLines);const r=evaluate(job.pattern,job.scale,tokens);r.openingLines=job.openingLines;if(r.score<best.score)best=r;if(candidatePasses(r)&&(!bestPassing||r.score<bestPassing.score))bestPassing=r;
+    $("dafPage").style.setProperty("--opening-lines",job.openingLines);const r=evaluate(job.pattern,job.scale,tokens);r.openingLines=job.openingLines;consider(r);
     done++;status(`Composition test ${48+Math.min(30,Math.round(done/Math.max(1,fineJobs.length)*30))}% — refining takeover boundaries…`);await nextPaint();
   }
   if(!bestPassing&&!profile){
-    const recoveryPatterns=patterns.filter(p=>p.cascade),recoveryOpenings=state.agentSettings.openingLines?[state.agentSettings.openingLines]:[4,5,3],recoveryScales=[
+    const recoveryFamilies=[...new Set(patterns.filter(p=>p.cascade).map(p=>p.name))],recoveryPatterns=recoveryFamilies.flatMap(name=>coarseResults.filter(r=>r.pattern.name===name).sort((a,b)=>{const x=sourceRank(a),y=sourceRank(b);for(let i=0;i<x.length;i++)if(x[i]!==y[i])return x[i]-y[i];return 0;}).slice(0,4).map(r=>r.pattern)),recoveryOpenings=state.agentSettings.openingLines?[state.agentSettings.openingLines]:[4,5,3],recoveryScales=[
       {gemara:1.06,commentary:.92},{gemara:1.04,commentary:.90}
     ],recoveryTotal=recoveryPatterns.length*recoveryScales.length*recoveryOpenings.length;
     let recoveryBest=null;done=0;
     for(const openingLines of recoveryOpenings)for(const scale of recoveryScales)for(const pattern of recoveryPatterns){
-      $("dafPage").style.setProperty("--opening-lines",openingLines);const r=evaluate(pattern,scale,tokens);r.openingLines=openingLines;if(!recoveryBest||r.score<recoveryBest.score)recoveryBest=r;if(candidatePasses(r)&&(!bestPassing||r.score<bestPassing.score))bestPassing=r;
+      $("dafPage").style.setProperty("--opening-lines",openingLines);const r=evaluate(pattern,scale,tokens);r.openingLines=openingLines;if(!recoveryBest||r.score<recoveryBest.score)recoveryBest=r;consider(r);
       done++;status(`Composition test ${78+Math.min(21,Math.round(done/Math.max(1,recoveryTotal)*21))}% — balancing Gemara against commentary…`);await nextPaint();
     }
     if(!bestPassing&&recoveryBest)best=recoveryBest;
   }
-  const selected=bestPassing||best;if(!state.agentSettings.openingLines)state.agentSettings.openingLines=selected.openingLines||4;$("dafPage").style.setProperty("--opening-lines",state.agentSettings.openingLines);const final=evaluate(selected.pattern,selected.scale,tokens,true);final.openingLines=state.agentSettings.openingLines;
+  // An invalid preview still favors the layout that places the most source text,
+  // with Gemara completion first. It never becomes approvable until every rule passes.
+  const selected=bestPassing||bestSource||best;if(!state.agentSettings.openingLines)state.agentSettings.openingLines=selected.openingLines||4;$("dafPage").style.setProperty("--opening-lines",state.agentSettings.openingLines);const final=evaluate(selected.pattern,selected.scale,tokens,true);final.openingLines=state.agentSettings.openingLines;
   $("bodyGeometry").style.visibility=originalBodyVisibility;final.failures=validateComposition(final);if(!bestPassing)final.failures=[...new Set(["no completion-safe layout",...final.failures])];state.composition=final;state.dirty=false;
-  $("patternReport").textContent=final.pattern.name.replace("inner","Rashi/Rashbam");$("fillReport").textContent=final.failures.length?"Final test failed":"Full page";$("rulesReport").textContent=final.failures.length?`Review: ${final.failures.join(", ")}`:"All hard rules passed";
+  $("patternReport").textContent=final.pattern.name.replace("inner","Rashi/Rashbam");$("fillReport").textContent=final.overflow?"Incomplete source draft":final.failures.length?"Final test failed":"Full page";$("rulesReport").textContent=final.failures.length?`Review: ${final.failures.join(", ")}`:"All hard rules passed";
   setComposing(false);afterCompose();status(final.failures.length?`Final composition test complete${profile?" with PDF line anchors":""} — failed: ${final.failures.join(", ")}.`:`Final composition test complete — all hard region rules passed${profile?" with PDF line anchors":""} for ${state.ref}.`,final.failures.length>0);return final;
 }
 
@@ -627,6 +648,7 @@ function postAgentDiagnostics(extraFailures=[]){
     textOverflow:Boolean(final?.overflow), rashbamPresent:Boolean(state.rashbamHtml),
     headingMode:state.rashbamHeadingMode, settings:{...state.agentSettings},
     wordCounts:{gemara:wordCount(state.gemaraHtml),inner:wordCount(state.rashiHtml)+wordCount(state.rashbamHtml),tosafot:wordCount(state.tosafotHtml)},
+    unplacedCounts:Object.fromEntries(STREAMS.map(stream=>[stream,final?.results?.[stream]?.rest?.filter(token=>token.text)?.length||0])),
     geometry:final?{blankRatio:final.blankRatio,minOccupancy:final.minOccupancy,transitionGap:final.transitionGap,scale:final.scale,bands:final.pattern?.bands}:null
   };
   window.parent.postMessage({type:"vilna-agent-diagnostics",diagnostics},location.origin);
