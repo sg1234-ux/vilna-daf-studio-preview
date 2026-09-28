@@ -49,10 +49,11 @@ function approvalFailures() {
 
 function renderDiagnostics() {
   $("patternValue").textContent = diagnostics?.patternName || "—";
-  $("textValue").textContent = diagnostics ? `${diagnostics.wordCounts?.gemara || 0} Gemara · ${diagnostics.wordCounts?.inner || 0} inner · ${diagnostics.wordCounts?.tosafot || 0} Tosafos` : "—";
+  const missing = diagnostics?.unplacedCounts || {};
+  $("textValue").textContent = diagnostics ? `${diagnostics.wordCounts?.gemara || 0} Gemara${missing.gemara ? ` (${missing.gemara} unplaced)` : ""} · ${diagnostics.wordCounts?.inner || 0} inner${missing.inner ? ` (${missing.inner} unplaced)` : ""} · ${diagnostics.wordCounts?.tosafot || 0} Tosafos${missing.tosafot ? ` (${missing.tosafot} unplaced)` : ""}` : "—";
   $("rashbamValue").textContent = diagnostics ? (diagnostics.rashbamPresent ? `${policy?.headingMode || "unresolved"} heading` : "Not present") : "—";
   const geometry = diagnostics?.geometry;
-  $("fitValue").textContent = diagnostics ? (diagnostics.textOverflow ? "Overflow detected" : "No measured overflow") : "—";
+  $("fitValue").textContent = diagnostics ? (missing.gemara ? `${missing.gemara} Gemara tokens unplaced` : diagnostics.textOverflow ? "Overflow detected" : "No measured overflow") : "—";
   $("occupancyValue").textContent = geometry ? `${Math.round((geometry.minOccupancy || 0) * 100)}% minimum · ${Math.round((1 - (geometry.blankRatio || 0)) * 100)}% filled` : "—";
   $("transitionValue").textContent = geometry ? `${Math.round((geometry.transitionGap || 0) * 100)}% gap` : "—";
   $("bandsValue").textContent = geometry?.bands?.length ? geometry.bands.map(band => band.streams.join(" + ")).join(" → ") : "—";
@@ -148,6 +149,7 @@ function localAgentReview(body) {
   const completionNamed = /complete|finish|end|done|מסתיי/u.test(note);
   const twoLines = /\b(two|2)\s+lines?\b/u.test(note);
   const removeGemaraDashes = (targetRegion === "gemara" || targetRegion === "whole-page") && /(?:remove|delete|strip|without|take out|eliminate)\b.{0,45}\b(?:dash(?:es)?|hyphen(?:s)?)\b|(?:dash(?:es)?|hyphen(?:s)?)\b.{0,45}\b(?:remove|delete|strip)|(?:הסר|להסיר|מחק|למחוק).{0,30}(?:מקפים|מקף|קווים)/u.test(note);
+  const completeGemara = (targetRegion === "gemara" || targetRegion === "whole-page") && /(?:entire|complete|full|all(?: of)? the)\s+gemara|gemara.{0,35}(?:entire|complete|full|all|missing|unplaced)/u.test(note);
 
   if (removeGemaraDashes && /^(?:Pesachim 99b|Bava Metzia 21a)$/i.test(String(body.ref||"").trim())) {
     summary = "This approved reference page is protected.";
@@ -156,6 +158,16 @@ function localAgentReview(body) {
     changes.stripGemaraDashes = true;
     summary = "Remove dashes from the displayed Gemara text.";
     reason = "Hebrew letters and words remain intact. The daf will be recomposed and source-preservation checks rerun before approval.";
+  } else if (completeGemara && diagnostics.unplacedCounts?.gemara) {
+    const currentHeight = Number(diagnostics.settings?.pageHeight || 1030);
+    if (currentHeight < 1300) {
+      changes.pageHeight = Math.min(1300, currentHeight + 48);
+      summary = `Make more room for the ${diagnostics.unplacedCounts.gemara} unplaced Gemara tokens and recompose.`;
+      reason = "The new completion search will measure every text stream again. Approval stays blocked until the whole source fits and all layout rules pass.";
+    } else {
+      summary = "The Gemara is still incomplete at the allowed page height.";
+      reason = "This draft remains blocked; a further source-preserving layout change is needed.";
+    }
   } else if (completionNamed && (tosafosNamed || innerNamed)) {
     changes.forceCascade = true;
     changes.preferredSurvivor = tosafosNamed ? "tosafot" : "inner";
@@ -197,7 +209,7 @@ $("approveDraft").addEventListener("click", () => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(pages));
   localStorage.setItem("vilna-daf-agent-approved-updated", String(Date.now()));
   renderApproved();
-  message(`${diagnostics.ref} was approved locally and added to the Build 59 launcher.`);
+  message(`${diagnostics.ref} was approved locally and added to the Build 60 launcher.`);
 });
 
 window.addEventListener("message", async event => {
