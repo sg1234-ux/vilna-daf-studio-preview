@@ -147,7 +147,7 @@ function localAgentReview(body) {
   const innerNamed = /rashi|rashbam|inner|רש[״"']?י|רשב/u.test(note);
   const completionNamed = /complete|finish|end|done|מסתיי/u.test(note);
   const twoLines = /\b(two|2)\s+lines?\b/u.test(note);
-  const removeGemaraDashes = targetRegion === "gemara" && /(?:remove|delete|strip|without|take out|eliminate)\b.{0,45}\b(?:dash(?:es)?|hyphen(?:s)?)\b|(?:dash(?:es)?|hyphen(?:s)?)\b.{0,45}\b(?:remove|delete|strip)|(?:הסר|להסיר|מחק|למחוק).{0,30}(?:מקפים|מקף|קווים)/u.test(note);
+  const removeGemaraDashes = (targetRegion === "gemara" || targetRegion === "whole-page") && /(?:remove|delete|strip|without|take out|eliminate)\b.{0,45}\b(?:dash(?:es)?|hyphen(?:s)?)\b|(?:dash(?:es)?|hyphen(?:s)?)\b.{0,45}\b(?:remove|delete|strip)|(?:הסר|להסיר|מחק|למחוק).{0,30}(?:מקפים|מקף|קווים)/u.test(note);
 
   if (removeGemaraDashes && /^(?:Pesachim 99b|Bava Metzia 21a)$/i.test(String(body.ref||"").trim())) {
     summary = "This approved reference page is protected.";
