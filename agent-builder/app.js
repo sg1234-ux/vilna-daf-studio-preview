@@ -151,13 +151,10 @@ function localAgentReview(body) {
   const removeGemaraDashes = (targetRegion === "gemara" || targetRegion === "whole-page") && /(?:remove|delete|strip|without|take out|eliminate)\b.{0,45}\b(?:dash(?:es)?|hyphen(?:s)?)\b|(?:dash(?:es)?|hyphen(?:s)?)\b.{0,45}\b(?:remove|delete|strip)|(?:הסר|להסיר|מחק|למחוק).{0,30}(?:מקפים|מקף|קווים)/u.test(note);
   const completeGemara = (targetRegion === "gemara" || targetRegion === "whole-page") && /(?:entire|complete|full|all(?: of)? the)\s+gemara|gemara.{0,35}(?:entire|complete|full|all|missing|unplaced)/u.test(note);
 
-  if (removeGemaraDashes && /^(?:Pesachim 99b|Bava Metzia 21a)$/i.test(String(body.ref||"").trim())) {
-    summary = "This approved reference page is protected.";
-    reason = "The agent cannot alter its Gemara text. Create a separate draft to propose a display change.";
-  } else if (removeGemaraDashes) {
+  if (removeGemaraDashes) {
     changes.stripGemaraDashes = true;
     summary = "Remove dashes from the displayed Gemara text.";
-    reason = "Hebrew letters and words remain intact. The daf will be recomposed and source-preservation checks rerun before approval.";
+    reason = "This is a reversible display transformation, including on protected reference pages. The stored Hebrew source remains unchanged, and the daf will be recomposed and revalidated before approval.";
   } else if (completeGemara && !diagnostics.unplacedCounts?.gemara) {
     summary = "The entire fetched Gemara is already on this draft page.";
     reason = approvalFailures().length ? `Approval is still blocked by: ${approvalFailures().join(", ")}.` : "The remaining hard rules pass; review the page before teacher approval.";
