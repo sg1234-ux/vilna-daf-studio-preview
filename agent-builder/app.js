@@ -158,6 +158,9 @@ function localAgentReview(body) {
     changes.stripGemaraDashes = true;
     summary = "Remove dashes from the displayed Gemara text.";
     reason = "Hebrew letters and words remain intact. The daf will be recomposed and source-preservation checks rerun before approval.";
+  } else if (completeGemara && !diagnostics.unplacedCounts?.gemara) {
+    summary = "The entire fetched Gemara is already on this draft page.";
+    reason = approvalFailures().length ? `Approval is still blocked by: ${approvalFailures().join(", ")}.` : "The remaining hard rules pass; review the page before teacher approval.";
   } else if (completeGemara && diagnostics.unplacedCounts?.gemara) {
     const currentHeight = Number(diagnostics.settings?.pageHeight || 1030);
     if (currentHeight < 1300) {
