@@ -391,8 +391,10 @@ async function compose(){
     if(!familyBest.has(family)||r.score<familyBest.get(family).score)familyBest.set(family,r);
     done++;status(`Composition test ${Math.min(48,Math.round(done/total*48))}% — comparing takeover families…`);await nextPaint();
   }
-  const winners=[...familyBest.values()].sort((a,b)=>a.score-b.score),shortlist=[];
-  for(const r of[bestPassing,bestSource,best,...winners])if(r&&!shortlist.some(x=>x.pattern.name===r.pattern.name)&&shortlist.length<3)shortlist.push(r);
+  const winners=[...familyBest.values()].sort((a,b)=>a.score-b.score),threeBandFamilies=winners.filter(r=>r.pattern.bands.length===3),shortlist=[];
+  // Refine each completion order, even when a two-band draft has already placed all
+  // source: a stream can still end too early and require the final takeover band.
+  for(const r of[bestPassing,bestSource,best,...threeBandFamilies,...winners])if(r&&!shortlist.some(x=>x.pattern.name===r.pattern.name)&&shortlist.length<9)shortlist.push(r);
   const fineJobs=shortlist.flatMap(coarse=>refinePatterns(coarse.pattern).map(pattern=>({pattern,scale:coarse.scale,openingLines:coarse.openingLines})));
   done=0;for(const job of fineJobs){
     $("dafPage").style.setProperty("--opening-lines",job.openingLines);const r=evaluate(job.pattern,job.scale,tokens);r.openingLines=job.openingLines;consider(r);
