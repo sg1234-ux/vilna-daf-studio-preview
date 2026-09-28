@@ -229,7 +229,7 @@ window.addEventListener("message", async event => {
   try { policy = await resolvePolicy(diagnostics.ref, diagnostics.rashbamPresent); }
   catch (error) { policy = { resolved: false, headingMode: "unresolved", reason: error.message }; }
   renderDiagnostics();
-  frame.contentWindow.postMessage({ type: "vilna-agent-set-rashbam-policy", headingMode: policy.headingMode }, location.origin);
+  if (diagnostics.rashbamPresent) frame.contentWindow.postMessage({ type: "vilna-agent-set-rashbam-policy", headingMode: policy.headingMode }, location.origin);
   message(approvalFailures().length ? `Draft composed. Review the exact failures listed below.` : `Draft composed and all current hard rules pass. Inspect it before approval.`);
 });
 
@@ -250,7 +250,7 @@ async function start() {
 $("perekRashbamStatus").addEventListener("change", async () => {
   if (!diagnostics) return;
   policy = await resolvePolicy(diagnostics.ref, diagnostics.rashbamPresent);
-  frame.contentWindow.postMessage({ type: "vilna-agent-set-rashbam-policy", headingMode: policy.headingMode }, location.origin);
+  if (diagnostics.rashbamPresent) frame.contentWindow.postMessage({ type: "vilna-agent-set-rashbam-policy", headingMode: policy.headingMode }, location.origin);
   renderDiagnostics();
 });
 start();
