@@ -677,7 +677,33 @@ function postAgentDiagnostics(extraFailures=[]){
   };
   window.parent.postMessage({type:"vilna-agent-diagnostics",diagnostics},location.origin);
 }
-function afterCompose(){activateWordNavigation();updateDisplayToggles();requestAnimationFrame(()=>{applyPageZoom();syncAnnotationCanvas();renderGemaraLineNumbers();postAgentDiagnostics();});updateNoteWindow();}
+function applyAgentRenderingRules(){
+  const settings=state.agentSettings||{},regions=[...$("dafPage").querySelectorAll('[data-stream="gemara"]')],mappedLines=[];
+  regions.forEach(region=>{region.style.textAlignLast="";for(const line of region.querySelectorAll(":scope > .mapped-line")){line.style.width="";line.style.marginLeft="";line.style.marginRight="";line.style.textAlign="";line.style.textAlignLast="";if(line.textContent.trim()){line.dataset.gemaraLine=String(mappedLines.length+1);mappedLines.push(line);}}});
+  const expansionLine=Number(settings.gemaraExpansionLine);
+  if(Number.isInteger(expansionLine)&&mappedLines.length){
+    const primary=regions.find(region=>Number(region.dataset.band)===0)||regions[0],primaryRect=primary?.getBoundingClientRect();
+    for(const line of mappedLines){
+      const number=Number(line.dataset.gemaraLine),region=line.parentElement,regionRect=region.getBoundingClientRect(),expanded=primaryRect&&regionRect.width>primaryRect.width+2;
+      if(!expanded)continue;
+      if(number<expansionLine){
+        const width=Math.min(100,primaryRect.width/Math.max(1,regionRect.width)*100);
+        line.style.width=`${width}%`;
+        const anchorsLeft=Math.abs(primaryRect.left-regionRect.left)<=Math.abs(primaryRect.right-regionRect.right);
+        line.style.marginLeft=anchorsLeft?"0":"auto";line.style.marginRight=anchorsLeft?"auto":"0";
+      }else{line.style.width="100%";line.style.marginLeft="0";line.style.marginRight="0";}
+    }
+    regions.forEach(fitMappedLineWidths);
+  }
+  const alignment=settings.gemaraAlignment;
+  if(["right","left","justify"].includes(alignment)){
+    if(mappedLines.length){
+      const requested=Number(settings.gemaraAlignmentLine),targets=Number.isInteger(requested)?mappedLines.filter(line=>Number(line.dataset.gemaraLine)===requested):[mappedLines.at(-1)].filter(Boolean);
+      targets.forEach(line=>{line.style.textAlign=alignment;line.style.textAlignLast=alignment;});
+    }else regions.forEach(region=>region.style.textAlignLast=alignment);
+  }
+}
+function afterCompose(){activateWordNavigation();updateDisplayToggles();requestAnimationFrame(()=>{applyAgentRenderingRules();applyPageZoom();syncAnnotationCanvas();renderGemaraLineNumbers();postAgentDiagnostics();});updateNoteWindow();}
 
 function localPoint(e){const page=$("dafPage"),r=page.getBoundingClientRect(),zoom=normalizedPageZoom(state.pageZoom);return{x:Math.max(0,Math.min(page.clientWidth,(e.clientX-r.left)/zoom)),y:Math.max(0,Math.min(page.clientHeight,(e.clientY-r.top)/zoom))};}
 function beginExcerpt(){state.selecting=!state.selecting;if(state.selecting)setAnnotating(false);$("dafPage").classList.toggle("selecting",state.selecting);$("excerptMode").textContent=state.selecting?"Exit excerpt mode":"Select excerpt";}
@@ -724,7 +750,7 @@ $("startReading").addEventListener("click",startReading);$("stopReading").addEve
 $("dafPage").addEventListener("click",e=>{const visual=e.target.closest(".phrase-visual-icon");if(visual){e.preventDefault();e.stopPropagation();openPhraseVisual(Number(visual.dataset.phraseIndex));return;}if(state.mode!=="navigate"||state.selecting||state.annotating)return;const word=e.target.closest(".word-token");if(word)selectWord(word);});document.addEventListener("keydown",e=>{if(state.mode!=="navigate"||!state.selectedWordId||e.altKey||e.ctrlKey||e.metaKey||["INPUT","TEXTAREA","SELECT"].includes(e.target.tagName))return;if(e.key==="ArrowLeft"){e.preventDefault();moveSelectedUnit(1);}else if(e.key==="ArrowRight"){e.preventDefault();moveSelectedUnit(-1);}});
 $("annotationToggle").addEventListener("click",()=>setAnnotating(!state.annotating));document.querySelectorAll(".annotation-tool").forEach(button=>button.addEventListener("click",()=>selectAnnotationTool(button.dataset.tool)));$("annotationColor").addEventListener("input",e=>state.annotationColor=e.target.value);$("strokeWidth").addEventListener("input",e=>{state.strokeWidth=Number(e.target.value);$("strokeWidthValue").textContent=e.target.value;});$("annotationUndo").addEventListener("click",undoAnnotations);$("annotationRedo").addEventListener("click",redoAnnotations);$("clearAnnotations").addEventListener("click",clearAnnotations);
 $("saveProject").addEventListener("click",saveProject);$("openProject").addEventListener("click",()=>$("projectFile").click());$("projectFile").addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file)return;try{await openProjectFile(file);}catch(error){$("projectStatus").textContent=`Could not open project: ${error.message}.`;}finally{e.target.value="";}});
-function safeAgentSettings(value={}){const ranges={pageHeight:[900,1300],openingLines:[2,8],gemaraScale:[.78,1.18],commentaryScale:[.72,1.18],continuationLines:[1,12]},clean={};for(const[key,[min,max]]of Object.entries(ranges)){const number=Number(value[key]);if(Number.isFinite(number)&&number>=min&&number<=max)clean[key]=["pageHeight","openingLines","continuationLines"].includes(key)?Math.round(number):number;}if(value.forceCascade===true)clean.forceCascade=true;if(value.stripGemaraDashes===true)clean.stripGemaraDashes=true;if(["inner","tosafot"].includes(value.preferredSurvivor))clean.preferredSurvivor=value.preferredSurvivor;return clean;}
+function safeAgentSettings(value={}){const ranges={pageHeight:[900,1300],openingLines:[2,8],gemaraScale:[.78,1.18],commentaryScale:[.72,1.18],continuationLines:[1,12],gemaraAlignmentLine:[1,200],gemaraExpansionLine:[1,200]},clean={};for(const[key,[min,max]]of Object.entries(ranges)){const number=Number(value[key]);if(Number.isFinite(number)&&number>=min&&number<=max)clean[key]=["pageHeight","openingLines","continuationLines","gemaraAlignmentLine","gemaraExpansionLine"].includes(key)?Math.round(number):number;}if(value.forceCascade===true)clean.forceCascade=true;if(value.stripGemaraDashes===true)clean.stripGemaraDashes=true;if(["inner","tosafot"].includes(value.preferredSurvivor))clean.preferredSurvivor=value.preferredSurvivor;if(["right","left","justify","natural"].includes(value.gemaraAlignment))clean.gemaraAlignment=value.gemaraAlignment;return clean;}
 window.addEventListener("message",async event=>{
   if(event.origin!==location.origin||event.source!==window.parent)return;
   const data=event.data||{};
