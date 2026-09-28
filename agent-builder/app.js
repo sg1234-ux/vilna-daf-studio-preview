@@ -138,20 +138,63 @@ $("askAgent").addEventListener("click", async () => {
   } finally { $("askAgent").disabled = !diagnostics; }
 });
 
+function teacherCommandStream(note, targetRegion) {
+  if (/\b(?:gemara|gemorah)\b|גמרא/u.test(note) || targetRegion === "gemara") return "gemara";
+  if (/\b(?:rashi|rashbam|inner commentary)\b|רש[״"']?י|רשב/u.test(note) || targetRegion === "inner-commentary") return "inner";
+  if (/\b(?:tosafos|tosafot)\b|תוספ/u.test(note) || targetRegion === "tosafos") return "tosafot";
+  return null;
+}
+
+function teacherCommandLine(note) {
+  const match = note.match(/(?:\bline\s*(?:number\s*)?|שורה\s*)(\d{1,3})\b/u);
+  return match ? Number(match[1]) : null;
+}
+
 function localAgentReview(body) {
-  const note = String(body.feedback?.note || "").toLowerCase();
+  const rawNote = String(body.feedback?.note || "").trim();
+  const note = rawNote.toLowerCase().replace(/[“”]/g, '"').replace(/[’]/g, "'");
   const targetRegion = body.feedback?.targetRegion || "whole-page";
+  const stream = teacherCommandStream(note, targetRegion);
+  const lineNumber = teacherCommandLine(note);
   const changes = {};
   let summary = `Offline agent reviewed the ${targetRegion} region.`;
-  let reason = approvalFailures().length ? `Current hard failures: ${approvalFailures().join(", ")}.` : "The current hard rules pass; this applies the teacher's requested transition.";
-  const tosafosNamed = /tosaf|תוספ/u.test(note);
-  const innerNamed = /rashi|rashbam|inner|רש[״"']?י|רשב/u.test(note);
-  const completionNamed = /complete|finish|end|done|מסתיי/u.test(note);
-  const twoLines = /\b(two|2)\s+lines?\b/u.test(note);
-  const removeGemaraDashes = (targetRegion === "gemara" || targetRegion === "whole-page") && /(?:remove|delete|strip|without|take out|eliminate)\b.{0,45}\b(?:dash(?:es)?|hyphen(?:s)?)\b|(?:dash(?:es)?|hyphen(?:s)?)\b.{0,45}\b(?:remove|delete|strip)|(?:הסר|להסיר|מחק|למחוק).{0,30}(?:מקפים|מקף|קווים)/u.test(note);
-  const completeGemara = (targetRegion === "gemara" || targetRegion === "whole-page") && /(?:entire|complete|full|all(?: of)? the)\s+gemara|gemara.{0,35}(?:entire|complete|full|all|missing|unplaced)/u.test(note);
+  let reason = approvalFailures().length ? `Current hard failures: ${approvalFailures().join(", ")}.` : "The current hard rules pass.";
+  const tosafosNamed = stream === "tosafot";
+  const innerNamed = stream === "inner";
+  const completionNamed = /\b(?:complete|finishes?|finished|ends?|ended|done)\b|מסתיי/u.test(note);
+  const twoLines = /\b(?:two|2)\s+lines?\b/u.test(note);
+  const removeGemaraDashes = (stream === "gemara" || targetRegion === "whole-page") && /(?:remove|delete|strip|without|take out|eliminate)\b.{0,45}\b(?:dash(?:es)?|hyphen(?:s)?)\b|(?:dash(?:es)?|hyphen(?:s)?)\b.{0,45}\b(?:remove|delete|strip)|(?:הסר|להסיר|מחק|למחוק).{0,30}(?:מקפים|מקף|קווים)/u.test(note);
+  const completeGemara = (stream === "gemara" || targetRegion === "whole-page") && /(?:entire|complete|full|all(?: of)? the)\s+(?:gemara|gemorah)|(?:gemara|gemorah).{0,35}(?:entire|complete|full|all|missing|unplaced)/u.test(note);
+  const expansionRequested = stream === "gemara" && /(?:and\s+on|onward|onwards|from\s+(?:this|that|there)|following\s+lines?).{0,70}(?:fill|expand|widen|take\s*over|neighbor(?:ing)?\s+commentary)|(?:fill|expand|widen|take\s*over).{0,70}(?:commentary|rashi|rashbam|tosafos|tosafot)|(?:do\s+not|don't|needn't)\s+(?:need\s+to\s+)?be\s+aligned.{0,70}(?:commentary|region)/u.test(note);
+  const alignmentRequested = /\b(?:align|aligned|alignment|flush)\b|יישר|מיושר/u.test(note);
+  const rightNamed = /\bright(?:-aligned|\s+side|\s+edge)?\b|לימין|ימינה/u.test(note);
+  const leftNamed = /\bleft(?:-aligned|\s+side|\s+edge)?\b|לשמאל|שמאלה/u.test(note);
+  const justifyNamed = /\b(?:justify|justified|full\s+width)\b/u.test(note);
 
-  if (removeGemaraDashes) {
+  if (expansionRequested) {
+    if (!lineNumber) {
+      summary = "I understand that the Gemara should widen into a completed commentary region.";
+      reason = "Specify the first Gemara line that may use the released commentary space, for example: “From Gemara line 34 onward, widen into the neighboring commentary region.”";
+    } else {
+      changes.gemaraExpansionLine = lineNumber;
+      summary = `From Gemara line ${lineNumber} onward, allow Gemara to fill the released neighboring commentary region.`;
+      reason = "Earlier Gemara lines remain in the original Gemara measure. The source text and line order remain unchanged, and the transition is revalidated.";
+    }
+  } else if (alignmentRequested) {
+    if (stream !== "gemara") {
+      summary = "I understand this as a text-alignment correction.";
+      reason = "Name the stream to align—Gemara, Rashi/Rashbam, or Tosafos—so the agent changes only the intended region.";
+    } else if (!rightNamed && !leftNamed && !justifyNamed) {
+      summary = "I understand that the Gemara alignment is wrong.";
+      reason = "Specify right, left, or justified alignment.";
+    } else {
+      const alignment = rightNamed ? "right" : leftNamed ? "left" : "justify";
+      changes.gemaraAlignment = alignment;
+      if (lineNumber) changes.gemaraAlignmentLine = lineNumber;
+      summary = lineNumber ? `Align Gemara line ${lineNumber} to the ${alignment}.` : `Align the incomplete Gemara line to the ${alignment}.`;
+      reason = "Full lines keep their Vilna justification. This changes only the requested partial-line alignment and preserves the Hebrew source.";
+    }
+  } else if (removeGemaraDashes) {
     changes.stripGemaraDashes = true;
     summary = "Remove dashes from the displayed Gemara text.";
     reason = "This is a reversible display transformation, including on protected reference pages. The stored Hebrew source remains unchanged, and the daf will be recomposed and revalidated before approval.";
@@ -160,35 +203,46 @@ function localAgentReview(body) {
     reason = approvalFailures().length ? `Approval is still blocked by: ${approvalFailures().join(", ")}.` : "The remaining hard rules pass; review the page before teacher approval.";
   } else if (completeGemara && diagnostics.unplacedCounts?.gemara) {
     const currentHeight = Number(diagnostics.settings?.pageHeight || 1030);
+    const missing = Number(diagnostics.unplacedCounts.gemara || 0);
     if (currentHeight < 1300) {
-      changes.pageHeight = Math.min(1300, currentHeight + 48);
-      summary = `Make more room for the ${diagnostics.unplacedCounts.gemara} unplaced Gemara tokens and recompose.`;
-      reason = "The new completion search will measure every text stream again. Approval stays blocked until the whole source fits and all layout rules pass.";
+      changes.pageHeight = Math.min(1300, currentHeight + Math.max(48, Math.ceil(missing / 18) * 24));
+      summary = `Run a bounded completion search for the ${missing} unplaced Gemara tokens.`;
+      reason = "The page will recompose at a larger measured height. Approval remains blocked until every Gemara token is placed and all layout rules pass.";
     } else {
       summary = "The Gemara is still incomplete at the allowed page height.";
-      reason = "This draft remains blocked; a further source-preserving layout change is needed.";
+      reason = "The draft remains blocked. The next correction must change a measured layout boundary or type scale without deleting source text.";
     }
   } else if (completionNamed && (tosafosNamed || innerNamed)) {
     changes.forceCascade = true;
     changes.preferredSurvivor = tosafosNamed ? "tosafot" : "inner";
     changes.continuationLines = twoLines ? 2 : 3;
     summary = `Use a completion-driven ${tosafosNamed ? "Tosafos" : "inner-commentary"} takeover.`;
-    reason = `${changes.continuationLines} narrow continuation lines will remain after Gemara completes, followed by a full-width ${tosafosNamed ? "Tosafos" : "inner-commentary"} region beneath the Gemara gutter.`;
+    reason = `${changes.continuationLines} narrow continuation lines will remain after Gemara completes, followed by a full-width ${tosafosNamed ? "Tosafos" : "inner-commentary"} region.`;
+  } else if (/\b(?:increase|enlarge|larger|bigger)\b.{0,35}\b(?:gemara|gemorah)\b|\b(?:gemara|gemorah)\b.{0,35}\b(?:increase|enlarge|larger|bigger)\b/u.test(note)) {
+    changes.gemaraScale = Math.min(1.18, Number(diagnostics.settings?.gemaraScale || 1) + .02);
+    summary = "Increase the Gemara type slightly and recompose.";
+    reason = "The compositor will remeasure all streams and keep approval blocked if any text overflows.";
+  } else if (/\b(?:decrease|reduce|smaller|shrink)\b.{0,35}\b(?:gemara|gemorah)\b|\b(?:gemara|gemorah)\b.{0,35}\b(?:decrease|reduce|smaller|shrink)\b/u.test(note)) {
+    changes.gemaraScale = Math.max(.78, Number(diagnostics.settings?.gemaraScale || 1) - .02);
+    summary = "Reduce the Gemara type slightly and recompose.";
+    reason = "The compositor will remeasure all streams and preserve every source token.";
   } else if (note) {
-    summary = "I cannot apply that comment automatically.";
-    reason = "No page change was proposed. Please give a more specific layout instruction or make the text edit in Edit mode.";
+    summary = "I understood the selected region, but not the requested operation.";
+    if (/\bline\b|שורה/u.test(note) && !lineNumber) reason = "Include the Gemara line number and say whether that line begins a takeover, or should align right or left.";
+    else reason = "Describe one bounded change: align a partial line, widen from a numbered line, complete a named text stream, remove display punctuation, or identify which commentary finishes and which stream continues.";
   } else if (targetRegion === "gemara") {
-    changes.gemaraScale = Math.max(.78, Math.min(1.18, Number(diagnostics.settings?.gemaraScale || 1) * .98));
-    summary = "Rebalance the Gemara region and rerun every hard check.";
+    summary = "The Gemara region is selected, but no correction was supplied.";
+    reason = "State the visible problem—for example, “Align the incomplete Gemara line right” or “From Gemara line 34 onward, widen into the neighboring commentary region.”";
   } else if (["inner-commentary", "tosafos"].includes(targetRegion)) {
-    changes.commentaryScale = Math.max(.72, Math.min(1.18, Number(diagnostics.settings?.commentaryScale || 1) * .98));
-    summary = "Rebalance the selected commentary region and rerun every hard check.";
+    summary = "The commentary region is selected, but no correction was supplied.";
+    reason = "State whether its text ends here, continues, is missing, or should release space to a neighboring stream.";
   } else if (approvalFailures().includes("text overflow")) {
     changes.pageHeight = Math.min(1300, Number(diagnostics.settings?.pageHeight || 1030) + 24);
     summary = "Increase the page length slightly to resolve measured overflow.";
+    reason = "All source and geometry checks will run again.";
   } else {
-    summary = "The offline agent needs a more specific completion or transition instruction.";
-    reason = "Name the stream that finishes, the stream that continues, and the number of narrow lines before it becomes full width.";
+    summary = "Describe the exact region, boundary, or line that is wrong.";
+    reason = "The agent will preserve source text and change only that bounded layout decision.";
   }
   return { summary, reason, targetRegion, changes, hardFailures: approvalFailures() };
 }
