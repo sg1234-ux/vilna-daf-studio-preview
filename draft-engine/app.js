@@ -1,4 +1,4 @@
-const BUILD_VERSION=61.9;window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION=61.10;window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -479,7 +479,7 @@ async function compose(){
     $("patternReport").textContent=pattern.name.replace("inner","Rashi/Rashbam");$("fillReport").textContent=final.failures.length?"Final test failed":"Mapped amud";$("rulesReport").textContent=final.failures.length?`Review: ${final.failures.join(", ")}`:"All mapped and region rules passed";
     setComposing(false);afterCompose();status(final.failures.length?`Mapped composition failed: ${final.failures.join(", ")}.`:`Mapped composition complete — exact lines, gutter box and cascading takeovers passed for ${state.ref}.`,final.failures.length>0);return final;
   }
-  const w=weightsFor(tokens),patterns=candidates(w),globalScales=[1],openingCandidates=state.agentSettings.openingLines?[state.agentSettings.openingLines]:[4],total=patterns.length*globalScales.length*openingCandidates.length;
+  const w=weightsFor(tokens),patterns=candidates(w),globalScales=[1],openingCandidates=state.agentSettings.openingLines?[state.agentSettings.openingLines]:[SOLVER_REGRESSION_MODE&&knownReferenceProfile()?.layout?.openingLines?knownReferenceProfile().layout.openingLines:4],total=patterns.length*globalScales.length*openingCandidates.length;
   $("bodyGeometry").style.visibility="hidden";
   let best=null,bestPassing=null,bestSource=null,done=0;const familyBest=new Map,coarseResults=[];
   const consider=r=>{if(!best||r.score<best.score)best=r;if(betterSourceCandidate(r,bestSource))bestSource=r;if(candidatePasses(r)&&(!bestPassing||r.score<bestPassing.score))bestPassing=r;};
