@@ -55,7 +55,7 @@ function renderDiagnostics() {
   const geometry = diagnostics?.geometry;
   $("fitValue").textContent = diagnostics ? (missing.gemara ? `${missing.gemara} Gemara tokens unplaced` : diagnostics.textOverflow ? "Overflow detected" : "No measured overflow") : "—";
   $("occupancyValue").textContent = geometry ? `${Math.round((geometry.minOccupancy || 0) * 100)}% minimum · ${Math.round((1 - (geometry.blankRatio || 0)) * 100)}% filled` : "—";
-  $("transitionValue").textContent = geometry ? `${Math.round((geometry.transitionGap || 0) * 100)}% gap` : "—";
+  $("transitionValue").textContent = geometry ? (Number.isFinite(geometry.transitionGapLines) ? `${geometry.transitionGapLines.toFixed(1)} line maximum` : `${Math.round((geometry.transitionGap || 0) * 100)}% gap`) : "—";
   $("bandsValue").textContent = geometry?.bands?.length ? geometry.bands.map(band => band.streams.join(" + ")).join(" → ") : "—";
   const failures = approvalFailures();
   $("failureList").classList.toggle("pass", diagnostics && failures.length === 0);
