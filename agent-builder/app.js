@@ -167,6 +167,29 @@ function teacherStreamLabel(stream) {
   return stream === "gemara" ? "Gemara" : stream === "inner" ? "Rashi/Rashbam" : stream === "tosafot" ? "Tosafos" : "text";
 }
 
+function namedStreamNear(note, names, verbs) {
+  for (const [stream, pattern] of names) {
+    if (new RegExp(`(?:${pattern}).{0,28}(?:${verbs})|(?:${verbs}).{0,28}(?:${pattern})`, "iu").test(note)) return stream;
+  }
+  return null;
+}
+
+function teacherCompletedStream(note) {
+  return namedStreamNear(note, [["gemara","gemara|gemorah|גמרא"],["inner","rashi|rashbam|inner commentary|רש[״\"']?י|רשב״?ם"],["tosafot","tosafos|tosafot|תוספ(?:ות)?"]], "ends?|ended|finishes?|finished|completes?|completed|is done|מסתיי(?:ם|מת)");
+}
+
+function teacherContinuingStream(note) {
+  return namedStreamNear(note, [["gemara","gemara|gemorah|גמרא"],["inner","rashi|rashbam|inner commentary|רש[״\"']?י|רשב״?ם"],["tosafot","tosafos|tosafot|תוספ(?:ות)?"]], "continues?|continued|remains?|survives?|widens?|expands?|takes? over|full width|ממשיך");
+}
+
+function teacherContinuationLines(note) {
+  const numeric = note.match(/\b(\d{1,2})\s+(?:narrow\s+)?lines?\b/u);
+  if (numeric) return Math.max(1, Math.min(12, Number(numeric[1])));
+  const words = { one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10, eleven:11, twelve:12 };
+  const named = note.match(/\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+(?:narrow\s+)?lines?\b/u);
+  return named ? words[named[1]] : null;
+}
+
 function localAgentReview(body) {
   const rawNote = String(body.feedback?.note || "").trim();
   const note = rawNote.toLowerCase().replace(/[“”]/g, '"').replace(/[’]/g, "'");
@@ -180,7 +203,9 @@ function localAgentReview(body) {
   const tosafosNamed = stream === "tosafot";
   const innerNamed = stream === "inner";
   const completionNamed = /\b(?:complete|finishes?|finished|ends?|ended|done)\b|מסתיי/u.test(note);
-  const twoLines = /\b(?:two|2)\s+lines?\b/u.test(note);
+  const completedStream = teacherCompletedStream(note);
+  const continuingStream = teacherContinuingStream(note);
+  const continuationLineCount = teacherContinuationLines(note);
   const removeGemaraDashes = (stream === "gemara" || targetRegion === "whole-page") && /(?:remove|delete|strip|without|take out|eliminate)\b.{0,45}\b(?:dash(?:es)?|hyphen(?:s)?)\b|(?:dash(?:es)?|hyphen(?:s)?)\b.{0,45}\b(?:remove|delete|strip)|(?:הסר|להסיר|מחק|למחוק).{0,30}(?:מקפים|מקף|קווים)/u.test(note);
   const completeGemara = (stream === "gemara" || targetRegion === "whole-page") && /(?:entire|complete|full|all(?: of)? the)\s+(?:gemara|gemorah)|(?:gemara|gemorah).{0,35}(?:entire|complete|full|all|missing|unplaced)/u.test(note);
   const expansionRequested = stream === "gemara" && /(?:and\s+on|onward|onwards|from\s+(?:this|that|there)|following\s+lines?).{0,70}(?:fill|expand|widen|take\s*over|neighbor(?:ing)?\s+commentary)|(?:fill|expand|widen|take\s*over).{0,70}(?:commentary|rashi|rashbam|tosafos|tosafot)|(?:do\s+not|don't|needn't)\s+(?:need\s+to\s+)?be\s+aligned.{0,70}(?:commentary|region)/u.test(note);
@@ -253,12 +278,24 @@ function localAgentReview(body) {
       summary = "The Gemara is still incomplete at the allowed page height.";
       reason = "The draft remains blocked. The next correction must change a measured layout boundary or type scale without deleting source text.";
     }
-  } else if (completionNamed && (tosafosNamed || innerNamed)) {
-    changes.forceCascade = true;
-    changes.preferredSurvivor = tosafosNamed ? "tosafot" : "inner";
-    changes.continuationLines = twoLines ? 2 : 3;
-    summary = `Use a completion-driven ${tosafosNamed ? "Tosafos" : "inner-commentary"} takeover.`;
-    reason = `${changes.continuationLines} narrow continuation lines will remain after Gemara completes, followed by a full-width ${tosafosNamed ? "Tosafos" : "inner-commentary"} region.`;
+  } else if (completedStream || continuingStream || completionNamed) {
+    if (!completedStream) {
+      summary = "I understand that a text stream continues or takes over.";
+      reason = "Name the stream that finishes at this boundary.";
+    } else if (!continuingStream) {
+      summary = `${teacherStreamLabel(completedStream)} finishes at this boundary.`;
+      reason = "Name the stream that ultimately continues into the released space.";
+    } else if (completedStream === continuingStream) {
+      summary = "The same stream cannot both finish and continue.";
+      reason = "Name the completed stream and the different surviving stream.";
+    } else {
+      changes.forceCascade = true;
+      changes.completedStream = completedStream;
+      changes.preferredSurvivor = continuingStream;
+      changes.continuationLines = continuationLineCount || 2;
+      summary = `${teacherStreamLabel(completedStream)} finishes; ${teacherStreamLabel(continuingStream)} ultimately takes over.`;
+      reason = `The remaining streams keep ${changes.continuationLines} narrow continuation line${changes.continuationLines===1?"":"s"} before ${teacherStreamLabel(continuingStream)} becomes full width. Every source and geometry rule will be rechecked.`;
+    }
   } else if (/\b(?:increase|enlarge|larger|bigger)\b.{0,35}\b(?:gemara|gemorah)\b|\b(?:gemara|gemorah)\b.{0,35}\b(?:increase|enlarge|larger|bigger)\b/u.test(note)) {
     changes.gemaraScale = Math.min(1.18, Number(diagnostics.settings?.gemaraScale || 1) + .02);
     summary = "Increase the Gemara type slightly and recompose.";
