@@ -289,6 +289,16 @@ function mappedCascadePattern(profile){
 function candidates(w){
   const three=ordered(STREAMS),top=primaryWidths(w),commentaryPair=ordered(["inner","tosafot"]),guided=state.agentSettings.forceCascade&&["inner","tosafot"].includes(state.agentSettings.preferredSurvivor);
   if(guided){const survivor=state.agentSettings.preferredSurvivor,lines=state.agentSettings.continuationLines||2,leading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--commentary-leading"))||12.05;return stepped(28,82,3).map(upper=>({name:`teacher-guided ${survivor} takeover (${lines} narrow lines)`,cascade:true,guided:true,bands:[{height:upper,streams:three,widths:top},{height:0,pixelHeight:lines*leading,streams:commentaryPair,widths:[50,50]},{height:100-upper,streams:[survivor],widths:[100]}]}));}
+  const expansionLine=Number(state.agentSettings.gemaraExpansionLine);
+  if(Number.isInteger(expansionLine)){
+    const bodyHeight=Math.max(1,$("bodyGeometry").clientHeight),gemaraLeading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--gemara-leading"))||16.35,gutter=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--daf-gutter"))||25,upper=clamp((gutter+Math.max(0,expansionLine-1)*gemaraLeading)/bodyHeight*100,10,90),guidedPatterns=[];
+    for(const omitted of ["inner","tosafot"]){
+      const pair=ordered(STREAMS.filter(stream=>stream!==omitted)),pairWidth=pairWidths(pair,w);
+      guidedPatterns.push({name:`teacher-guided Gemara expansion from line ${expansionLine} after ${omitted}`,cascade:true,guided:true,bands:[{height:upper,streams:three,widths:top},{height:100-upper,streams:pair,widths:pairWidth}]});
+      for(const middle of stepped(8,Math.max(8,Math.min(46,88-upper)),6))if(upper+middle<95)for(const survivor of pair)guidedPatterns.push({name:`teacher-guided Gemara expansion line ${expansionLine}; ${survivor} survives`,cascade:true,guided:true,bands:[{height:upper,streams:three,widths:top},{height:middle,streams:pair,widths:pairWidth},{height:100-upper-middle,streams:[survivor],widths:[100]}]});
+    }
+    return guidedPatterns;
+  }
   const out=[{name:"continuous three-column",bands:[{height:100,streams:three,widths:top}]}];
   for(const cut of stepped(32,86,12))for(const owner of STREAMS)out.push({name:`${owner} lower continuation`,bands:[{height:cut,streams:three,widths:top},{height:100-cut,streams:[owner],widths:[100]}]});
   for(const cut of stepped(28,82,12))for(const omitted of STREAMS){const lower=ordered(STREAMS.filter(s=>s!==omitted));out.push({name:`${lower.join(" + ")} lower band`,bands:[{height:cut,streams:three,widths:top},{height:100-cut,streams:lower,widths:pairWidths(lower,w)}]});}
@@ -700,7 +710,11 @@ function applyAgentRenderingRules(){
     if(mappedLines.length){
       const requested=Number(settings.gemaraAlignmentLine),targets=Number.isInteger(requested)?mappedLines.filter(line=>Number(line.dataset.gemaraLine)===requested):[mappedLines.at(-1)].filter(Boolean);
       targets.forEach(line=>{line.style.textAlign=alignment;line.style.textAlignLast=alignment;});
-    }else regions.forEach(region=>region.style.textAlignLast=alignment);
+    }else{
+      const visual=gemaraVisualLines(),requested=Number(settings.gemaraAlignmentLine),target=Number.isInteger(requested)?visual[requested-1]:visual.at(-1);
+      if(target?.region)target.region.style.textAlignLast=alignment;
+      else regions.at(-1)?.style.setProperty("text-align-last",alignment);
+    }
   }
 }
 function afterCompose(){activateWordNavigation();updateDisplayToggles();requestAnimationFrame(()=>{applyAgentRenderingRules();applyPageZoom();syncAnnotationCanvas();renderGemaraLineNumbers();postAgentDiagnostics();});updateNoteWindow();}
