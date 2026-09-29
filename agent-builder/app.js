@@ -215,8 +215,18 @@ function localAgentReview(body) {
   const rightNamed = /\bright(?:-aligned|\s+side|\s+edge)?\b|לימין|ימינה/u.test(note);
   const leftNamed = /\bleft(?:-aligned|\s+side|\s+edge)?\b|לשמאל|שמאלה/u.test(note);
   const justifyNamed = /\b(?:justify|justified|full\s+width)\b/u.test(note);
+  const horizontalGutterRequested = /\b(?:horizontal\s+(?:gutter|gap|break|strip|seam)|page-wide\s+(?:gutter|gap|break)|white\s+strip)\b|\bbifurcat(?:e|es|ed|ing)\b|\b(?:gutter|gap|break)\b.{0,70}\b(?:cuts?\s+through|splits?|separates?)\b/u.test(note);
+  const gutterStreams = [
+    ...(/\b(?:rashi|rashbam|inner commentary)\b|רש[״"']?י|רשב/u.test(note) ? ["inner"] : []),
+    ...(/\b(?:tosafos|tosafot)\b|תוספ/u.test(note) ? ["tosafot"] : [])
+  ];
 
-  if (lineAnchor.requested) {
+  if (horizontalGutterRequested) {
+    changes.enforceCommentaryContinuity = true;
+    const named = gutterStreams.length ? gutterStreams.map(teacherStreamLabel).join(" and ") : "Rashi/Rashbam and Tosafos";
+    summary = `Remove the horizontal gutter through ${named}.`;
+    reason = "The Gemara top or bottom wall will remain inside the Gemara column only. Commentary text will continue through the same vertical space without a page-wide bridge row or an artificial break inside Tosafos.";
+  } else if (lineAnchor.requested) {
     if (!stream) {
       summary = "I understand that you are defining a line by its opening and closing text.";
       reason = "Name the stream: Gemara, Rashi/Rashbam, or Tosafos.";
@@ -309,7 +319,7 @@ function localAgentReview(body) {
   } else if (note) {
     summary = "I understood the selected region, but not the requested operation.";
     if (/\bline\b|שורה/u.test(note) && !lineNumber) reason = "Include the Gemara line number and say whether that line begins a takeover, or should align right or left.";
-    else reason = "Describe one bounded change: align a partial line, widen from a numbered line, complete a named text stream, remove display punctuation, or identify which commentary finishes and which stream continues.";
+    else reason = "Describe one bounded change: remove a horizontal gutter, align a partial line, widen from a numbered line, complete a named text stream, remove display punctuation, or identify which commentary finishes and which stream continues.";
   } else if (targetRegion === "gemara") {
     summary = "The Gemara region is selected, but no correction was supplied.";
     reason = "State the visible problem—for example, “Align the incomplete Gemara line right” or “From Gemara line 34 onward, widen into the neighboring commentary region.”";
