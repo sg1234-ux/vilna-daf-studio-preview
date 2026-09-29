@@ -1,4 +1,5 @@
-const BUILD_VERSION=60;window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION=61;window.VILNA_DAF_BUILD=BUILD_VERSION;
+const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
 rashiHtml:`<strong>סמוך למנחה.</strong> מעט קודם למנחה: <strong>לא יאכל.</strong> כדי שיאכל מצה של מצוה לתיאבון משום הידור מצוה: <strong>ואפילו עני שבישראל.</strong> לא יאכל עד שיסב כדרך בני חורין זכר לחירות במטה ועל השלחן: <strong>ארבע כוסות.</strong> כנגד ארבעה לשוני גאולה האמורים בגלות מצרים והוצאתי והצלתי וגאלתי ולקחתי:`,
@@ -183,7 +184,7 @@ const PHRASE_PROFILES={
     "תיקו"
   ]
 };
-function referenceProfile(ref=state.ref){return state.isSample?null:REFERENCE_PROFILES[ref.trim().toLowerCase()]||null;}
+function referenceProfile(ref=state.ref){return state.isSample||SOLVER_REGRESSION_MODE?null:REFERENCE_PROFILES[ref.trim().toLowerCase()]||null;}
 function phraseProfile(ref=state.ref){return PHRASE_PROFILES[ref.trim().toLowerCase()]||null;}
 function profileOpeningSourceLines(profile,stream){if(stream==="gemara")return 0;return profile.layout.openingLines-(profile.notice?.stream===stream?(profile.notice.lines||0):0);}
 function profileStages(profile){
@@ -320,6 +321,46 @@ function mappedCascadePattern(profile){
   const boxWalls=profile.layout.boxWalls!==false,stages=profileStages(profile),bands=stages.map((stage,index)=>{const lineHeight=stream=>stream==="gemara"?gemaraLeading:commentaryLeading,extra=stream=>index===0?(profile.layout.extraLineHeights?.[stream]||0):0,contentHeight=Math.max(...stage.streams.map(stream=>((stage.counts[stream]||0)+extra(stream))*lineHeight(stream))),wallHeight=index===0&&boxWalls&&stage.streams.includes("gemara")?gutter*2:0;return{height:0,...(index<stages.length-1?{pixelHeight:contentHeight+wallHeight}:{}),streams:stage.streams,widths:stage.widths,counts:stage.counts};});
   return{name:"PDF-mapped verified stage layout",cascade:true,mapped:true,boxWalls,bands};
 }
+function hasExplicitLayoutGuidance(){
+  return Boolean(state.agentSettings.forceCascade)||Number.isInteger(Number(state.agentSettings.gemaraExpansionLine));
+}
+function completionEventPatterns(w){
+  const three=ordered(STREAMS),top=primaryWidths(w),out=[
+    {name:"completion solver: all streams continue",eventDriven:true,completionOrder:[],bands:[{height:100,streams:three,widths:top}]}
+  ];
+  for(const firstToFinish of STREAMS){
+    const pair=ordered(STREAMS.filter(stream=>stream!==firstToFinish)),pairWidth=pairWidths(pair,w);
+    out.push({name:`completion solver: ${firstToFinish} completes; pair finishes together`,cascade:true,eventDriven:true,completionOrder:[firstToFinish],bands:[
+      {height:50,streams:three,widths:top},
+      {height:50,streams:pair,widths:pairWidth}
+    ]});
+    for(const survivor of pair){
+      const secondToFinish=pair.find(stream=>stream!==survivor);
+      out.push({name:`completion solver: ${firstToFinish}, then ${secondToFinish}; ${survivor} survives`,cascade:true,eventDriven:true,completionOrder:[firstToFinish,secondToFinish,survivor],bands:[
+        {height:40,streams:three,widths:top},
+        {height:30,streams:pair,widths:pairWidth},
+        {height:30,streams:[survivor],widths:[100]}
+      ]});
+    }
+  }
+  return out;
+}
+function auditCompletionEventPatterns(patterns){
+  const failures=[],orders=new Set;
+  for(const pattern of patterns){
+    if(!pattern.eventDriven)continue;
+    for(let index=1;index<pattern.bands.length;index++){
+      const previous=new Set(pattern.bands[index-1].streams),next=new Set(pattern.bands[index].streams);
+      if(next.size>=previous.size||[...next].some(stream=>!previous.has(stream)))failures.push(`${pattern.name}: invalid completion transition`);
+    }
+    if(pattern.completionOrder?.length===3)orders.add(pattern.completionOrder.join(">"));
+  }
+  for(const first of STREAMS)for(const second of STREAMS)if(second!==first){
+    const third=STREAMS.find(stream=>stream!==first&&stream!==second),key=[first,second,third].join(">");
+    if(!orders.has(key))failures.push(`missing completion order ${key}`);
+  }
+  return failures;
+}
 function candidates(w){
   const three=ordered(STREAMS),top=primaryWidths(w),guided=state.agentSettings.forceCascade&&STREAMS.includes(state.agentSettings.preferredSurvivor);
   if(guided){const completed=STREAMS.includes(state.agentSettings.completedStream)?state.agentSettings.completedStream:"gemara",pair=ordered(STREAMS.filter(stream=>stream!==completed)),survivor=state.agentSettings.preferredSurvivor,lines=state.agentSettings.continuationLines||2,leading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--commentary-leading"))||12.05;if(!pair.includes(survivor))return[];return stepped(28,82,3).map(upper=>({name:`teacher-guided ${completed} completes; ${survivor} takeover (${lines} narrow lines)`,cascade:true,guided:true,bands:[{height:upper,streams:three,widths:top},{height:0,pixelHeight:lines*leading,streams:pair,widths:pairWidths(pair,w)},{height:100-upper,streams:[survivor],widths:[100]}]}));}
@@ -333,20 +374,9 @@ function candidates(w){
     }
     return guidedPatterns;
   }
-  const out=[{name:"continuous three-column",bands:[{height:100,streams:three,widths:top}]}];
-  for(const cut of stepped(32,86,12))for(const owner of STREAMS)out.push({name:`${owner} lower continuation`,bands:[{height:cut,streams:three,widths:top},{height:100-cut,streams:[owner],widths:[100]}]});
-  for(const cut of stepped(28,82,12))for(const omitted of STREAMS){const lower=ordered(STREAMS.filter(s=>s!==omitted));out.push({name:`${lower.join(" + ")} lower band`,bands:[{height:cut,streams:three,widths:top},{height:100-cut,streams:lower,widths:pairWidths(lower,w)}]});}
-  // Every stream can finish first. The two survivors widen, and the last survivor takes the page.
-  // Earlier builds searched only for Gemara finishing first, so a long Gemara was clipped on 21b.
-  for(const upper of [28,40,52,64,76,88])for(const middle of [10,22,34,46])if(upper+middle<94)for(const firstToFinish of STREAMS){
-    const pair=ordered(STREAMS.filter(stream=>stream!==firstToFinish));
-    for(const survivor of pair)out.push({name:`${firstToFinish} completes; ${survivor} survives`,cascade:true,bands:[
-      {height:upper,streams:three,widths:top},
-      {height:middle,streams:pair,widths:pairWidths(pair,w)},
-      {height:100-upper-middle,streams:[survivor],widths:[100]}
-    ]});
-  }
-  return out;
+  const patterns=completionEventPatterns(w),topologyFailures=auditCompletionEventPatterns(patterns);
+  if(topologyFailures.length)throw new Error(`Completion-event solver topology failed: ${topologyFailures.join(", ")}`);
+  return patterns;
 }
 function buildGeometry(pattern){
   const body=$("bodyGeometry"),regions={gemara:[],inner:[],tosafot:[]},totalHeight=body.clientHeight,leading=parseFloat(getComputedStyle($("topRight")).lineHeight)||12,heights=[];
@@ -376,18 +406,24 @@ function evaluate(pattern,scale,original,commit=false){setScale(scale);const rem
 function refinePatterns(pattern){if(pattern.bands.length<2)return[pattern];const refined=[];for(let firstDelta=-5;firstDelta<=5;firstDelta+=pattern.bands.length===2?1:2){if(pattern.bands.length===2){const first=pattern.bands[0].height+firstDelta;if(first>10&&first<90)refined.push({...pattern,bands:[{...pattern.bands[0],height:first},{...pattern.bands[1],height:100-first}]});continue;}for(let secondDelta=-5;secondDelta<=5;secondDelta+=2){const first=pattern.bands[0].height+firstDelta,second=pattern.bands[1].height+secondDelta,third=100-first-second;if(first>10&&second>8&&third>5)refined.push({...pattern,bands:[{...pattern.bands[0],height:first},{...pattern.bands[1],height:second},{...pattern.bands[2],height:third}]});}}return refined;}
 function fullStreamHeight(tokens,region){const probe=makeProbe(region);probe.innerHTML=renderedTokens(tokens,region);const height=probe.getBoundingClientRect().height;probe.remove();return height;}
 function alignedCompletionPattern(pattern,scale,original){
-  if(pattern.bands.length!==3)return null;
+  if(pattern.bands.length===1)return pattern;
+  if(pattern.bands.length<2||pattern.bands.length>3)return null;
   setScale(scale);
-  const remaining=flowOpening(original),regions=buildGeometry(pattern),first=pattern.bands[0].streams.find(stream=>!pattern.bands[1].streams.includes(stream)),second=pattern.bands[1].streams.find(stream=>!pattern.bands[2].streams.includes(stream));
-  if(!first||!second)return null;
-  const leading=parseFloat(getComputedStyle($("topRight")).lineHeight)||12,bodyHeight=$("bodyGeometry").clientHeight,bridge=first==="gemara"&&(parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--daf-gutter"))||25),snap=height=>Math.ceil((height+.5)/leading)*leading;
-  const firstHeight=snap(fullStreamHeight(remaining[first],regions[first][0]));
-  if(firstHeight+bridge>bodyHeight-2*leading)return null;
-  const firstAligned={...pattern,bands:[{...pattern.bands[0],pixelHeight:firstHeight+bridge},pattern.bands[1],pattern.bands[2]]};
+  const remaining=flowOpening(original),regions=buildGeometry(pattern),first=pattern.bands[0].streams.find(stream=>!pattern.bands[1].streams.includes(stream));
+  if(!first)return null;
+  const leading=parseFloat(getComputedStyle($("topRight")).lineHeight)||12,bodyHeight=$("bodyGeometry").clientHeight,bridge=first==="gemara"?(parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--daf-gutter"))||25):0,snap=height=>Math.ceil((height+.5)/leading)*leading;
+  const firstHeight=snap(fullStreamHeight(remaining[first],regions[first][0])),firstBoundary=firstHeight+bridge;
+  if(firstBoundary>bodyHeight-leading)return null;
+  const firstAligned={...pattern,bands:[{...pattern.bands[0],pixelHeight:firstBoundary},...pattern.bands.slice(1)]};
+  if(pattern.bands.length===2)return firstAligned;
+  const second=pattern.bands[1].streams.find(stream=>!pattern.bands[2].streams.includes(stream));
+  if(!second)return null;
   const measured=evaluate(firstAligned,scale,original),firstPlaced=measured.results[second].regionStates.find(item=>item.bandIndex===0)?.placedCount||0;
-  const secondRegion=$("bodyGeometry").querySelector(`[data-stream="${second}"][data-band="1"]`),secondHeight=snap(fullStreamHeight(remaining[second].slice(firstPlaced),secondRegion));
-  if(firstHeight+bridge+secondHeight>bodyHeight-leading)return null;
-  return{...pattern,bands:[{...pattern.bands[0],pixelHeight:firstHeight+bridge},{...pattern.bands[1],pixelHeight:secondHeight},pattern.bands[2]]};
+  const secondRegion=$("bodyGeometry").querySelector(`[data-stream="${second}"][data-band="1"]`);
+  if(!secondRegion)return null;
+  const secondHeight=snap(fullStreamHeight(remaining[second].slice(firstPlaced),secondRegion));
+  if(firstBoundary+secondHeight>bodyHeight-leading)return null;
+  return{...pattern,bands:[{...pattern.bands[0],pixelHeight:firstBoundary},{...pattern.bands[1],pixelHeight:secondHeight},pattern.bands[2]]};
 }
 function candidatePasses(result){return result.overflow===0&&!result.completionFailures.length&&result.transitionGap<=.035&&result.blankRatio<.075&&result.minOccupancy>.78;}
 function sourceRank(result){return [result.results.gemara.rest.length,result.sourceOverflow,result.score];}
@@ -445,36 +481,42 @@ async function compose(){
   $("bodyGeometry").style.visibility="hidden";
   let best=null,bestPassing=null,bestSource=null,done=0;const familyBest=new Map,coarseResults=[];
   const consider=r=>{if(!best||r.score<best.score)best=r;if(betterSourceCandidate(r,bestSource))bestSource=r;if(candidatePasses(r)&&(!bestPassing||r.score<bestPassing.score))bestPassing=r;};
-  for(const openingLines of openingCandidates)for(const scale of globalScales)for(const pattern of patterns){
-    $("dafPage").style.setProperty("--opening-lines",openingLines);const r=evaluate(pattern,scale,tokens),family=`${openingLines}:${pattern.name}`;r.openingLines=openingLines;
+  for(const openingLines of openingCandidates)for(const scale of globalScales)for(const seedPattern of patterns){
+    $("dafPage").style.setProperty("--opening-lines",openingLines);
+    const pattern=seedPattern.eventDriven?alignedCompletionPattern(seedPattern,scale,tokens):seedPattern;
+    if(!pattern){done++;continue;}
+    const r=evaluate(pattern,scale,tokens),family=`${openingLines}:${pattern.name}`;r.openingLines=openingLines;
     consider(r);coarseResults.push(r);
     if(!familyBest.has(family)||r.score<familyBest.get(family).score)familyBest.set(family,r);
-    done++;status(`Composition test ${Math.min(48,Math.round(done/total*48))}% — comparing takeover families…`);await nextPaint();
+    done++;status(`Composition test ${Math.min(48,Math.round(done/total*48))}% — measuring actual completion events…`);await nextPaint();
   }
-  const winners=[...familyBest.values()].sort((a,b)=>a.score-b.score),threeBandFamilies=winners.filter(r=>r.pattern.bands.length===3),shortlist=[];
-  for(const coarse of threeBandFamilies){
+  const winners=[...familyBest.values()].sort((a,b)=>a.score-b.score),legacyThreeBandFamilies=winners.filter(r=>!r.pattern.eventDriven&&r.pattern.bands.length===3),shortlist=[];
+  for(const coarse of legacyThreeBandFamilies){
     $("dafPage").style.setProperty("--opening-lines",coarse.openingLines);
     const aligned=alignedCompletionPattern(coarse.pattern,coarse.scale,tokens);
     if(!aligned)continue;
     const r=evaluate(aligned,coarse.scale,tokens);r.openingLines=coarse.openingLines;consider(r);
     await nextPaint();
   }
-  // Refine each completion order, even when a two-band draft has already placed all
-  // source: a stream can still end too early and require the final takeover band.
-  for(const r of[bestPassing,bestSource,best,...threeBandFamilies,...winners])if(r&&!shortlist.some(x=>x.pattern.name===r.pattern.name)&&shortlist.length<9)shortlist.push(r);
-  const fineJobs=bestPassing?[]:shortlist.flatMap(coarse=>refinePatterns(coarse.pattern).map(pattern=>({pattern,scale:coarse.scale,openingLines:coarse.openingLines})));
+  // Teacher-guided legacy shapes may still need local refinement. General pages use
+  // measured completion boundaries only; they are never converted back to percentage templates.
+  for(const r of[bestPassing,bestSource,best,...legacyThreeBandFamilies,...winners])if(r&&!shortlist.some(x=>x.pattern.name===r.pattern.name)&&shortlist.length<9)shortlist.push(r);
+  const fineJobs=bestPassing?[]:shortlist.filter(coarse=>!coarse.pattern.eventDriven).flatMap(coarse=>refinePatterns(coarse.pattern).map(pattern=>({pattern,scale:coarse.scale,openingLines:coarse.openingLines})));
   done=0;for(const job of fineJobs){
     $("dafPage").style.setProperty("--opening-lines",job.openingLines);const r=evaluate(job.pattern,job.scale,tokens);r.openingLines=job.openingLines;consider(r);
-    done++;status(`Composition test ${48+Math.min(30,Math.round(done/Math.max(1,fineJobs.length)*30))}% — refining takeover boundaries…`);await nextPaint();
+    done++;status(`Composition test ${48+Math.min(30,Math.round(done/Math.max(1,fineJobs.length)*30))}% — refining teacher constraints…`);await nextPaint();
   }
   if(!bestPassing&&!profile){
-    const recoveryFamilies=[...new Set(patterns.filter(p=>p.cascade).map(p=>p.name))],recoveryPatterns=recoveryFamilies.flatMap(name=>coarseResults.filter(r=>r.pattern.name===name).sort((a,b)=>{const x=sourceRank(a),y=sourceRank(b);for(let i=0;i<x.length;i++)if(x[i]!==y[i])return x[i]-y[i];return 0;}).slice(0,4).map(r=>r.pattern)),recoveryOpenings=state.agentSettings.openingLines?[state.agentSettings.openingLines]:[4,5,3],recoveryScales=[
+    const recoveryPatterns=patterns.filter(pattern=>pattern.cascade),recoveryOpenings=state.agentSettings.openingLines?[state.agentSettings.openingLines]:[4,5,3],recoveryScales=[
       {gemara:1.06,commentary:.92},{gemara:1.04,commentary:.90}
     ],recoveryTotal=recoveryPatterns.length*recoveryScales.length*recoveryOpenings.length;
     let recoveryBest=null;done=0;
-    for(const openingLines of recoveryOpenings)for(const scale of recoveryScales)for(const pattern of recoveryPatterns){
-      $("dafPage").style.setProperty("--opening-lines",openingLines);const r=evaluate(pattern,scale,tokens);r.openingLines=openingLines;if(!recoveryBest||r.score<recoveryBest.score)recoveryBest=r;consider(r);
-      done++;status(`Composition test ${78+Math.min(21,Math.round(done/Math.max(1,recoveryTotal)*21))}% — balancing Gemara against commentary…`);await nextPaint();
+    for(const openingLines of recoveryOpenings)for(const scale of recoveryScales)for(const seedPattern of recoveryPatterns){
+      $("dafPage").style.setProperty("--opening-lines",openingLines);
+      const pattern=seedPattern.eventDriven?alignedCompletionPattern(seedPattern,scale,tokens):seedPattern;
+      if(!pattern){done++;continue;}
+      const r=evaluate(pattern,scale,tokens);r.openingLines=openingLines;if(!recoveryBest||r.score<recoveryBest.score)recoveryBest=r;consider(r);
+      done++;status(`Composition test ${78+Math.min(21,Math.round(done/Math.max(1,recoveryTotal)*21))}% — remeasuring completion events at recovery scale…`);await nextPaint();
     }
     if(!bestPassing&&recoveryBest)best=recoveryBest;
   }
@@ -713,7 +755,7 @@ function wordCount(html){return htmlToPlain(html||"").trim().split(/\s+/u).filte
 function postAgentDiagnostics(extraFailures=[]){
   if(window.parent===window)return;
   const final=state.composition,diagnostics={
-    ref:state.ref, patternName:final?.pattern?.name||"not composed",
+    ref:state.ref, patternName:final?.pattern?.name||"not composed", solverMode:final?.pattern?.eventDriven?"completion-event":referenceProfile()?"protected-map":"guided", regressionMode:SOLVER_REGRESSION_MODE,
     failures:[...new Set([...(final?.failures||[]),...extraFailures])],
     textOverflow:Boolean(final?.overflow), rashbamPresent:Boolean(state.rashbamHtml),
     headingMode:state.rashbamHeadingMode, settings:{...state.agentSettings},
