@@ -249,6 +249,12 @@ input[type="color"] { width: 100%; height: 34px; padding: 2px; border: 1px solid
 .daf-page:not(.edit-mode) .flow-region,
 .daf-page:not(.edit-mode) .top-commentary { caret-color: transparent; }
 .geometry-band:first-child .gemara { padding-top: var(--daf-gutter); }
+/* A Gemara wall belongs only to the Gemara box. Commentary beside it remains
+   one uninterrupted region; never create a page-wide bridge row. */
+.body-geometry.general-gemara-box .geometry-band:first-child .gemara { padding-bottom: var(--daf-gutter); }
+.body-geometry.strict-commentary-continuity .commentary,
+.body-geometry.strict-commentary-continuity .geometry-band { margin-block: 0; border-block: 0; }
+
 .body-geometry.mapped-geometry .geometry-band:first-child .gemara { padding-bottom: var(--daf-gutter); }
 .body-geometry.mapped-no-box-walls .geometry-band:first-child .gemara { padding-top: 0; padding-bottom: 0; }
 .gemara-bottom-bridge .gemara-clearance { grid-column: auto; }
