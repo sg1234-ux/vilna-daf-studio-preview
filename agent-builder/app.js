@@ -150,12 +150,30 @@ function teacherCommandLine(note) {
   return match ? Number(match[1]) : null;
 }
 
+function teacherLineAnchor(rawNote, note, lineNumber) {
+  const requested = /\b(?:begins?|starts?)\s+with\b.{1,180}\bends?\s+with\b|(?:מתחיל|מתחילה).{1,180}(?:מסתיים|מסתיימת)/iu.test(note);
+  if (!requested) return { requested: false };
+  const quoted = [...rawNote.matchAll(/[“"]([^"”]+)[”"]/gu)].map(match => match[1].trim()).filter(Boolean);
+  let startText = quoted[0] || "", endText = quoted[1] || "";
+  if (!startText || !endText) {
+    const plain = rawNote.match(/(?:begins?|starts?)\s+with\s+(.+?)\s+(?:and\s+)?ends?\s+with\s+(.+?)(?:[.!]|$)/iu);
+    if (plain) { startText = plain[1].replace(/^[“"]|[”"]$/g, "").trim(); endText = plain[2].replace(/^[“"]|[”"]$/g, "").trim(); }
+  }
+  const firstLine = /\bfirst\s+(?:gemara\s+|rashi\s+|rashbam\s+|tosafos\s+|tosafot\s+)?line\b/u.test(note);
+  return { requested: true, line: lineNumber || (firstLine ? 1 : null), startText, endText };
+}
+
+function teacherStreamLabel(stream) {
+  return stream === "gemara" ? "Gemara" : stream === "inner" ? "Rashi/Rashbam" : stream === "tosafot" ? "Tosafos" : "text";
+}
+
 function localAgentReview(body) {
   const rawNote = String(body.feedback?.note || "").trim();
   const note = rawNote.toLowerCase().replace(/[“”]/g, '"').replace(/[’]/g, "'");
   const targetRegion = body.feedback?.targetRegion || "whole-page";
   const stream = teacherCommandStream(note, targetRegion);
   const lineNumber = teacherCommandLine(note);
+  const lineAnchor = teacherLineAnchor(rawNote, note, lineNumber);
   const changes = {};
   let summary = `Offline agent reviewed the ${targetRegion} region.`;
   let reason = approvalFailures().length ? `Current hard failures: ${approvalFailures().join(", ")}.` : "The current hard rules pass.";
@@ -171,7 +189,25 @@ function localAgentReview(body) {
   const leftNamed = /\bleft(?:-aligned|\s+side|\s+edge)?\b|לשמאל|שמאלה/u.test(note);
   const justifyNamed = /\b(?:justify|justified|full\s+width)\b/u.test(note);
 
-  if (expansionRequested) {
+  if (lineAnchor.requested) {
+    if (!stream) {
+      summary = "I understand that you are defining a line by its opening and closing text.";
+      reason = "Name the stream: Gemara, Rashi/Rashbam, or Tosafos.";
+    } else if (!lineAnchor.line) {
+      summary = `I understand the ${teacherStreamLabel(stream)} line anchor.`;
+      reason = "Include the visual line number, or say “first line.”";
+    } else if (!lineAnchor.startText || !lineAnchor.endText) {
+      summary = `I understand that you are defining ${teacherStreamLabel(stream)} line ${lineAnchor.line}.`;
+      reason = "Put the opening and closing phrase in quotation marks so repeated words can be matched safely.";
+    } else {
+      const current = Array.isArray(diagnostics.settings?.lineAnchors) ? diagnostics.settings.lineAnchors : [];
+      const next = current.filter(item => !(item.stream === stream && Number(item.line) === lineAnchor.line));
+      next.push({ stream, line: lineAnchor.line, startText: lineAnchor.startText, endText: lineAnchor.endText });
+      changes.lineAnchors = next.sort((x, y) => x.stream.localeCompare(y.stream) || x.line - y.line);
+      summary = `Anchor ${teacherStreamLabel(stream)} line ${lineAnchor.line} from “${lineAnchor.startText}” through “${lineAnchor.endText}.”`;
+      reason = "The compositor will verify a unique ordered source match, preserve every word, and use the anchored line as a measured page constraint.";
+    }
+  } else if (expansionRequested) {
     if (!lineNumber) {
       summary = "I understand that the Gemara should widen into a completed commentary region.";
       reason = "Specify the first Gemara line that may use the released commentary space, for example: “From Gemara line 34 onward, widen into the neighboring commentary region.”";
@@ -181,18 +217,23 @@ function localAgentReview(body) {
       reason = "Earlier Gemara lines remain in the original Gemara measure. The source text and line order remain unchanged, and the transition is revalidated.";
     }
   } else if (alignmentRequested) {
-    if (stream !== "gemara") {
+    if (!stream) {
       summary = "I understand this as a text-alignment correction.";
       reason = "Name the stream to align—Gemara, Rashi/Rashbam, or Tosafos—so the agent changes only the intended region.";
-    } else if (!rightNamed && !leftNamed && !justifyNamed) {
-      summary = "I understand that the Gemara alignment is wrong.";
-      reason = "Specify right, left, or justified alignment.";
+    } else if (!rightNamed && !leftNamed && !justifyNamed && !/\bcent(?:er|re|ered|red)\b/u.test(note)) {
+      summary = `I understand that the ${teacherStreamLabel(stream)} alignment is wrong.`;
+      reason = "Specify right, left, centered, or justified alignment.";
     } else {
-      const alignment = rightNamed ? "right" : leftNamed ? "left" : "justify";
-      changes.gemaraAlignment = alignment;
-      if (lineNumber) changes.gemaraAlignmentLine = lineNumber;
-      summary = lineNumber ? `Align Gemara line ${lineNumber} to the ${alignment}.` : `Align the incomplete Gemara line to the ${alignment}.`;
-      reason = "Full lines keep their Vilna justification. This changes only the requested partial-line alignment and preserves the Hebrew source.";
+      const centered = /\bcent(?:er|re|ered|red)\b/u.test(note), alignment = rightNamed ? "right" : leftNamed ? "left" : centered ? "center" : "justify";
+      if (stream === "gemara") {
+        changes.gemaraAlignment = alignment;
+        if (lineNumber) changes.gemaraAlignmentLine = lineNumber;
+      } else {
+        const current = diagnostics.settings?.streamAlignments && typeof diagnostics.settings.streamAlignments === "object" ? diagnostics.settings.streamAlignments : {};
+        changes.streamAlignments = { ...current, [stream]: { alignment, line: lineNumber || null } };
+      }
+      summary = lineNumber ? `Align ${teacherStreamLabel(stream)} line ${lineNumber} to the ${alignment}.` : `Align the incomplete ${teacherStreamLabel(stream)} line to the ${alignment}.`;
+      reason = "Full lines keep their Vilna justification. This changes only the requested partial-line alignment and preserves the source.";
     }
   } else if (removeGemaraDashes) {
     changes.stripGemaraDashes = true;
