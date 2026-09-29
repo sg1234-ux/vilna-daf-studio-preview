@@ -168,8 +168,10 @@ function teacherStreamLabel(stream) {
 }
 
 function namedStreamNear(note, names, verbs) {
-  for (const [stream, pattern] of names) {
-    if (new RegExp(`(?:${pattern}).{0,28}(?:${verbs})|(?:${verbs}).{0,28}(?:${pattern})`, "iu").test(note)) return stream;
+  const clauses=note.split(/\s*(?:[;,.!?]+|\band\b|\bthen\b)\s*/iu).filter(Boolean),verbPattern=new RegExp(`(?:${verbs})`,"iu");
+  for(const clause of clauses){
+    if(!verbPattern.test(clause))continue;
+    for(const [stream,pattern] of names)if(new RegExp(`(?:${pattern})`,"iu").test(clause))return stream;
   }
   return null;
 }
