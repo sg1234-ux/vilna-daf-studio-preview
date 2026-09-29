@@ -1,4 +1,4 @@
-const BUILD_VERSION=61.11;window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION=62;window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -383,11 +383,10 @@ function candidates(w){
 function buildGeometry(pattern){
   const body=$("bodyGeometry"),regions={gemara:[],inner:[],tosafot:[]},totalHeight=body.clientHeight,leading=parseFloat(getComputedStyle($("topRight")).lineHeight)||12,heights=[];
   let used=0;pattern.bands.forEach((band,i)=>{if(i===pattern.bands.length-1)heights.push(Math.max(0,totalHeight-used));else{const desired=Number.isFinite(band.pixelHeight)?band.pixelHeight:totalHeight*band.height/100,snapped=Number.isFinite(band.pixelHeight)?desired:Math.max(leading,Math.round(desired/leading)*leading);heights.push(snapped);used+=snapped;}});
-  const bridgeNeeded=!pattern.mapped&&pattern.bands.length>1&&pattern.bands[0].streams.includes("gemara")&&!pattern.bands[1].streams.includes("gemara")&&pattern.bands[1].streams.includes("inner")&&pattern.bands[1].streams.includes("tosafot"),bridgeHeight=bridgeNeeded?(parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--daf-gutter"))||25):0;
-  if(bridgeNeeded&&heights[0]>bridgeHeight+leading)heights[0]-=bridgeHeight;
-  body.innerHTML="";body.classList.toggle("mapped-geometry",Boolean(pattern.mapped));body.classList.toggle("mapped-no-box-walls",Boolean(pattern.mapped&&pattern.boxWalls===false));
+  const gemaraBox=!pattern.mapped&&pattern.bands.length>1&&pattern.bands[0].streams.includes("gemara")&&!pattern.bands[1].streams.includes("gemara")&&pattern.bands[1].streams.includes("inner")&&pattern.bands[1].streams.includes("tosafot");
+  body.innerHTML="";body.classList.toggle("mapped-geometry",Boolean(pattern.mapped));body.classList.toggle("mapped-no-box-walls",Boolean(pattern.mapped&&pattern.boxWalls===false));body.classList.toggle("general-gemara-box",gemaraBox);body.classList.toggle("strict-commentary-continuity",Boolean(state.agentSettings.enforceCommentaryContinuity));
   const addRegion=(row,stream,bandIndex)=>{const r=document.createElement("div"),profile=referenceProfile(),mapped=Boolean(profile?.maps?.[stream]?.lineEndTokens?.length);r.className=`flow-region ${stream==="gemara"?"gemara":"commentary"}${mapped?" reference-mapped":""}`;r.dataset.stream=stream;r.dataset.band=bandIndex;r.contentEditable=state.mode==="edit"?"true":"false";r.spellcheck=false;r.setAttribute("aria-label",`${stream} editable region`);row.appendChild(r);regions[stream].push(r);};
-  pattern.bands.forEach((band,i)=>{const row=document.createElement("div"),isPair=band.streams.length===2&&band.streams.includes("inner")&&band.streams.includes("tosafot");row.className=`geometry-band${isPair?" commentary-pair":""}`;row.style.flex=`0 0 ${heights[i]}px`;row.style.height=`${heights[i]}px`;row.style.gridTemplateColumns=band.widths.map(x=>`${x}fr`).join(" ");band.streams.forEach(stream=>addRegion(row,stream,i));body.appendChild(row);if(i===0&&bridgeNeeded){const bridge=document.createElement("div");bridge.className="geometry-band gemara-bottom-bridge";bridge.style.flex=`0 0 ${bridgeHeight}px`;bridge.style.height=`${bridgeHeight}px`;bridge.style.gridTemplateColumns=pattern.bands[0].widths.map(x=>`${x}fr`).join(" ");pattern.bands[0].streams.forEach(stream=>{if(stream==="gemara"){const blank=document.createElement("div");blank.className="gemara-clearance";bridge.appendChild(blank);}else addRegion(bridge,stream,0);});body.appendChild(bridge);}});return regions;
+  pattern.bands.forEach((band,i)=>{const row=document.createElement("div"),isPair=band.streams.length===2&&band.streams.includes("inner")&&band.streams.includes("tosafot");row.className=`geometry-band${isPair?" commentary-pair":""}`;row.style.flex=`0 0 ${heights[i]}px`;row.style.height=`${heights[i]}px`;row.style.gridTemplateColumns=band.widths.map(x=>`${x}fr`).join(" ");band.streams.forEach(stream=>addRegion(row,stream,i));body.appendChild(row);});return regions;
 }
 function setMappedLines(region,lines){region.innerHTML=mappedLinesHtml(lines);fitMappedLineWidths(region);}
 function composeMappedExact(tokens,profile){
@@ -413,8 +412,8 @@ function alignedCompletionPattern(pattern,scale,original){
   setScale(scale);
   const remaining=flowOpening(original),regions=buildGeometry(pattern),first=pattern.bands[0].streams.find(stream=>!pattern.bands[1].streams.includes(stream));
   if(!first)return null;
-  const leading=parseFloat(getComputedStyle($("topRight")).lineHeight)||12,bodyHeight=$("bodyGeometry").clientHeight,bridge=first==="gemara"?(parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--daf-gutter"))||25):0,snap=height=>Math.ceil((height+.5)/leading)*leading;
-  const firstHeight=snap(fullStreamHeight(remaining[first],regions[first][0])),firstBoundary=firstHeight+bridge;
+  const leading=parseFloat(getComputedStyle($("topRight")).lineHeight)||12,bodyHeight=$("bodyGeometry").clientHeight,snap=height=>Math.ceil((height+.5)/leading)*leading;
+  const firstHeight=snap(fullStreamHeight(remaining[first],regions[first][0])),firstBoundary=firstHeight;
   if(firstBoundary>bodyHeight-leading)return null;
   const firstAligned={...pattern,bands:[{...pattern.bands[0],pixelHeight:firstBoundary},...pattern.bands.slice(1)]};
   if(pattern.bands.length===2)return firstAligned;
@@ -847,7 +846,7 @@ $("saveProject").addEventListener("click",saveProject);$("openProject").addEvent
 function safeAgentSettings(value={}){
   const ranges={pageHeight:[900,1300],openingLines:[2,8],gemaraScale:[.78,1.18],commentaryScale:[.72,1.18],continuationLines:[1,12],gemaraAlignmentLine:[1,200],gemaraExpansionLine:[1,200]},clean={};
   for(const[key,[min,max]]of Object.entries(ranges)){const number=Number(value[key]);if(Number.isFinite(number)&&number>=min&&number<=max)clean[key]=["pageHeight","openingLines","continuationLines","gemaraAlignmentLine","gemaraExpansionLine"].includes(key)?Math.round(number):number;}
-  if(value.forceCascade===true)clean.forceCascade=true;if(value.stripGemaraDashes===true)clean.stripGemaraDashes=true;
+  if(value.forceCascade===true)clean.forceCascade=true;if(value.stripGemaraDashes===true)clean.stripGemaraDashes=true;if(value.enforceCommentaryContinuity===true)clean.enforceCommentaryContinuity=true;
   if(["gemara","inner","tosafot"].includes(value.preferredSurvivor))clean.preferredSurvivor=value.preferredSurvivor;
   if(["gemara","inner","tosafot"].includes(value.completedStream))clean.completedStream=value.completedStream;
   if(["right","left","center","justify","natural"].includes(value.gemaraAlignment))clean.gemaraAlignment=value.gemaraAlignment;
