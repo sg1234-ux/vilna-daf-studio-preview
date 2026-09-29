@@ -1,4 +1,4 @@
-const BUILD_VERSION=61.8;window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION=61.9;window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -317,7 +317,7 @@ function widths(streams,w,floor=18){const total=streams.reduce((s,x)=>s+w[x],0)|
 function clamp(value,min,max){return Math.max(min,Math.min(max,value));}
 function primaryWidths(){const order=ordered(STREAMS),map=state.agentPrimaryWidths||{gemara:2.5,inner:1.625,tosafot:1.625};return order.map(stream=>map[stream]);}
 function stepped(start,end,step){const values=[];for(let value=start;value<=end;value+=step)values.push(value);return values;}
-function pairWidths(streams,w){return streams.length===2&&streams.includes("inner")&&streams.includes("tosafot")?[50,50]:widths(streams,w,28);}
+function pairWidths(streams,w){if(streams.length===2&&streams.includes("inner")&&streams.includes("tosafot"))return[50,50];if(streams.length===2&&streams.includes("gemara"))return streams.map(stream=>stream==="gemara"?71.74:28.26);return widths(streams,w,28);}
 function mappedCascadePattern(profile){
   const gutter=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--daf-gutter"))||25,gemaraLeading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--gemara-leading"))||16.35,commentaryLeading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--commentary-leading"))||12.05;
   const boxWalls=profile.layout.boxWalls!==false,stages=profileStages(profile),bands=stages.map((stage,index)=>{const lineHeight=stream=>stream==="gemara"?gemaraLeading:commentaryLeading,extra=stream=>index===0?(profile.layout.extraLineHeights?.[stream]||0):0,wallHeight=index===0&&boxWalls&&stage.streams.includes("gemara")?gutter*2:0,contentHeight=Math.max(...stage.streams.map(stream=>((stage.counts[stream]||0)+extra(stream))*lineHeight(stream)+(stream==="gemara"?wallHeight:0)));return{height:0,...(index<stages.length-1?{pixelHeight:contentHeight}:{}),streams:stage.streams,widths:stage.widths,counts:stage.counts};});
