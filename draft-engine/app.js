@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.6";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.7";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -411,7 +411,7 @@ function buildGeometry(pattern){
   const body=$("bodyGeometry"),regions={gemara:[],inner:[],tosafot:[]},totalHeight=body.clientHeight,leading=parseFloat(getComputedStyle($("topRight")).lineHeight)||12,heights=[];
   let used=0;pattern.bands.forEach((band,i)=>{if(i===pattern.bands.length-1)heights.push(Math.max(0,totalHeight-used));else{const desired=Number.isFinite(band.pixelHeight)?band.pixelHeight:totalHeight*band.height/100,snapped=Number.isFinite(band.pixelHeight)?desired:Math.max(leading,Math.round(desired/leading)*leading);heights.push(snapped);used+=snapped;}});
   const gemaraBox=!pattern.mapped&&pattern.bands.length>1&&pattern.bands[0].streams.includes("gemara")&&!pattern.bands[1].streams.includes("gemara")&&pattern.bands[1].streams.includes("inner")&&pattern.bands[1].streams.includes("tosafot");
-  body.innerHTML="";body.classList.toggle("mapped-geometry",Boolean(pattern.mapped));body.classList.toggle("mapped-no-box-walls",Boolean(pattern.mapped&&pattern.boxWalls===false));body.classList.toggle("general-gemara-box",gemaraBox);body.classList.toggle("strict-commentary-continuity",Boolean(state.agentSettings.enforceCommentaryContinuity));
+  body.innerHTML="";body.classList.toggle("mapped-geometry",Boolean(pattern.mapped));body.classList.toggle("mapped-no-box-walls",Boolean(pattern.mapped&&pattern.boxWalls===false));body.classList.toggle("general-gemara-box",gemaraBox);body.classList.toggle("strict-stream-continuity",Boolean(state.agentSettings.enforceStreamContinuity||state.agentSettings.enforceCommentaryContinuity));
   const addRegion=(row,stream,bandIndex)=>{const r=document.createElement("div"),profile=referenceProfile(),mapped=Boolean(profile?.maps?.[stream]?.lineEndTokens?.length);r.className=`flow-region ${stream==="gemara"?"gemara":"commentary"}${mapped?" reference-mapped":""}`;r.dataset.stream=stream;r.dataset.band=bandIndex;r.contentEditable=state.mode==="edit"?"true":"false";r.spellcheck=false;r.setAttribute("aria-label",`${stream} editable region`);row.appendChild(r);regions[stream].push(r);};
   pattern.bands.forEach((band,i)=>{const row=document.createElement("div"),isPair=band.streams.length===2&&band.streams.includes("inner")&&band.streams.includes("tosafot");row.className=`geometry-band${isPair?" commentary-pair":""}`;row.style.flex=`0 0 ${heights[i]}px`;row.style.height=`${heights[i]}px`;row.style.gridTemplateColumns=band.widths.map(x=>`${x}fr`).join(" ");band.streams.forEach(stream=>addRegion(row,stream,i));body.appendChild(row);});return regions;
 }
@@ -430,9 +430,9 @@ function composeMappedExact(tokens,profile){
 function flowOpening(tokens,shapeLines=false){const right=isAleph(state.ref)?"inner":"tosafot",left=isAleph(state.ref)?"tosafot":"inner",rightEl=$("topRight"),leftEl=$("topLeft"),profile=referenceProfile(),openingLines=Math.round(parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--opening-lines"))||4);for(const[el,stream]of[[rightEl,right],[leftEl,left]]){el.dataset.stream=stream;el.classList.toggle("reference-mapped",Boolean(profile?.maps?.[stream]?.lineEndTokens?.length));}const rr=fitOpeningTokens(tokens[right],rightEl,openingLines),lr=fitOpeningTokens(tokens[left],leftEl,openingLines);rightEl.innerHTML=renderedTokens(rr.chunk,rightEl);leftEl.innerHTML=renderedTokens(lr.chunk,leftEl);fitMappedLineWidths(rightEl);fitMappedLineWidths(leftEl);if(shapeLines){finishRegionLine(rightEl,rr.rest.length>0);finishRegionLine(leftEl,lr.rest.length>0);}rightEl.contentEditable=state.mode==="edit"?"true":"false";leftEl.contentEditable=state.mode==="edit"?"true":"false";rightEl.spellcheck=false;leftEl.spellcheck=false;return{...tokens,[right]:rr.rest,[left]:lr.rest};}
 function lastStateForBand(result,bandIndex){return[...(result?.regionStates||[])].reverse().find(item=>item.bandIndex===bandIndex)||null;}
 function completionAudit(pattern,results){const failures=[];let maxCompletionSlack=0;for(let index=0;index<pattern.bands.length-1;index++){const current=new Set(pattern.bands[index].streams),next=new Set(pattern.bands[index+1].streams);for(const stream of next)if(!current.has(stream))failures.push(`${stream} reappears after completion`);for(const stream of current){const stateAtBoundary=lastStateForBand(results[stream],index);if(!stateAtBoundary){failures.push(`${stream} missing completion measurement`);continue;}const removed=!next.has(stream),hasRemaining=stateAtBoundary.afterCount>0;if(removed&&hasRemaining)failures.push(`${stream} removed before source completion`);if(!removed&&!hasRemaining)failures.push(`${stream} continues after source completion`);if(removed&&!hasRemaining){const slack=Math.max(0,stateAtBoundary.regionHeight-stateAtBoundary.usedHeight),limit=Math.max(2,stateAtBoundary.lineHeight*1.15);maxCompletionSlack=Math.max(maxCompletionSlack,slack);if(slack>limit)failures.push(`${stream} transition delayed by more than one line`);}}}const finalBand=pattern.bands.length-1,finalStates=pattern.bands[finalBand].streams.map(stream=>({stream,state:lastStateForBand(results[stream],finalBand)})).filter(item=>item.state);if(finalStates.length>1){const latest=Math.max(...finalStates.map(item=>item.state.usedHeight));for(const{stream,state}of finalStates){const slack=Math.max(0,latest-state.usedHeight),limit=Math.max(2,state.lineHeight*1.15);maxCompletionSlack=Math.max(maxCompletionSlack,slack);if(slack>limit)failures.push(`${stream} ends early without space reclamation`);}}for(const stream of STREAMS)if(results[stream].rest.length)failures.push(`${stream} source not fully placed`);return{failures:[...new Set(failures)],maxCompletionSlack};}
-function stitchCommentaryContinuity(final){
+function stitchStreamContinuity(final){
   if(final.pattern.mapped)return;
-  for(const stream of ["inner","tosafot"]){
+  for(const stream of STREAMS){
     const regions=[...$("bodyGeometry").querySelectorAll(`[data-stream="${stream}"]`)],states=final.results?.[stream]?.regionStates||[];
     for(let index=0;index<Math.min(regions.length-1,states.length-1);index++){
       const stateAtBoundary=states[index];
@@ -443,6 +443,21 @@ function stitchCommentaryContinuity(final){
       next.style.position="relative";next.style.top=`-${slack}px`;next.style.height=`calc(100% + ${slack}px)`;next.style.zIndex="2";
       if(row)row.style.overflow="visible";
       next.dataset.continuityLift=String(slack);
+    }
+  }
+  validateStreamContinuity(final,final.completionFailures);
+}
+function validateStreamContinuity(final,failures){
+  if(final.pattern.mapped)return;
+  for(const stream of STREAMS){
+    const regions=[...$("bodyGeometry").querySelectorAll(`[data-stream="${stream}"]`)],states=final.results?.[stream]?.regionStates||[];
+    for(let index=0;index<Math.min(regions.length-1,states.length-1);index++){
+      const stateAtBoundary=states[index];
+      if(!stateAtBoundary||stateAtBoundary.afterCount<=0)continue;
+      const slack=Math.max(0,stateAtBoundary.regionHeight-stateAtBoundary.usedHeight),line=Math.max(1,stateAtBoundary.lineHeight);
+      if(slack<=line*.12)continue;
+      const lift=Number(regions[index+1].dataset.continuityLift);
+      if(!Number.isFinite(lift)||Math.abs(lift-slack)>.75)failures.push(`${stream} stream continuity gap`);
     }
   }
 }
@@ -565,7 +580,7 @@ async function compose(){
   }
   // An invalid preview still favors the layout that places the most source text,
   // with Gemara completion first. It never becomes approvable until every rule passes.
-  const selected=bestPassing||bestSource||best;if(!state.agentSettings.openingLines)state.agentSettings.openingLines=selected.openingLines||4;$("dafPage").style.setProperty("--opening-lines",state.agentSettings.openingLines);const final=evaluate(selected.pattern,selected.scale,tokens,true);final.openingLines=state.agentSettings.openingLines;stitchCommentaryContinuity(final);
+  const selected=bestPassing||bestSource||best;if(!state.agentSettings.openingLines)state.agentSettings.openingLines=selected.openingLines||4;$("dafPage").style.setProperty("--opening-lines",state.agentSettings.openingLines);const final=evaluate(selected.pattern,selected.scale,tokens,true);final.openingLines=state.agentSettings.openingLines;stitchStreamContinuity(final);
   $("bodyGeometry").style.visibility=originalBodyVisibility;final.failures=validateComposition(final);if(!bestPassing)final.failures=[...new Set(["no completion-safe layout",...final.failures])];state.composition=final;state.dirty=false;
   $("patternReport").textContent=final.pattern.name.replace("inner","Rashi/Rashbam");$("fillReport").textContent=final.overflow?"Incomplete source draft":final.failures.length?"Final test failed":"Full page";$("rulesReport").textContent=final.failures.length?`Review: ${final.failures.join(", ")}`:"All hard rules passed";
   setComposing(false);afterCompose();status(final.failures.length?`Final composition test complete${profile?" with PDF line anchors":""} — failed: ${final.failures.join(", ")}.`:`Final composition test complete — all hard region rules passed${profile?" with PDF line anchors":""} for ${state.ref}.`,final.failures.length>0);return final;
@@ -890,7 +905,7 @@ $("saveProject").addEventListener("click",saveProject);$("openProject").addEvent
 function safeAgentSettings(value={}){
   const ranges={pageHeight:[900,1300],openingLines:[2,8],gemaraScale:[.78,1.18],commentaryScale:[.72,1.18],continuationLines:[1,12],gemaraAlignmentLine:[1,200],gemaraExpansionLine:[1,200]},clean={};
   for(const[key,[min,max]]of Object.entries(ranges)){const number=Number(value[key]);if(Number.isFinite(number)&&number>=min&&number<=max)clean[key]=["pageHeight","openingLines","continuationLines","gemaraAlignmentLine","gemaraExpansionLine"].includes(key)?Math.round(number):number;}
-  if(value.forceCascade===true)clean.forceCascade=true;if(value.stripGemaraDashes===true)clean.stripGemaraDashes=true;if(value.enforceCommentaryContinuity===true)clean.enforceCommentaryContinuity=true;
+  if(value.forceCascade===true)clean.forceCascade=true;if(value.stripGemaraDashes===true)clean.stripGemaraDashes=true;if(value.enforceCommentaryContinuity===true)clean.enforceCommentaryContinuity=true;if(value.enforceStreamContinuity===true)clean.enforceStreamContinuity=true;
   if(["gemara","inner","tosafot"].includes(value.preferredSurvivor))clean.preferredSurvivor=value.preferredSurvivor;
   if(["gemara","inner","tosafot"].includes(value.completedStream))clean.completedStream=value.completedStream;
   if(["right","left","center","justify","natural"].includes(value.gemaraAlignment))clean.gemaraAlignment=value.gemaraAlignment;
