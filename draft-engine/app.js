@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.3.1";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.4";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -535,14 +535,15 @@ async function compose(){
     done++;status(`Composition test ${48+Math.min(30,Math.round(done/Math.max(1,fineJobs.length)*30))}% — refining teacher constraints…`);await nextPaint();
   }
   if(!bestPassing&&!profile){
-    const recoveryPatterns=patterns.filter(pattern=>pattern.cascade),sparsePage=Boolean(bestSource&&bestSource.sourceOverflow===0&&bestSource.minOccupancy<.78),recoveryOpenings=state.agentSettings.openingLines?[state.agentSettings.openingLines]:(sparsePage?[4,5]:[4,5,3]),recoveryScales=sparsePage?[{gemara:1.10,commentary:1.10},{gemara:1.18,commentary:1.18}]:[{gemara:1.06,commentary:.92},{gemara:1.04,commentary:.90}],recoveryTotal=recoveryPatterns.length*recoveryScales.length*recoveryOpenings.length;
+    const recoveryPatterns=patterns.filter(pattern=>pattern.cascade).sort((a,b)=>Number(b.name===bestSource?.pattern?.name)-Number(a.name===bestSource?.pattern?.name)),sparsePage=Boolean(bestSource&&bestSource.sourceOverflow===0&&bestSource.minOccupancy<.78),recoveryOpenings=[state.agentSettings.openingLines||4],recoveryScales=sparsePage?[{gemara:1.16,commentary:1.14},{gemara:1.14,commentary:1.14},{gemara:1.16,commentary:1.16},{gemara:1.18,commentary:1.14},{gemara:1.14,commentary:1.16},{gemara:1.12,commentary:1.12},{gemara:1.18,commentary:1.18},{gemara:1.10,commentary:1.10}]:[{gemara:1.06,commentary:.92},{gemara:1.04,commentary:.90}],recoveryTotal=recoveryPatterns.length*recoveryScales.length*recoveryOpenings.length;
     let recoveryBest=null;done=0;
-    for(const openingLines of recoveryOpenings)for(const scale of recoveryScales)for(const seedPattern of recoveryPatterns){
+    recovery:for(const openingLines of recoveryOpenings)for(const scale of recoveryScales)for(const seedPattern of recoveryPatterns){
       $("dafPage").style.setProperty("--opening-lines",openingLines);
       const pattern=seedPattern.eventDriven?alignedCompletionPattern(seedPattern,scale,tokens):seedPattern;
       if(!pattern){done++;continue;}
       const r=evaluate(pattern,scale,tokens);r.openingLines=openingLines;if(!recoveryBest||r.score<recoveryBest.score)recoveryBest=r;consider(r);
       done++;status(`Composition test ${78+Math.min(21,Math.round(done/Math.max(1,recoveryTotal)*21))}% — remeasuring completion events at recovery scale…`);await nextPaint();
+      if(candidatePasses(r))break recovery;
     }
     if(!bestPassing&&recoveryBest)best=recoveryBest;
   }
