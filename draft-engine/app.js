@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.4";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.4.1";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -545,7 +545,7 @@ async function compose(){
       done++;status(`Composition test ${78+Math.min(21,Math.round(done/Math.max(1,recoveryTotal)*21))}% — remeasuring completion events at recovery scale…`);await nextPaint();
       if(candidatePasses(r))break recovery;
     }
-    if(!bestPassing&&recoveryBest)best=recoveryBest;
+    if(!bestPassing&&recoveryBest){best=recoveryBest;if(recoveryBest.sourceOverflow===0)bestSource=recoveryBest;}
   }
   // An invalid preview still favors the layout that places the most source text,
   // with Gemara completion first. It never becomes approvable until every rule passes.
