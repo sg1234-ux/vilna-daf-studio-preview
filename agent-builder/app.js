@@ -218,17 +218,20 @@ function localAgentReview(body) {
   const horizontalGutterRequested = /\b(?:horizontal\s+(?:gutter|gap|break|strip|seam)|page-wide\s+(?:gutter|gap|break)|white\s+strip)\b|\bbifurcat(?:e|es|ed|ing)\b|\b(?:gutter|gap|break)\b.{0,70}\b(?:cuts?\s+through|splits?|separates?)\b/u.test(note);
   const openingCommentaryDisconnected = /\b(?:top|first|opening)\s+(?:(?:\d{1,2}|one|two|three|four|five|six|seven|eight)\s+)?(?:lines?\s+(?:of\s+)?)?commentar(?:y|ies)\b.{0,90}\b(?:disconnect(?:ed)?|separat(?:e|ed)|reconnect|join|connect)\b|\b(?:reconnect|join|connect)\b.{0,90}\b(?:top|first|opening)\s+(?:(?:\d{1,2}|one|two|three|four|five|six|seven|eight)\s+)?(?:lines?\s+(?:of\s+)?)?commentar(?:y|ies)\b|\bcommentar(?:y|ies)\b.{0,70}\b(?:disconnect(?:ed)?\s+from|reconnect(?:ed)?\s+(?:to|with))\b/u.test(note);
   const gutterStreams = [
+    ...(/\b(?:gemara|gemorah)\b|גמרא/u.test(note) ? ["gemara"] : []),
     ...(/\b(?:rashi|rashbam|inner commentary)\b|רש[״"']?י|רשב/u.test(note) ? ["inner"] : []),
     ...(/\b(?:tosafos|tosafot)\b|תוספ/u.test(note) ? ["tosafot"] : [])
   ];
 
   if (horizontalGutterRequested || openingCommentaryDisconnected) {
-    changes.enforceCommentaryContinuity = true;
-    const named = gutterStreams.length ? gutterStreams.map(teacherStreamLabel).join(" and ") : "Rashi/Rashbam and Tosafos";
+    changes.enforceStreamContinuity = true;
+    const named = gutterStreams.length ? gutterStreams.map(teacherStreamLabel).join(" and ") : "Gemara, Rashi/Rashbam, and Tosafos";
     summary = openingCommentaryDisconnected ? `Reconnect the opening commentary lines to the main ${named} streams.` : `Remove the horizontal gutter through ${named}.`;
     reason = openingCommentaryDisconnected
       ? "The compositor will enforce the fixed opening boundary: exactly four rendered commentary lines, then the next source word continues on line five beside the Gemara. Only the Gemara receives the top gutter, and validation rejects any blank commentary line at that junction."
-      : "The Gemara top or bottom wall will remain inside the Gemara column only. Commentary text will continue through the same vertical space without a page-wide bridge row or an artificial break inside Tosafos.";
+      : gutterStreams.includes("gemara")
+        ? "The Gemara may change width when a neighboring commentary finishes, but its next source line will follow at normal leading with no blank horizontal band. Validation rejects an unstitched continuing Gemara boundary."
+        : "The Gemara top or bottom wall will remain inside the Gemara column only. Commentary text will continue through the same vertical space without a page-wide bridge row or an artificial break inside Tosafos.";
   } else if (lineAnchor.requested) {
     if (!stream) {
       summary = "I understand that you are defining a line by its opening and closing text.";
