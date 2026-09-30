@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.5";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.5.1";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -332,10 +332,11 @@ function pairWidths(streams,w){if(streams.length===2&&streams.includes("inner")&
 function recoveryWidthPatterns(seed){
   if(!seed||seed.pattern?.mapped||!seed.bands?.length)return[];
   const topMaps=[
+    {gemara:42,inner:35,tosafot:23},{gemara:43,inner:34,tosafot:23},
     {gemara:45,inner:32,tosafot:23},{gemara:45,inner:23,tosafot:32},
-    {gemara:42,inner:35,tosafot:23},{gemara:42,inner:23,tosafot:35},
+    {gemara:42,inner:23,tosafot:35},
     {gemara:47,inner:30,tosafot:23},{gemara:47,inner:23,tosafot:30}
-  ],pairGemaraWidths=[58,62,66,70],out=[];
+  ],pairGemaraWidths=[58,57,59,56,60,62,66,70],out=[];
   for(const map of topMaps)for(const gemaraWidth of pairGemaraWidths){
     const bands=seed.bands.map((band,index)=>{
       let bandWidths=band.widths;
@@ -554,7 +555,7 @@ async function compose(){
     done++;status(`Composition test ${48+Math.min(30,Math.round(done/Math.max(1,fineJobs.length)*30))}% — refining teacher constraints…`);await nextPaint();
   }
   if(!bestPassing&&!profile){
-    const sparsePage=Boolean(bestSource&&bestSource.sourceOverflow===0&&bestSource.minOccupancy<.78),baseRecoveryPatterns=patterns.filter(pattern=>pattern.cascade).sort((a,b)=>Number(b.name===bestSource?.pattern?.name)-Number(a.name===bestSource?.pattern?.name)),recoveryPatterns=sparsePage?[...recoveryWidthPatterns(bestSource?.pattern),...baseRecoveryPatterns]:baseRecoveryPatterns,recoveryOpenings=[state.agentSettings.openingLines||4],recoveryScales=sparsePage?[{gemara:1,commentary:1},{gemara:1.04,commentary:1.02},{gemara:1.08,commentary:1.04},{gemara:1.12,commentary:1.08},{gemara:1.16,commentary:1.14},{gemara:1.14,commentary:1.14},{gemara:1.16,commentary:1.16},{gemara:1.18,commentary:1.14},{gemara:1.14,commentary:1.16}]:[{gemara:1.06,commentary:.92},{gemara:1.04,commentary:.90}],recoveryTotal=recoveryPatterns.length*recoveryScales.length*recoveryOpenings.length;
+    const sparsePage=Boolean(bestSource&&bestSource.sourceOverflow===0&&bestSource.minOccupancy<.78),baseRecoveryPatterns=patterns.filter(pattern=>pattern.cascade).sort((a,b)=>Number(b.name===bestSource?.pattern?.name)-Number(a.name===bestSource?.pattern?.name)),recoveryPatterns=sparsePage?[...recoveryWidthPatterns(bestSource?.pattern),...baseRecoveryPatterns]:baseRecoveryPatterns,recoveryOpenings=[state.agentSettings.openingLines||4],recoveryScales=sparsePage?[{gemara:1.045,commentary:1.025},{gemara:1.04,commentary:1.025},{gemara:1.05,commentary:1.025},{gemara:1.04,commentary:1.02},{gemara:1.03,commentary:1.015},{gemara:1,commentary:1},{gemara:1.08,commentary:1.04},{gemara:1.12,commentary:1.08}]:[{gemara:1.06,commentary:.92},{gemara:1.04,commentary:.90}],recoveryTotal=recoveryPatterns.length*recoveryScales.length*recoveryOpenings.length;
     let recoveryBest=null;done=0;
     recovery:for(const openingLines of recoveryOpenings)for(const scale of recoveryScales)for(const seedPattern of recoveryPatterns){
       $("dafPage").style.setProperty("--opening-lines",openingLines);
