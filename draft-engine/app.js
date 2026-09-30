@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.11";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.12";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -453,11 +453,11 @@ function stitchStreamContinuity(final,original){
       if(footprintChanges){
         const start=(original[stream]?.length||0)-states[0].beforeCount+states.slice(0,index+1).reduce((sum,item)=>sum+item.placedCount,0),nextCount=states[index+1].placedCount,nextChunk=(original[stream]||[]).slice(start,start+nextCount),bridgeFit=fitOpeningTokens(nextChunk,previous,1),bridgeChunk=bridgeFit.chunk;
         if(!bridgeChunk.length)continue;
-        const bridge=document.createElement("div"),delta=Math.max(0,line-slack),previousRow=previous.parentElement;
+        const bridge=document.createElement("div"),delta=Math.max(0,line-slack),previousRow=previous.parentElement,rowRect=previousRow.getBoundingClientRect(),previousRect=previous.getBoundingClientRect(),rowScale=rowRect.width/Math.max(1,previousRow.offsetWidth),bridgeLeft=(previousRect.left-rowRect.left)/Math.max(.01,rowScale);
         bridge.className=`flow-region ${stream==="gemara"?"gemara":"commentary"} transition-continuity-bridge`;
         bridge.dataset.continuityStream=stream;bridge.dataset.continuityBridge=stream;bridge.dataset.band=previous.dataset.band;
         bridge.innerHTML=renderedTokens(bridgeChunk,previous);finishRegionLine(bridge,true);
-        Object.assign(bridge.style,{gridColumn:"1 / -1",gridRow:"1",left:`${previous.offsetLeft}px`,top:`${stateAtBoundary.usedHeight}px`,width:`${previous.offsetWidth}px`,height:`${line}px`,padding:"0"});
+        Object.assign(bridge.style,{gridColumn:"1 / -1",gridRow:"1",left:`${bridgeLeft}px`,top:`${stateAtBoundary.usedHeight}px`,width:`${previous.offsetWidth}px`,height:`${line}px`,padding:"0"});
         previousRow.style.position="relative";previousRow.style.overflow="visible";previousRow.appendChild(bridge);
         next.innerHTML=renderedTokens(nextChunk.slice(bridgeChunk.length),next);finishRegionLine(next,states[index+1].afterCount>0);
         next.style.position="relative";next.style.top=`${delta}px`;next.style.height=`calc(100% - ${delta}px)`;next.dataset.delayedWidening=String(delta);next.dataset.continuityBridgeTokens=String(bridgeChunk.length);
@@ -530,11 +530,10 @@ function alignedCompletionPattern(pattern,scale,original){
   return{...pattern,bands:[{...pattern.bands[0],pixelHeight:firstBoundary},{...pattern.bands[1],pixelHeight:secondHeight},pattern.bands[2]]};
 }
 function fillPasses(result){
-  if(result.blankRatio>=.075)return false;
-  if(result.minOccupancy>.78)return true;
+  if(result.minOccupancy>.78)return result.blankRatio<.075;
   const finalBand=result.pattern.bands.length-1,low=[];
   for(const stream of STREAMS)(result.results?.[stream]?.occupancy||[]).forEach((ratio,index)=>{if(ratio<=.78)low.push({ratio,state:result.results[stream].regionStates[index]});});
-  return low.length>0&&low.every(item=>item.state?.bandIndex===finalBand)&&Math.max(...low.map(item=>item.state.regionHeight))/Math.max(1,$("bodyGeometry").clientHeight)<=.16&&result.minOccupancy>.42;
+  return result.blankRatio<.10&&low.length>0&&low.every(item=>item.state?.bandIndex===finalBand)&&Math.max(...low.map(item=>item.state.regionHeight))/Math.max(1,$("bodyGeometry").clientHeight)<=.16&&result.minOccupancy>.42;
 }
 function candidatePasses(result){return result.overflow===0&&!result.completionFailures.length&&result.transitionGapLines<=1.15&&fillPasses(result);}
 function sourceRank(result){return [result.results.gemara.rest.length,result.sourceOverflow,result.score];}
