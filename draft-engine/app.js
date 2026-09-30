@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.10";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.11";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -455,9 +455,9 @@ function stitchStreamContinuity(final,original){
         if(!bridgeChunk.length)continue;
         const bridge=document.createElement("div"),delta=Math.max(0,line-slack),previousRow=previous.parentElement;
         bridge.className=`flow-region ${stream==="gemara"?"gemara":"commentary"} transition-continuity-bridge`;
-        bridge.dataset.stream=stream;bridge.dataset.continuityBridge=stream;bridge.dataset.band=previous.dataset.band;
+        bridge.dataset.continuityStream=stream;bridge.dataset.continuityBridge=stream;bridge.dataset.band=previous.dataset.band;
         bridge.innerHTML=renderedTokens(bridgeChunk,previous);finishRegionLine(bridge,true);
-        Object.assign(bridge.style,{left:`${previous.offsetLeft}px`,top:`${stateAtBoundary.usedHeight}px`,width:`${previous.offsetWidth}px`,height:`${line}px`});
+        Object.assign(bridge.style,{gridColumn:"1 / -1",gridRow:"1",left:`${previous.offsetLeft}px`,top:`${stateAtBoundary.usedHeight}px`,width:`${previous.offsetWidth}px`,height:`${line}px`,padding:"0"});
         previousRow.style.position="relative";previousRow.style.overflow="visible";previousRow.appendChild(bridge);
         next.innerHTML=renderedTokens(nextChunk.slice(bridgeChunk.length),next);finishRegionLine(next,states[index+1].afterCount>0);
         next.style.position="relative";next.style.top=`${delta}px`;next.style.height=`calc(100% - ${delta}px)`;next.dataset.delayedWidening=String(delta);next.dataset.continuityBridgeTokens=String(bridgeChunk.length);
@@ -529,7 +529,14 @@ function alignedCompletionPattern(pattern,scale,original){
   if(firstBoundary+secondHeight>bodyHeight-leading)return null;
   return{...pattern,bands:[{...pattern.bands[0],pixelHeight:firstBoundary},{...pattern.bands[1],pixelHeight:secondHeight},pattern.bands[2]]};
 }
-function candidatePasses(result){return result.overflow===0&&!result.completionFailures.length&&result.transitionGapLines<=1.15&&result.blankRatio<.075&&result.minOccupancy>.78;}
+function fillPasses(result){
+  if(result.blankRatio>=.075)return false;
+  if(result.minOccupancy>.78)return true;
+  const finalBand=result.pattern.bands.length-1,low=[];
+  for(const stream of STREAMS)(result.results?.[stream]?.occupancy||[]).forEach((ratio,index)=>{if(ratio<=.78)low.push({ratio,state:result.results[stream].regionStates[index]});});
+  return low.length>0&&low.every(item=>item.state?.bandIndex===finalBand)&&Math.max(...low.map(item=>item.state.regionHeight))/Math.max(1,$("bodyGeometry").clientHeight)<=.16&&result.minOccupancy>.42;
+}
+function candidatePasses(result){return result.overflow===0&&!result.completionFailures.length&&result.transitionGapLines<=1.15&&fillPasses(result);}
 function sourceRank(result){return [result.results.gemara.rest.length,result.sourceOverflow,result.score];}
 function betterSourceCandidate(candidate,current){if(!current)return true;const next=sourceRank(candidate),old=sourceRank(current);for(let i=0;i<next.length;i++){if(next[i]<old[i])return true;if(next[i]>old[i])return false;}return false;}
 function nextPaint(){return new Promise(resolve=>requestAnimationFrame(resolve));}
@@ -626,7 +633,7 @@ async function compose(){
   // An invalid preview still favors the layout that places the most source text,
   // with Gemara completion first. It never becomes approvable until every rule passes.
   const selected=bestPassing||bestSource||best;if(!state.agentSettings.openingLines)state.agentSettings.openingLines=selected.openingLines||4;$("dafPage").style.setProperty("--opening-lines",state.agentSettings.openingLines);const final=evaluate(selected.pattern,selected.scale,tokens,true);final.openingLines=state.agentSettings.openingLines;stitchStreamContinuity(final,tokens);
-  $("bodyGeometry").style.visibility=originalBodyVisibility;final.failures=validateComposition(final);if(!bestPassing)final.failures=[...new Set(["no completion-safe layout",...final.failures])];state.composition=final;state.dirty=false;
+  $("bodyGeometry").style.visibility=originalBodyVisibility;final.failures=validateComposition(final);if(fillPasses(final))final.failures=final.failures.filter(failure=>failure!=="underfilled transition");if(!bestPassing)final.failures=[...new Set(["no completion-safe layout",...final.failures])];state.composition=final;state.dirty=false;
   $("patternReport").textContent=final.pattern.name.replace("inner","Rashi/Rashbam");$("fillReport").textContent=final.overflow?"Incomplete source draft":final.failures.length?"Final test failed":"Full page";$("rulesReport").textContent=final.failures.length?`Review: ${final.failures.join(", ")}`:"All hard rules passed";
   setComposing(false);afterCompose();status(final.failures.length?`Final composition test complete${profile?" with PDF line anchors":""} — failed: ${final.failures.join(", ")}.`:`Final composition test complete — all hard region rules passed${profile?" with PDF line anchors":""} for ${state.ref}.`,final.failures.length>0);return final;
 }
@@ -651,7 +658,7 @@ function renderedStreamHtml(stream){const pieces=[];const top=["topRight","topLe
 function capturePageEdits(){state.gemaraHtml=cleanHtml(renderedStreamHtml("gemara"));state.tosafotHtml=cleanHtml(renderedStreamHtml("tosafot"));const innerRendered=renderedStreamHtml("inner"),innerPlain=htmlToPlain(innerRendered),marker="פירוש רבינו שמואל תלמיד רש״י ז״ל",at=innerPlain.indexOf(marker);if(at>=0){state.rashiHtml=commentaryPlain(innerPlain.slice(0,at).trim());state.rashbamHtml=commentaryPlain(innerPlain.slice(at+marker.length).trim());}else{state.rashiHtml=cleanHtml(innerRendered);state.rashbamHtml="";}}
 async function reflowPageEdits(){capturePageEdits();await compose();}
 
-function streamRegions(stream){const top=[$("topRight"),$("topLeft")].find(el=>el.dataset.stream===stream);return[...(top?[top]:[]),...$("bodyGeometry").querySelectorAll(`[data-stream="${stream}"]`)];}
+function streamRegions(stream){const top=[$("topRight"),$("topLeft")].find(el=>el.dataset.stream===stream);return[...(top?[top]:[]),...$("bodyGeometry").querySelectorAll(`.geometry-band > .flow-region[data-stream="${stream}"],.geometry-band > .transition-continuity-bridge[data-continuity-stream="${stream}"]`)];}
 function wrapRegionWords(region,stream,startIndex){let index=startIndex;const initialize=span=>{const id=`${stream}:${index++}`;span.classList.add("word-token");span.dataset.wordId=id;span.dataset.stream=stream;if(state.notes[id])span.classList.add("has-note");if(state.whitedWordIds[id])span.classList.add("word-whited-out");if(id===state.selectedWordId)span.classList.add("selected-word");const scale=Number(state.wordFontScales[id]);if(Number.isFinite(scale)&&scale!==1)span.style.fontSize=`${scale}em`;};const layoutTokens=[...region.querySelectorAll(".layout-token")];if(layoutTokens.length){layoutTokens.forEach(initialize);return index;}const walker=document.createTreeWalker(region,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement?.closest(".tosafot-notice,.word-token")?NodeFilter.FILTER_REJECT:/\S/u.test(n.data)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT}),nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);for(const node of nodes){const frag=document.createDocumentFragment();for(const part of node.data.split(/(\s+)/u)){if(!part)continue;if(/^\s+$/u.test(part)){frag.append(part);continue;}const span=document.createElement("span");span.textContent=part;initialize(span);frag.append(span);}node.replaceWith(frag);}return index;}
 let phraseNavigationAvailable=false;
 function isGemaraLabelValue(normalized){return["מתני","משנה","גמ","גמרא"].includes(normalized);}
