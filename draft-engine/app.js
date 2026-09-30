@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.9";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.10";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -328,20 +328,29 @@ function widths(streams,w,floor=18){const total=streams.reduce((s,x)=>s+w[x],0)|
 function clamp(value,min,max){return Math.max(min,Math.min(max,value));}
 function primaryWidths(){const order=ordered(STREAMS),map=state.agentPrimaryWidths||{gemara:2.5,inner:1.625,tosafot:1.625};return order.map(stream=>map[stream]);}
 function stepped(start,end,step){const values=[];for(let value=start;value<=end;value+=step)values.push(value);return values;}
-function pairWidths(streams,w){if(streams.length===2&&streams.includes("inner")&&streams.includes("tosafot"))return[50,50];if(streams.length===2&&streams.includes("gemara"))return streams.map(stream=>stream==="gemara"?71.74:28.26);return widths(streams,w,28);}
+function releasedPairWidths(previousStreams,previousWidths,nextStreams){
+  const bodyWidth=Math.max(1,$("bodyGeometry").clientWidth),gutter=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--daf-gutter"))||25,oldAvailable=Math.max(1,bodyWidth-gutter*Math.max(0,previousStreams.length-1)),nextAvailable=Math.max(1,bodyWidth-gutter*Math.max(0,nextStreams.length-1)),oldTotal=previousWidths.reduce((sum,value)=>sum+value,0)||1,oldPixels=Object.fromEntries(previousStreams.map((stream,index)=>[stream,previousWidths[index]/oldTotal*oldAvailable])),removed=previousStreams.filter(stream=>!nextStreams.includes(stream));
+  if(nextStreams.length!==2||removed.length!==1)return nextStreams.map(()=>100/Math.max(1,nextStreams.length));
+  const removedIndex=previousStreams.indexOf(removed[0]),pixels={};
+  if(removedIndex===0){pixels[nextStreams[1]]=oldPixels[nextStreams[1]];pixels[nextStreams[0]]=nextAvailable-pixels[nextStreams[1]];}
+  else if(removedIndex===previousStreams.length-1){pixels[nextStreams[0]]=oldPixels[nextStreams[0]];pixels[nextStreams[1]]=nextAvailable-pixels[nextStreams[0]];}
+  else{const released=Math.max(0,nextAvailable-oldPixels[nextStreams[0]]-oldPixels[nextStreams[1]]);pixels[nextStreams[0]]=oldPixels[nextStreams[0]]+released/2;pixels[nextStreams[1]]=oldPixels[nextStreams[1]]+released/2;}
+  return nextStreams.map(stream=>Math.max(1,pixels[stream]/nextAvailable*100));
+}
 function recoveryWidthPatterns(seed){
   if(!seed||seed.pattern?.mapped||!seed.bands?.length)return[];
   const firstBand=seed.bands[0],nextBand=seed.bands[1],firstToFinish=firstBand&&nextBand?firstBand.streams.find(stream=>!nextBand.streams.includes(stream)):null;
-  const topMaps=firstToFinish==="inner"?[{gemara:42,inner:35,tosafot:23},{gemara:43,inner:34,tosafot:23},{gemara:45,inner:32,tosafot:23}]:firstToFinish==="tosafot"?[{gemara:42,inner:23,tosafot:35},{gemara:43,inner:23,tosafot:34},{gemara:45,inner:23,tosafot:32}]:[{gemara:49,inner:25.5,tosafot:25.5},{gemara:47,inner:26.5,tosafot:26.5},{gemara:45,inner:27.5,tosafot:27.5}],pairGemaraWidths=[58,62,66],out=[];
-  for(const map of topMaps)for(const gemaraWidth of pairGemaraWidths){
-    const bands=seed.bands.map((band,index)=>{
+  const topMaps=firstToFinish==="inner"?[{gemara:42,inner:35,tosafot:23},{gemara:43,inner:34,tosafot:23},{gemara:45,inner:32,tosafot:23}]:firstToFinish==="tosafot"?[{gemara:42,inner:23,tosafot:35},{gemara:43,inner:23,tosafot:34},{gemara:45,inner:23,tosafot:32}]:[{gemara:49,inner:25.5,tosafot:25.5},{gemara:47,inner:26.5,tosafot:26.5},{gemara:45,inner:27.5,tosafot:27.5}],out=[];
+  for(const map of topMaps){
+    const bands=[];
+    for(const [index,band] of seed.bands.entries()){
       let bandWidths=band.widths;
       if(index===0&&band.streams.length===3)bandWidths=band.streams.map(stream=>map[stream]);
-      else if(band.streams.length===2&&band.streams.includes("gemara"))bandWidths=band.streams.map(stream=>stream==="gemara"?gemaraWidth:100-gemaraWidth);
-      else if(band.streams.length===2&&band.streams.includes("inner")&&band.streams.includes("tosafot"))bandWidths=[50,50];
-      return{...band,widths:bandWidths};
-    });
-    out.push({...seed,name:`${seed.name}; width recovery ${map.inner}/${map.gemara}/${map.tosafot}, pair ${gemaraWidth}`,bands});
+      else if(band.streams.length===2){const previous=bands[index-1];bandWidths=releasedPairWidths(previous.streams,previous.widths,band.streams);}
+      else if(band.streams.length===1)bandWidths=[100];
+      bands.push({...band,widths:bandWidths});
+    }
+    out.push({...seed,name:`${seed.name}; protected width recovery ${map.inner}/${map.gemara}/${map.tosafot}`,bands});
   }
   return out;
 }
@@ -358,7 +367,7 @@ function completionEventPatterns(w){
     {name:"completion solver: all streams continue",eventDriven:true,completionOrder:[],bands:[{height:100,streams:three,widths:top}]}
   ];
   for(const firstToFinish of STREAMS){
-    const pair=ordered(STREAMS.filter(stream=>stream!==firstToFinish)),pairWidth=pairWidths(pair,w);
+    const pair=ordered(STREAMS.filter(stream=>stream!==firstToFinish)),pairWidth=releasedPairWidths(three,top,pair);
     out.push({name:`completion solver: ${firstToFinish} completes; pair finishes together`,cascade:true,eventDriven:true,completionOrder:[firstToFinish],bands:[
       {height:50,streams:three,widths:top},
       {height:50,streams:pair,widths:pairWidth}
@@ -392,12 +401,12 @@ function auditCompletionEventPatterns(patterns){
 }
 function candidates(w){
   const three=ordered(STREAMS),top=primaryWidths(w),guided=state.agentSettings.forceCascade&&STREAMS.includes(state.agentSettings.preferredSurvivor);
-  if(guided){const completed=STREAMS.includes(state.agentSettings.completedStream)?state.agentSettings.completedStream:"gemara",pair=ordered(STREAMS.filter(stream=>stream!==completed)),survivor=state.agentSettings.preferredSurvivor,lines=state.agentSettings.continuationLines||2,leading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--commentary-leading"))||12.05;if(!pair.includes(survivor))return[];return stepped(28,82,3).map(upper=>({name:`teacher-guided ${completed} completes; ${survivor} takeover (${lines} narrow lines)`,cascade:true,guided:true,bands:[{height:upper,streams:three,widths:top},{height:0,pixelHeight:lines*leading,streams:pair,widths:pairWidths(pair,w)},{height:100-upper,streams:[survivor],widths:[100]}]}));}
+  if(guided){const completed=STREAMS.includes(state.agentSettings.completedStream)?state.agentSettings.completedStream:"gemara",pair=ordered(STREAMS.filter(stream=>stream!==completed)),survivor=state.agentSettings.preferredSurvivor,lines=state.agentSettings.continuationLines||2,leading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--commentary-leading"))||12.05,pairWidth=releasedPairWidths(three,top,pair);if(!pair.includes(survivor))return[];return stepped(28,82,3).map(upper=>({name:`teacher-guided ${completed} completes; ${survivor} takeover (${lines} narrow lines)`,cascade:true,guided:true,bands:[{height:upper,streams:three,widths:top},{height:0,pixelHeight:lines*leading,streams:pair,widths:pairWidth},{height:100-upper,streams:[survivor],widths:[100]}]}));}
   const expansionLine=Number(state.agentSettings.gemaraExpansionLine);
   if(Number.isInteger(expansionLine)){
     const bodyHeight=Math.max(1,$("bodyGeometry").clientHeight),gemaraLeading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--gemara-leading"))||16.35,gutter=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--daf-gutter"))||25,upper=clamp((gutter+Math.max(0,expansionLine-1)*gemaraLeading)/bodyHeight*100,10,90),guidedPatterns=[];
     for(const omitted of ["inner","tosafot"]){
-      const pair=ordered(STREAMS.filter(stream=>stream!==omitted)),pairWidth=pairWidths(pair,w);
+      const pair=ordered(STREAMS.filter(stream=>stream!==omitted)),pairWidth=releasedPairWidths(three,top,pair);
       guidedPatterns.push({name:`teacher-guided Gemara expansion from line ${expansionLine} after ${omitted}`,cascade:true,guided:true,bands:[{height:upper,streams:three,widths:top},{height:100-upper,streams:pair,widths:pairWidth}]});
       for(const middle of stepped(8,Math.max(8,Math.min(46,88-upper)),6))if(upper+middle<95)for(const survivor of pair)guidedPatterns.push({name:`teacher-guided Gemara expansion line ${expansionLine}; ${survivor} survives`,cascade:true,guided:true,bands:[{height:upper,streams:three,widths:top},{height:middle,streams:pair,widths:pairWidth},{height:100-upper-middle,streams:[survivor],widths:[100]}]});
     }
@@ -430,34 +439,70 @@ function composeMappedExact(tokens,profile){
 function flowOpening(tokens,shapeLines=false){const right=isAleph(state.ref)?"inner":"tosafot",left=isAleph(state.ref)?"tosafot":"inner",rightEl=$("topRight"),leftEl=$("topLeft"),profile=referenceProfile(),openingLines=Math.round(parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--opening-lines"))||4);for(const[el,stream]of[[rightEl,right],[leftEl,left]]){el.dataset.stream=stream;el.classList.toggle("reference-mapped",Boolean(profile?.maps?.[stream]?.lineEndTokens?.length));}const rr=fitOpeningTokens(tokens[right],rightEl,openingLines),lr=fitOpeningTokens(tokens[left],leftEl,openingLines);rightEl.innerHTML=renderedTokens(rr.chunk,rightEl);leftEl.innerHTML=renderedTokens(lr.chunk,leftEl);fitMappedLineWidths(rightEl);fitMappedLineWidths(leftEl);if(shapeLines){finishRegionLine(rightEl,rr.rest.length>0);finishRegionLine(leftEl,lr.rest.length>0);}rightEl.contentEditable=state.mode==="edit"?"true":"false";leftEl.contentEditable=state.mode==="edit"?"true":"false";rightEl.spellcheck=false;leftEl.spellcheck=false;return{...tokens,[right]:rr.rest,[left]:lr.rest};}
 function lastStateForBand(result,bandIndex){return[...(result?.regionStates||[])].reverse().find(item=>item.bandIndex===bandIndex)||null;}
 function completionAudit(pattern,results){const failures=[];let maxCompletionSlack=0;for(let index=0;index<pattern.bands.length-1;index++){const current=new Set(pattern.bands[index].streams),next=new Set(pattern.bands[index+1].streams);for(const stream of next)if(!current.has(stream))failures.push(`${stream} reappears after completion`);for(const stream of current){const stateAtBoundary=lastStateForBand(results[stream],index);if(!stateAtBoundary){failures.push(`${stream} missing completion measurement`);continue;}const removed=!next.has(stream),hasRemaining=stateAtBoundary.afterCount>0;if(removed&&hasRemaining)failures.push(`${stream} removed before source completion`);if(!removed&&!hasRemaining)failures.push(`${stream} continues after source completion`);if(removed&&!hasRemaining){const slack=Math.max(0,stateAtBoundary.regionHeight-stateAtBoundary.usedHeight),limit=Math.max(2,stateAtBoundary.lineHeight*1.15);maxCompletionSlack=Math.max(maxCompletionSlack,slack);if(slack>limit)failures.push(`${stream} transition delayed by more than one line`);}}}const finalBand=pattern.bands.length-1,finalStates=pattern.bands[finalBand].streams.map(stream=>({stream,state:lastStateForBand(results[stream],finalBand)})).filter(item=>item.state);if(finalStates.length>1){const latest=Math.max(...finalStates.map(item=>item.state.usedHeight));for(const{stream,state}of finalStates){const slack=Math.max(0,latest-state.usedHeight),limit=Math.max(2,state.lineHeight*1.15);maxCompletionSlack=Math.max(maxCompletionSlack,slack);if(slack>limit)failures.push(`${stream} ends early without space reclamation`);}}for(const stream of STREAMS)if(results[stream].rest.length)failures.push(`${stream} source not fully placed`);return{failures:[...new Set(failures)],maxCompletionSlack};}
-function stitchStreamContinuity(final){
+function compositionRegions(stream){return[...$("bodyGeometry").querySelectorAll(`.geometry-band > .flow-region[data-stream="${stream}"]:not(.transition-continuity-bridge)`)];}
+function stitchStreamContinuity(final,original){
   if(final.pattern.mapped)return;
   for(const stream of STREAMS){
-    const regions=[...$("bodyGeometry").querySelectorAll(`[data-stream="${stream}"]`)],states=final.results?.[stream]?.regionStates||[];
+    const regions=compositionRegions(stream),states=final.results?.[stream]?.regionStates||[];
     for(let index=0;index<Math.min(regions.length-1,states.length-1);index++){
       const stateAtBoundary=states[index];
       if(!stateAtBoundary||stateAtBoundary.afterCount<=0)continue;
       const slack=Math.max(0,stateAtBoundary.regionHeight-stateAtBoundary.usedHeight),line=Math.max(1,stateAtBoundary.lineHeight);
       if(slack<=line*.12||slack>line*1.2)continue;
-      const next=regions[index+1],row=next.parentElement;
-      next.style.position="relative";next.style.top=`-${slack}px`;next.style.height=`calc(100% + ${slack}px)`;next.style.zIndex="2";
-      if(row)row.style.overflow="visible";
-      next.dataset.continuityLift=String(slack);
+      const previous=regions[index],next=regions[index+1],row=next.parentElement,footprintChanges=Math.abs(previous.offsetWidth-next.offsetWidth)>1||Math.abs(previous.offsetLeft-next.offsetLeft)>1;
+      if(footprintChanges){
+        const start=(original[stream]?.length||0)-states[0].beforeCount+states.slice(0,index+1).reduce((sum,item)=>sum+item.placedCount,0),nextCount=states[index+1].placedCount,nextChunk=(original[stream]||[]).slice(start,start+nextCount),bridgeFit=fitOpeningTokens(nextChunk,previous,1),bridgeChunk=bridgeFit.chunk;
+        if(!bridgeChunk.length)continue;
+        const bridge=document.createElement("div"),delta=Math.max(0,line-slack),previousRow=previous.parentElement;
+        bridge.className=`flow-region ${stream==="gemara"?"gemara":"commentary"} transition-continuity-bridge`;
+        bridge.dataset.stream=stream;bridge.dataset.continuityBridge=stream;bridge.dataset.band=previous.dataset.band;
+        bridge.innerHTML=renderedTokens(bridgeChunk,previous);finishRegionLine(bridge,true);
+        Object.assign(bridge.style,{left:`${previous.offsetLeft}px`,top:`${stateAtBoundary.usedHeight}px`,width:`${previous.offsetWidth}px`,height:`${line}px`});
+        previousRow.style.position="relative";previousRow.style.overflow="visible";previousRow.appendChild(bridge);
+        next.innerHTML=renderedTokens(nextChunk.slice(bridgeChunk.length),next);finishRegionLine(next,states[index+1].afterCount>0);
+        next.style.position="relative";next.style.top=`${delta}px`;next.style.height=`calc(100% - ${delta}px)`;next.dataset.delayedWidening=String(delta);next.dataset.continuityBridgeTokens=String(bridgeChunk.length);
+        if(row)row.style.overflow="visible";
+      }else{
+        next.style.position="relative";next.style.top=`-${slack}px`;next.style.height=`calc(100% + ${slack}px)`;next.style.zIndex="2";
+        if(row)row.style.overflow="visible";
+        next.dataset.continuityLift=String(slack);
+      }
     }
   }
   validateStreamContinuity(final,final.completionFailures);
+  validateNoActiveRegionTakeover(final,final.completionFailures);
+}
+function validateNoActiveRegionTakeover(final,failures){
+  if(final.pattern.mapped)return;
+  for(let index=0;index<final.pattern.bands.length-1;index++){
+    const current=final.pattern.bands[index],next=final.pattern.bands[index+1],survivors=current.streams.filter(stream=>next.streams.includes(stream));
+    for(const stream of survivors){
+      const nextRegion=$("bodyGeometry").querySelector(`.geometry-band:nth-child(${index+2}) > .flow-region[data-stream="${stream}"]:not(.transition-continuity-bridge)`),nextRect=nextRegion?.getBoundingClientRect();
+      if(!nextRect)continue;
+      for(const other of survivors.filter(value=>value!==stream)){
+        const oldOther=$("bodyGeometry").querySelector(`.geometry-band:nth-child(${index+1}) > .flow-region[data-stream="${other}"]:not(.transition-continuity-bridge)`),oldRect=oldOther?.getBoundingClientRect();
+        if(oldRect&&Math.min(nextRect.right,oldRect.right)-Math.max(nextRect.left,oldRect.left)>1.5)failures.push(`${stream} enters active ${other} region`);
+      }
+    }
+  }
 }
 function validateStreamContinuity(final,failures){
   if(final.pattern.mapped)return;
   for(const stream of STREAMS){
-    const regions=[...$("bodyGeometry").querySelectorAll(`[data-stream="${stream}"]`)],states=final.results?.[stream]?.regionStates||[];
+    const regions=compositionRegions(stream),states=final.results?.[stream]?.regionStates||[];
     for(let index=0;index<Math.min(regions.length-1,states.length-1);index++){
       const stateAtBoundary=states[index];
       if(!stateAtBoundary||stateAtBoundary.afterCount<=0)continue;
       const slack=Math.max(0,stateAtBoundary.regionHeight-stateAtBoundary.usedHeight),line=Math.max(1,stateAtBoundary.lineHeight);
       if(slack<=line*.12)continue;
-      const lift=Number(regions[index+1].dataset.continuityLift);
-      if(!Number.isFinite(lift)||Math.abs(lift-slack)>.75)failures.push(`${stream} stream continuity gap`);
+      const previous=regions[index],next=regions[index+1],footprintChanges=Math.abs(previous.offsetWidth-next.offsetWidth)>1||Math.abs(previous.offsetLeft-next.offsetLeft)>1;
+      if(footprintChanges){
+        const bridge=previous.parentElement.querySelector(`[data-continuity-bridge="${stream}"]`),previousRect=previous.getBoundingClientRect(),bridgeRect=bridge?.getBoundingClientRect(),nextRect=next.getBoundingClientRect();
+        if(!bridge||next.dataset.continuityLift||!bridgeRect||Math.abs(bridgeRect.left-previousRect.left)>1||Math.abs(bridgeRect.width-previousRect.width)>1||nextRect.top<bridgeRect.bottom-1)failures.push(`${stream} widens before neighboring stream completes`);
+      }else{
+        const lift=Number(next.dataset.continuityLift);
+        if(!Number.isFinite(lift)||Math.abs(lift-slack)>.75)failures.push(`${stream} stream continuity gap`);
+      }
     }
   }
 }
@@ -580,7 +625,7 @@ async function compose(){
   }
   // An invalid preview still favors the layout that places the most source text,
   // with Gemara completion first. It never becomes approvable until every rule passes.
-  const selected=bestPassing||bestSource||best;if(!state.agentSettings.openingLines)state.agentSettings.openingLines=selected.openingLines||4;$("dafPage").style.setProperty("--opening-lines",state.agentSettings.openingLines);const final=evaluate(selected.pattern,selected.scale,tokens,true);final.openingLines=state.agentSettings.openingLines;stitchStreamContinuity(final);
+  const selected=bestPassing||bestSource||best;if(!state.agentSettings.openingLines)state.agentSettings.openingLines=selected.openingLines||4;$("dafPage").style.setProperty("--opening-lines",state.agentSettings.openingLines);const final=evaluate(selected.pattern,selected.scale,tokens,true);final.openingLines=state.agentSettings.openingLines;stitchStreamContinuity(final,tokens);
   $("bodyGeometry").style.visibility=originalBodyVisibility;final.failures=validateComposition(final);if(!bestPassing)final.failures=[...new Set(["no completion-safe layout",...final.failures])];state.composition=final;state.dirty=false;
   $("patternReport").textContent=final.pattern.name.replace("inner","Rashi/Rashbam");$("fillReport").textContent=final.overflow?"Incomplete source draft":final.failures.length?"Final test failed":"Full page";$("rulesReport").textContent=final.failures.length?`Review: ${final.failures.join(", ")}`:"All hard rules passed";
   setComposing(false);afterCompose();status(final.failures.length?`Final composition test complete${profile?" with PDF line anchors":""} — failed: ${final.failures.join(", ")}.`:`Final composition test complete — all hard region rules passed${profile?" with PDF line anchors":""} for ${state.ref}.`,final.failures.length>0);return final;
@@ -905,7 +950,7 @@ $("saveProject").addEventListener("click",saveProject);$("openProject").addEvent
 function safeAgentSettings(value={}){
   const ranges={pageHeight:[900,1300],openingLines:[2,8],gemaraScale:[.78,1.18],commentaryScale:[.72,1.18],continuationLines:[1,12],gemaraAlignmentLine:[1,200],gemaraExpansionLine:[1,200]},clean={};
   for(const[key,[min,max]]of Object.entries(ranges)){const number=Number(value[key]);if(Number.isFinite(number)&&number>=min&&number<=max)clean[key]=["pageHeight","openingLines","continuationLines","gemaraAlignmentLine","gemaraExpansionLine"].includes(key)?Math.round(number):number;}
-  if(value.forceCascade===true)clean.forceCascade=true;if(value.stripGemaraDashes===true)clean.stripGemaraDashes=true;if(value.enforceCommentaryContinuity===true)clean.enforceCommentaryContinuity=true;if(value.enforceStreamContinuity===true)clean.enforceStreamContinuity=true;
+  if(value.forceCascade===true)clean.forceCascade=true;if(value.stripGemaraDashes===true)clean.stripGemaraDashes=true;if(value.enforceCommentaryContinuity===true)clean.enforceCommentaryContinuity=true;if(value.enforceStreamContinuity===true)clean.enforceStreamContinuity=true;if(value.enforceReleasedSpaceTiming===true)clean.enforceReleasedSpaceTiming=true;
   if(["gemara","inner","tosafot"].includes(value.preferredSurvivor))clean.preferredSurvivor=value.preferredSurvivor;
   if(["gemara","inner","tosafot"].includes(value.completedStream))clean.completedStream=value.completedStream;
   if(["right","left","center","justify","natural"].includes(value.gemaraAlignment))clean.gemaraAlignment=value.gemaraAlignment;

@@ -216,6 +216,7 @@ function localAgentReview(body) {
   const leftNamed = /\bleft(?:-aligned|\s+side|\s+edge)?\b|לשמאל|שמאלה/u.test(note);
   const justifyNamed = /\b(?:justify|justified|full\s+width)\b/u.test(note);
   const horizontalGutterRequested = /\b(?:horizontal\s+(?:gutter|gap|break|strip|seam)|page-wide\s+(?:gutter|gap|break)|white\s+strip)\b|\bbifurcat(?:e|es|ed|ing)\b|\b(?:gutter|gap|break)\b.{0,70}\b(?:cuts?\s+through|splits?|separates?)\b/u.test(note);
+  const delayedTakeoverRequested = /\b(?:keep|confine|leave)\b.{0,70}\b(?:tosafos|tosafot|rashi|rashbam|gemara|gemorah)\b.{0,70}\b(?:current|existing|own|original)\s+(?:column|region|width)\b.{0,100}\b(?:while|until)\b|\b(?:widen|expand|take\s*over|enter|abut)\b.{0,100}\b(?:only\s+)?(?:after|once|when)\b.{0,80}\b(?:finishes?|finished|ends?|ended|final\s+word|completes?|completed)\b|\b(?:must\s+not|do\s+not|don't|cannot|can't)\b.{0,80}\b(?:widen|expand|enter|abut)\b.{0,100}\b(?:existing|occupied|active|continuing)\s+(?:column|region|text)\b/u.test(note);
   const openingCommentaryDisconnected = /\b(?:top|first|opening)\s+(?:(?:\d{1,2}|one|two|three|four|five|six|seven|eight)\s+)?(?:lines?\s+(?:of\s+)?)?commentar(?:y|ies)\b.{0,90}\b(?:disconnect(?:ed)?|separat(?:e|ed)|reconnect|join|connect)\b|\b(?:reconnect|join|connect)\b.{0,90}\b(?:top|first|opening)\s+(?:(?:\d{1,2}|one|two|three|four|five|six|seven|eight)\s+)?(?:lines?\s+(?:of\s+)?)?commentar(?:y|ies)\b|\bcommentar(?:y|ies)\b.{0,70}\b(?:disconnect(?:ed)?\s+from|reconnect(?:ed)?\s+(?:to|with))\b/u.test(note);
   const gutterStreams = [
     ...(/\b(?:gemara|gemorah)\b|גמרא/u.test(note) ? ["gemara"] : []),
@@ -223,7 +224,12 @@ function localAgentReview(body) {
     ...(/\b(?:tosafos|tosafot)\b|תוספ/u.test(note) ? ["tosafot"] : [])
   ];
 
-  if (horizontalGutterRequested || openingCommentaryDisconnected) {
+  if (delayedTakeoverRequested) {
+    changes.enforceReleasedSpaceTiming = true;
+    const widening = stream ? teacherStreamLabel(stream) : (continuingStream ? teacherStreamLabel(continuingStream) : "The continuing stream");
+    summary = `${widening} stays within its existing column until the neighboring text stream finishes.`;
+    reason = "The compositor may widen a stream only below the neighboring stream’s measured final line. A narrow continuity line is preserved when needed, so removing a gutter can never cause early takeover of occupied space.";
+  } else if (horizontalGutterRequested || openingCommentaryDisconnected) {
     changes.enforceStreamContinuity = true;
     const named = gutterStreams.length ? gutterStreams.map(teacherStreamLabel).join(" and ") : "Gemara, Rashi/Rashbam, and Tosafos";
     summary = openingCommentaryDisconnected ? `Reconnect the opening commentary lines to the main ${named} streams.` : `Remove the horizontal gutter through ${named}.`;
