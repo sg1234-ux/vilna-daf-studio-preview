@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.4.1";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.5";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -329,6 +329,25 @@ function clamp(value,min,max){return Math.max(min,Math.min(max,value));}
 function primaryWidths(){const order=ordered(STREAMS),map=state.agentPrimaryWidths||{gemara:2.5,inner:1.625,tosafot:1.625};return order.map(stream=>map[stream]);}
 function stepped(start,end,step){const values=[];for(let value=start;value<=end;value+=step)values.push(value);return values;}
 function pairWidths(streams,w){if(streams.length===2&&streams.includes("inner")&&streams.includes("tosafot"))return[50,50];if(streams.length===2&&streams.includes("gemara"))return streams.map(stream=>stream==="gemara"?71.74:28.26);return widths(streams,w,28);}
+function recoveryWidthPatterns(seed){
+  if(!seed||seed.pattern?.mapped||!seed.bands?.length)return[];
+  const topMaps=[
+    {gemara:45,inner:32,tosafot:23},{gemara:45,inner:23,tosafot:32},
+    {gemara:42,inner:35,tosafot:23},{gemara:42,inner:23,tosafot:35},
+    {gemara:47,inner:30,tosafot:23},{gemara:47,inner:23,tosafot:30}
+  ],pairGemaraWidths=[58,62,66,70],out=[];
+  for(const map of topMaps)for(const gemaraWidth of pairGemaraWidths){
+    const bands=seed.bands.map((band,index)=>{
+      let bandWidths=band.widths;
+      if(index===0&&band.streams.length===3)bandWidths=band.streams.map(stream=>map[stream]);
+      else if(band.streams.length===2&&band.streams.includes("gemara"))bandWidths=band.streams.map(stream=>stream==="gemara"?gemaraWidth:100-gemaraWidth);
+      else if(band.streams.length===2&&band.streams.includes("inner")&&band.streams.includes("tosafot"))bandWidths=[50,50];
+      return{...band,widths:bandWidths};
+    });
+    out.push({...seed,name:`${seed.name}; width recovery ${map.inner}/${map.gemara}/${map.tosafot}, pair ${gemaraWidth}`,bands});
+  }
+  return out;
+}
 function mappedCascadePattern(profile){
   const gutter=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--daf-gutter"))||25,gemaraLeading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--gemara-leading"))||16.35,commentaryLeading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--commentary-leading"))||12.05;
   const boxWalls=profile.layout.boxWalls!==false,stages=profileStages(profile),bands=stages.map((stage,index)=>{const lineHeight=stream=>stream==="gemara"?gemaraLeading:commentaryLeading,extra=stream=>index===0?(profile.layout.extraLineHeights?.[stream]||0):0,wallHeight=index===0&&boxWalls&&stage.streams.includes("gemara")?gutter*2:0,contentHeight=Math.max(...stage.streams.map(stream=>((stage.counts[stream]||0)+extra(stream))*lineHeight(stream)+(stream==="gemara"?wallHeight:0)));return{height:0,...(index<stages.length-1?{pixelHeight:contentHeight}:{}),streams:stage.streams,widths:stage.widths,counts:stage.counts};});
@@ -535,7 +554,7 @@ async function compose(){
     done++;status(`Composition test ${48+Math.min(30,Math.round(done/Math.max(1,fineJobs.length)*30))}% — refining teacher constraints…`);await nextPaint();
   }
   if(!bestPassing&&!profile){
-    const recoveryPatterns=patterns.filter(pattern=>pattern.cascade).sort((a,b)=>Number(b.name===bestSource?.pattern?.name)-Number(a.name===bestSource?.pattern?.name)),sparsePage=Boolean(bestSource&&bestSource.sourceOverflow===0&&bestSource.minOccupancy<.78),recoveryOpenings=[state.agentSettings.openingLines||4],recoveryScales=sparsePage?[{gemara:1.16,commentary:1.14},{gemara:1.14,commentary:1.14},{gemara:1.16,commentary:1.16},{gemara:1.18,commentary:1.14},{gemara:1.14,commentary:1.16},{gemara:1.12,commentary:1.12},{gemara:1.18,commentary:1.18},{gemara:1.10,commentary:1.10}]:[{gemara:1.06,commentary:.92},{gemara:1.04,commentary:.90}],recoveryTotal=recoveryPatterns.length*recoveryScales.length*recoveryOpenings.length;
+    const sparsePage=Boolean(bestSource&&bestSource.sourceOverflow===0&&bestSource.minOccupancy<.78),baseRecoveryPatterns=patterns.filter(pattern=>pattern.cascade).sort((a,b)=>Number(b.name===bestSource?.pattern?.name)-Number(a.name===bestSource?.pattern?.name)),recoveryPatterns=sparsePage?[...recoveryWidthPatterns(bestSource?.pattern),...baseRecoveryPatterns]:baseRecoveryPatterns,recoveryOpenings=[state.agentSettings.openingLines||4],recoveryScales=sparsePage?[{gemara:1,commentary:1},{gemara:1.04,commentary:1.02},{gemara:1.08,commentary:1.04},{gemara:1.12,commentary:1.08},{gemara:1.16,commentary:1.14},{gemara:1.14,commentary:1.14},{gemara:1.16,commentary:1.16},{gemara:1.18,commentary:1.14},{gemara:1.14,commentary:1.16}]:[{gemara:1.06,commentary:.92},{gemara:1.04,commentary:.90}],recoveryTotal=recoveryPatterns.length*recoveryScales.length*recoveryOpenings.length;
     let recoveryBest=null;done=0;
     recovery:for(const openingLines of recoveryOpenings)for(const scale of recoveryScales)for(const seedPattern of recoveryPatterns){
       $("dafPage").style.setProperty("--opening-lines",openingLines);
