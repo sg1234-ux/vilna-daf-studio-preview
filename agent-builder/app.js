@@ -216,16 +216,19 @@ function localAgentReview(body) {
   const leftNamed = /\bleft(?:-aligned|\s+side|\s+edge)?\b|לשמאל|שמאלה/u.test(note);
   const justifyNamed = /\b(?:justify|justified|full\s+width)\b/u.test(note);
   const horizontalGutterRequested = /\b(?:horizontal\s+(?:gutter|gap|break|strip|seam)|page-wide\s+(?:gutter|gap|break)|white\s+strip)\b|\bbifurcat(?:e|es|ed|ing)\b|\b(?:gutter|gap|break)\b.{0,70}\b(?:cuts?\s+through|splits?|separates?)\b/u.test(note);
+  const openingCommentaryDisconnected = /\b(?:top|first|opening)\s+(?:(?:\d{1,2}|one|two|three|four|five|six|seven|eight)\s+)?(?:lines?\s+(?:of\s+)?)?commentar(?:y|ies)\b.{0,90}\b(?:disconnect(?:ed)?|separat(?:e|ed)|reconnect|join|connect)\b|\b(?:reconnect|join|connect)\b.{0,90}\b(?:top|first|opening)\s+(?:(?:\d{1,2}|one|two|three|four|five|six|seven|eight)\s+)?(?:lines?\s+(?:of\s+)?)?commentar(?:y|ies)\b|\bcommentar(?:y|ies)\b.{0,70}\b(?:disconnect(?:ed)?\s+from|reconnect(?:ed)?\s+(?:to|with))\b/u.test(note);
   const gutterStreams = [
     ...(/\b(?:rashi|rashbam|inner commentary)\b|רש[״"']?י|רשב/u.test(note) ? ["inner"] : []),
     ...(/\b(?:tosafos|tosafot)\b|תוספ/u.test(note) ? ["tosafot"] : [])
   ];
 
-  if (horizontalGutterRequested) {
+  if (horizontalGutterRequested || openingCommentaryDisconnected) {
     changes.enforceCommentaryContinuity = true;
     const named = gutterStreams.length ? gutterStreams.map(teacherStreamLabel).join(" and ") : "Rashi/Rashbam and Tosafos";
-    summary = `Remove the horizontal gutter through ${named}.`;
-    reason = "The Gemara top or bottom wall will remain inside the Gemara column only. Commentary text will continue through the same vertical space without a page-wide bridge row or an artificial break inside Tosafos.";
+    summary = openingCommentaryDisconnected ? `Reconnect the opening commentary lines to the main ${named} streams.` : `Remove the horizontal gutter through ${named}.`;
+    reason = openingCommentaryDisconnected
+      ? "The compositor will measure the last opening-commentary baseline and the first main-commentary baseline separately for each stream, close any extra vertical gap, and reject the result if either stream is still disconnected."
+      : "The Gemara top or bottom wall will remain inside the Gemara column only. Commentary text will continue through the same vertical space without a page-wide bridge row or an artificial break inside Tosafos.";
   } else if (lineAnchor.requested) {
     if (!stream) {
       summary = "I understand that you are defining a line by its opening and closing text.";
