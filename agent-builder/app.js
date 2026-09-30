@@ -227,7 +227,7 @@ function localAgentReview(body) {
     const named = gutterStreams.length ? gutterStreams.map(teacherStreamLabel).join(" and ") : "Rashi/Rashbam and Tosafos";
     summary = openingCommentaryDisconnected ? `Reconnect the opening commentary lines to the main ${named} streams.` : `Remove the horizontal gutter through ${named}.`;
     reason = openingCommentaryDisconnected
-      ? "The compositor will measure the last opening-commentary baseline and the first main-commentary baseline separately for each stream, close any extra vertical gap, and reject the result if either stream is still disconnected."
+      ? "The compositor will enforce the fixed opening boundary: exactly four rendered commentary lines, then the next source word continues on line five beside the Gemara. Only the Gemara receives the top gutter, and validation rejects any blank commentary line at that junction."
       : "The Gemara top or bottom wall will remain inside the Gemara column only. Commentary text will continue through the same vertical space without a page-wide bridge row or an artificial break inside Tosafos.";
   } else if (lineAnchor.requested) {
     if (!stream) {
