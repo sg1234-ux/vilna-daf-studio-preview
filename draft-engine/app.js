@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.14";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.15";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -360,7 +360,7 @@ function mappedCascadePattern(profile){
   return{name:"PDF-mapped verified stage layout",cascade:true,mapped:true,boxWalls,bands};
 }
 function hasExplicitLayoutGuidance(){
-  return Boolean(state.agentSettings.forceCascade)||Number.isInteger(Number(state.agentSettings.gemaraExpansionLine));
+  return Boolean(state.agentSettings.forceCascade)||Number.isInteger(Number(state.agentSettings.expansionLine||state.agentSettings.gemaraExpansionLine));
 }
 function completionEventPatterns(w){
   const three=ordered(STREAMS),top=primaryWidths(w),out=[
@@ -402,12 +402,13 @@ function auditCompletionEventPatterns(patterns){
 function candidates(w){
   const three=ordered(STREAMS),top=primaryWidths(w),guided=state.agentSettings.forceCascade&&STREAMS.includes(state.agentSettings.preferredSurvivor);
   if(guided){const completed=STREAMS.includes(state.agentSettings.completedStream)?state.agentSettings.completedStream:"gemara",pair=ordered(STREAMS.filter(stream=>stream!==completed)),survivor=state.agentSettings.preferredSurvivor,lines=state.agentSettings.continuationLines||2,leading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--commentary-leading"))||12.05,pairWidth=releasedPairWidths(three,top,pair);if(!pair.includes(survivor))return[];return stepped(28,82,3).map(upper=>({name:`teacher-guided ${completed} completes; ${survivor} takeover (${lines} narrow lines)`,cascade:true,guided:true,bands:[{height:upper,streams:three,widths:top},{height:0,pixelHeight:lines*leading,streams:pair,widths:pairWidth},{height:100-upper,streams:[survivor],widths:[100]}]}));}
-  const expansionLine=Number(state.agentSettings.gemaraExpansionLine);
+  const expansionLine=Number(state.agentSettings.expansionLine||state.agentSettings.gemaraExpansionLine),expansionStream=STREAMS.includes(state.agentSettings.expansionStream)?state.agentSettings.expansionStream:"gemara",expansionInto=STREAMS.includes(state.agentSettings.expansionIntoStream)&&state.agentSettings.expansionIntoStream!==expansionStream?state.agentSettings.expansionIntoStream:null;
   if(Number.isInteger(expansionLine)){
-    const bodyHeight=Math.max(1,$("bodyGeometry").clientHeight),gemaraLeading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--gemara-leading"))||16.35,gutter=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--daf-gutter"))||25,upper=clamp((gutter+Math.max(0,expansionLine-1)*gemaraLeading)/bodyHeight*100,10,90),guidedPatterns=[];
-    for(const omitted of ["inner","tosafot"]){
+    const bodyHeight=Math.max(1,$("bodyGeometry").clientHeight),pageStyle=getComputedStyle($("dafPage")),leading=expansionStream==="gemara"?(parseFloat(pageStyle.getPropertyValue("--gemara-leading"))||16.35):(parseFloat(pageStyle.getPropertyValue("--commentary-leading"))||12.05),gutter=expansionStream==="gemara"?(parseFloat(pageStyle.getPropertyValue("--daf-gutter"))||25):0,opening=expansionStream==="gemara"?0:Math.round(parseFloat(pageStyle.getPropertyValue("--opening-lines"))||4),narrowLines=Math.max(0,expansionLine-1-opening),upper=clamp((gutter+narrowLines*leading)/bodyHeight*100,6,94),guidedPatterns=[];
+    for(const omitted of expansionInto?[expansionInto]:STREAMS.filter(value=>value!==expansionStream)){
       const pair=ordered(STREAMS.filter(stream=>stream!==omitted)),pairWidth=releasedPairWidths(three,top,pair);
-      guidedPatterns.push({name:`teacher-guided Gemara expansion from line ${expansionLine} after ${omitted}`,cascade:true,guided:true,bands:[{height:upper,streams:three,widths:top},{height:100-upper,streams:pair,widths:pairWidth}]});
+      if(!pair.includes(expansionStream))continue;
+      guidedPatterns.push({name:`teacher-guided ${expansionStream} expansion from line ${expansionLine} after ${omitted}`,cascade:true,guided:true,bands:[{height:upper,streams:three,widths:top},{height:100-upper,streams:pair,widths:pairWidth}]});
       for(const middle of stepped(8,Math.max(8,Math.min(46,88-upper)),6))if(upper+middle<95)for(const survivor of pair)guidedPatterns.push({name:`teacher-guided Gemara expansion line ${expansionLine}; ${survivor} survives`,cascade:true,guided:true,bands:[{height:upper,streams:three,widths:top},{height:middle,streams:pair,widths:pairWidth},{height:100-upper-middle,streams:[survivor],widths:[100]}]});
     }
     return guidedPatterns;
@@ -448,17 +449,18 @@ function stitchStreamContinuity(final,original){
       const stateAtBoundary=states[index];
       if(!stateAtBoundary||stateAtBoundary.afterCount<=0)continue;
       const slack=Math.max(0,stateAtBoundary.regionHeight-stateAtBoundary.usedHeight),line=Math.max(1,stateAtBoundary.lineHeight);
-      if(slack<=line*.12||slack>line*1.2)continue;
+      if(slack<=line*.12)continue;
       const previous=regions[index],next=regions[index+1],row=next.parentElement,footprintChanges=Math.abs(previous.offsetWidth-next.offsetWidth)>1||Math.abs(previous.offsetLeft-next.offsetLeft)>1;
       if(footprintChanges){
-        const start=(original[stream]?.length||0)-states[0].beforeCount+states.slice(0,index+1).reduce((sum,item)=>sum+item.placedCount,0),nextCount=states[index+1].placedCount,nextChunk=(original[stream]||[]).slice(start,start+nextCount),bridgeFit=fitOpeningTokens(nextChunk,previous,1),bridgeChunk=bridgeFit.chunk;
+        const requestedLines=Math.max(1,Math.ceil(slack/line)),start=(original[stream]?.length||0)-states[0].beforeCount+states.slice(0,index+1).reduce((sum,item)=>sum+item.placedCount,0),nextCount=states[index+1].placedCount,nextChunk=(original[stream]||[]).slice(start,start+nextCount),bridgeFit=fitOpeningTokens(nextChunk,previous,requestedLines),bridgeChunk=bridgeFit.chunk;
         if(!bridgeChunk.length)continue;
-        const bridge=document.createElement("div"),delta=Math.max(0,line-slack),previousRow=previous.parentElement,rowRect=previousRow.getBoundingClientRect(),previousRect=previous.getBoundingClientRect(),rowScale=rowRect.width/Math.max(1,previousRow.offsetWidth),bridgeLeft=(previousRect.left-rowRect.left)/Math.max(.01,rowScale);
+        const bridge=document.createElement("div"),previousRow=previous.parentElement,rowRect=previousRow.getBoundingClientRect(),previousRect=previous.getBoundingClientRect(),rowScale=rowRect.width/Math.max(1,previousRow.offsetWidth),bridgeLeft=(previousRect.left-rowRect.left)/Math.max(.01,rowScale);
         bridge.className=`flow-region ${stream==="gemara"?"gemara":"commentary"} transition-continuity-bridge`;
         bridge.dataset.continuityStream=stream;bridge.dataset.continuityBridge=stream;bridge.dataset.band=previous.dataset.band;
-        bridge.innerHTML=renderedTokens(bridgeChunk,previous);finishRegionLine(bridge,true);
-        Object.assign(bridge.style,{gridColumn:"1 / -1",gridRow:"1",left:`${bridgeLeft}px`,top:`${stateAtBoundary.usedHeight}px`,width:`${previous.offsetWidth}px`,height:`${line}px`,padding:"0"});
+        bridge.innerHTML=renderedTokens(bridgeChunk,previous);
+        Object.assign(bridge.style,{gridColumn:"1 / -1",gridRow:"1",left:`${bridgeLeft}px`,top:`${stateAtBoundary.usedHeight}px`,width:`${previous.offsetWidth}px`,height:`${requestedLines*line}px`,padding:"0"});
         previousRow.style.position="relative";previousRow.style.overflow="visible";previousRow.appendChild(bridge);
+        const actualLines=Math.max(1,visualLineCount(bridge)),bridgeHeight=actualLines*line,delta=Math.max(0,bridgeHeight-slack);bridge.style.height=`${bridgeHeight}px`;finishRegionLine(bridge,bridgeChunk.length<nextChunk.length||states[index+1].afterCount>0);
         next.innerHTML=renderedTokens(nextChunk.slice(bridgeChunk.length),next);finishRegionLine(next,states[index+1].afterCount>0);
         next.style.position="relative";next.style.top=`${delta}px`;next.style.height=`calc(100% - ${delta}px)`;next.dataset.delayedWidening=String(delta);next.dataset.continuityBridgeTokens=String(bridgeChunk.length);
         if(row)row.style.overflow="visible";
@@ -968,11 +970,13 @@ $("dafPage").addEventListener("click",e=>{const visual=e.target.closest(".phrase
 $("annotationToggle").addEventListener("click",()=>setAnnotating(!state.annotating));document.querySelectorAll(".annotation-tool").forEach(button=>button.addEventListener("click",()=>selectAnnotationTool(button.dataset.tool)));$("annotationColor").addEventListener("input",e=>state.annotationColor=e.target.value);$("strokeWidth").addEventListener("input",e=>{state.strokeWidth=Number(e.target.value);$("strokeWidthValue").textContent=e.target.value;});$("annotationUndo").addEventListener("click",undoAnnotations);$("annotationRedo").addEventListener("click",redoAnnotations);$("clearAnnotations").addEventListener("click",clearAnnotations);
 $("saveProject").addEventListener("click",saveProject);$("openProject").addEventListener("click",()=>$("projectFile").click());$("projectFile").addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file)return;try{await openProjectFile(file);}catch(error){$("projectStatus").textContent=`Could not open project: ${error.message}.`;}finally{e.target.value="";}});
 function safeAgentSettings(value={}){
-  const ranges={pageHeight:[900,1300],openingLines:[2,8],gemaraScale:[.78,1.18],commentaryScale:[.72,1.18],continuationLines:[1,12],gemaraAlignmentLine:[1,200],gemaraExpansionLine:[1,200]},clean={};
-  for(const[key,[min,max]]of Object.entries(ranges)){const number=Number(value[key]);if(Number.isFinite(number)&&number>=min&&number<=max)clean[key]=["pageHeight","openingLines","continuationLines","gemaraAlignmentLine","gemaraExpansionLine"].includes(key)?Math.round(number):number;}
+  const ranges={pageHeight:[900,1300],openingLines:[2,8],gemaraScale:[.78,1.18],commentaryScale:[.72,1.18],continuationLines:[1,12],gemaraAlignmentLine:[1,200],gemaraExpansionLine:[1,200],expansionLine:[1,200]},clean={};
+  for(const[key,[min,max]]of Object.entries(ranges)){const number=Number(value[key]);if(Number.isFinite(number)&&number>=min&&number<=max)clean[key]=["pageHeight","openingLines","continuationLines","gemaraAlignmentLine","gemaraExpansionLine","expansionLine"].includes(key)?Math.round(number):number;}
   if(value.forceCascade===true)clean.forceCascade=true;if(value.stripGemaraDashes===true)clean.stripGemaraDashes=true;if(value.enforceCommentaryContinuity===true)clean.enforceCommentaryContinuity=true;if(value.enforceStreamContinuity===true)clean.enforceStreamContinuity=true;if(value.enforceReleasedSpaceTiming===true)clean.enforceReleasedSpaceTiming=true;
   if(["gemara","inner","tosafot"].includes(value.preferredSurvivor))clean.preferredSurvivor=value.preferredSurvivor;
   if(["gemara","inner","tosafot"].includes(value.completedStream))clean.completedStream=value.completedStream;
+  if(["gemara","inner","tosafot"].includes(value.expansionStream))clean.expansionStream=value.expansionStream;
+  if(["gemara","inner","tosafot"].includes(value.expansionIntoStream))clean.expansionIntoStream=value.expansionIntoStream;
   if(["right","left","center","justify","natural"].includes(value.gemaraAlignment))clean.gemaraAlignment=value.gemaraAlignment;
   if(Array.isArray(value.lineAnchors))clean.lineAnchors=value.lineAnchors.slice(0,100).filter(item=>item&&["gemara","inner","tosafot"].includes(item.stream)&&Number.isInteger(Number(item.line))&&Number(item.line)>=1&&Number(item.line)<=200&&String(item.startText||"").trim()&&String(item.endText||"").trim()).map(item=>({stream:item.stream,line:Math.round(Number(item.line)),startText:String(item.startText).trim().slice(0,180),endText:String(item.endText).trim().slice(0,180)}));
   if(value.streamAlignments&&typeof value.streamAlignments==="object"){const alignments={};for(const stream of ["inner","tosafot"]){const item=value.streamAlignments[stream];if(item&&["right","left","center","justify"].includes(item.alignment)){const line=Number(item.line);alignments[stream]={alignment:item.alignment,...(Number.isInteger(line)&&line>=1&&line<=200?{line}:{})};}}if(Object.keys(alignments).length)clean.streamAlignments=alignments;}

@@ -149,8 +149,18 @@ function teacherCommandStream(note, targetRegion) {
 }
 
 function teacherCommandLine(note) {
+  const ordinal = note.match(/\b(\d{1,3})(?:st|nd|rd|th)\s+line\b/u);
+  if (ordinal) return Number(ordinal[1]);
   const match = note.match(/(?:\bline\s*(?:number\s*)?|שורה\s*)(\d{1,3})\b/u);
   return match ? Number(match[1]) : null;
+}
+
+function teacherExpansionNeighbor(note, expandingStream) {
+  const match = note.match(/\b(?:into|across|over)\s+(?:the\s+)?(gemara|gemorah|rashi|rashbam|inner\s+commentary|tosafos|tosafot)(?:\s+(?:column|region|space))?\b/u);
+  if (!match) return null;
+  const value = match[1];
+  const stream = /gemara|gemorah/u.test(value) ? "gemara" : /rashi|rashbam|inner/u.test(value) ? "inner" : "tosafot";
+  return stream === expandingStream ? null : stream;
 }
 
 function teacherLineAnchor(rawNote, note, lineNumber) {
@@ -201,6 +211,7 @@ function localAgentReview(body) {
   const targetRegion = body.feedback?.targetRegion || "whole-page";
   const stream = teacherCommandStream(note, targetRegion);
   const lineNumber = teacherCommandLine(note);
+  const expansionNeighbor = teacherExpansionNeighbor(note, stream);
   const lineAnchor = teacherLineAnchor(rawNote, note, lineNumber);
   const changes = {};
   let summary = `Offline agent reviewed the ${targetRegion} region.`;
@@ -213,7 +224,7 @@ function localAgentReview(body) {
   const continuationLineCount = teacherContinuationLines(note);
   const removeGemaraDashes = (stream === "gemara" || targetRegion === "whole-page") && /(?:remove|delete|strip|without|take out|eliminate)\b.{0,45}\b(?:dash(?:es)?|hyphen(?:s)?)\b|(?:dash(?:es)?|hyphen(?:s)?)\b.{0,45}\b(?:remove|delete|strip)|(?:הסר|להסיר|מחק|למחוק).{0,30}(?:מקפים|מקף|קווים)/u.test(note);
   const completeGemara = (stream === "gemara" || targetRegion === "whole-page") && /(?:entire|complete|full|all(?: of)? the)\s+(?:gemara|gemorah)|(?:gemara|gemorah).{0,35}(?:entire|complete|full|all|missing|unplaced)/u.test(note);
-  const expansionRequested = stream === "gemara" && /(?:and\s+on|onward|onwards|from\s+(?:this|that|there)|following\s+lines?).{0,70}(?:fill|expand|widen|take\s*over|neighbor(?:ing)?\s+commentary)|(?:fill|expand|widen|take\s*over).{0,70}(?:commentary|rashi|rashbam|tosafos|tosafot)|(?:do\s+not|don't|needn't)\s+(?:need\s+to\s+)?be\s+aligned.{0,70}(?:commentary|region)/u.test(note);
+  const expansionRequested = Boolean(stream) && /(?:and\s+on|onward|onwards|from\s+(?:this|that|there)|following\s+lines?).{0,70}(?:fill|expand|widen|take\s*over|neighbor(?:ing)?\s+(?:commentary|region))|(?:fill|expand|widen|widens|widened|take\s*over).{0,70}(?:region|column|commentary|gemara|gemorah|rashi|rashbam|tosafos|tosafot)|(?:do\s+not|don't|needn't)\s+(?:need\s+to\s+)?be\s+aligned.{0,70}(?:commentary|region)/u.test(note);
   const alignmentRequested = /\b(?:align|aligned|alignment|flush)\b|יישר|מיושר/u.test(note);
   const rightNamed = /\bright(?:-aligned|\s+side|\s+edge)?\b|לימין|ימינה/u.test(note);
   const leftNamed = /\bleft(?:-aligned|\s+side|\s+edge)?\b|לשמאל|שמאלה/u.test(note);
@@ -270,12 +281,16 @@ function localAgentReview(body) {
     }
   } else if (expansionRequested) {
     if (!lineNumber) {
-      summary = "I understand that the Gemara should widen into a completed commentary region.";
-      reason = "Specify the first Gemara line that may use the released commentary space, for example: “From Gemara line 34 onward, widen into the neighboring commentary region.”";
+      summary = `I understand that ${teacherStreamLabel(stream)} should widen into a completed neighboring region.`;
+      reason = `Specify the first ${teacherStreamLabel(stream)} line that may use the released space, for example: “From ${teacherStreamLabel(stream)} line 34 onward, widen into the Rashi region.”`;
     } else {
-      changes.gemaraExpansionLine = lineNumber;
-      summary = `From Gemara line ${lineNumber} onward, allow Gemara to fill the released neighboring commentary region.`;
-      reason = "Earlier Gemara lines remain in the original Gemara measure. The source text and line order remain unchanged, and the transition is revalidated.";
+      changes.expansionStream = stream;
+      changes.expansionLine = lineNumber;
+      if (expansionNeighbor) changes.expansionIntoStream = expansionNeighbor;
+      if (stream === "gemara") changes.gemaraExpansionLine = lineNumber;
+      const destination = expansionNeighbor ? `the released ${teacherStreamLabel(expansionNeighbor)} region` : "the released neighboring region";
+      summary = `Keep ${teacherStreamLabel(stream)} lines 1–${Math.max(1,lineNumber-1)} at their original width; widen line ${lineNumber} and the following lines into ${destination}.`;
+      reason = `The width transition is anchored to the start of visual line ${lineNumber}. It will be accepted only if the neighboring stream has finished there; source order and every occupied-region rule remain protected.`;
     }
   } else if (alignmentRequested) {
     if (!stream) {
