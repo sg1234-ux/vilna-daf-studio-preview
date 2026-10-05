@@ -139,9 +139,12 @@ $("askAgent").addEventListener("click", async () => {
 });
 
 function teacherCommandStream(note, targetRegion) {
-  if (/\b(?:gemara|gemorah)\b|גמרא/u.test(note) || targetRegion === "gemara") return "gemara";
-  if (/\b(?:rashi|rashbam|inner commentary)\b|רש[״"']?י|רשב/u.test(note) || targetRegion === "inner-commentary") return "inner";
-  if (/\b(?:tosafos|tosafot)\b|תוספ/u.test(note) || targetRegion === "tosafos") return "tosafot";
+  if (targetRegion === "gemara") return "gemara";
+  if (targetRegion === "inner-commentary") return "inner";
+  if (targetRegion === "tosafos") return "tosafot";
+  if (/\b(?:gemara|gemorah)\b|גמרא/u.test(note)) return "gemara";
+  if (/\b(?:rashi|rashbam|inner commentary)\b|רש[״"']?י|רשב/u.test(note)) return "inner";
+  if (/\b(?:tosafos|tosafot)\b|תוספ/u.test(note)) return "tosafot";
   return null;
 }
 
@@ -216,7 +219,10 @@ function localAgentReview(body) {
   const leftNamed = /\bleft(?:-aligned|\s+side|\s+edge)?\b|לשמאל|שמאלה/u.test(note);
   const justifyNamed = /\b(?:justify|justified|full\s+width)\b/u.test(note);
   const horizontalGutterRequested = /\b(?:horizontal\s+(?:gutter|gap|break|strip|seam)|page-wide\s+(?:gutter|gap|break)|white\s+strip)\b|\bbifurcat(?:e|es|ed|ing)\b|\b(?:gutter|gap|break)\b.{0,70}\b(?:cuts?\s+through|splits?|separates?)\b/u.test(note);
-  const delayedTakeoverRequested = /\b(?:keep|confine|leave)\b.{0,70}\b(?:tosafos|tosafot|rashi|rashbam|gemara|gemorah)\b.{0,70}\b(?:current|existing|own|original)\s+(?:column|region|width)\b.{0,100}\b(?:while|until)\b|\b(?:widen|expand|take\s*over|enter|abut)\b.{0,100}\b(?:only\s+)?(?:after|once|when)\b.{0,80}\b(?:finishes?|finished|ends?|ended|final\s+word|completes?|completed)\b|\b(?:must\s+not|do\s+not|don't|cannot|can't)\b.{0,80}\b(?:widen|expand|enter|abut)\b.{0,100}\b(?:existing|occupied|active|continuing)\s+(?:column|region|text)\b/u.test(note);
+  const disconnectedSegment = /\b(?:cut\s*off|disconnect(?:ed)?|detach(?:ed)?|separat(?:e|ed)|broken\s+(?:off|away))\b/u.test(note);
+  const terminalLinesNamed = /\b(?:last|final|bottom|lower)\b.{0,55}\b(?:line|lines)\b|\b(?:line|lines)\b.{0,35}\b(?:at|on|near)\s+the\s+(?:bottom|end)\b/u.test(note);
+  const terminalStreamDisconnected = Boolean(stream && disconnectedSegment && terminalLinesNamed);
+  const delayedTakeoverRequested = /\b(?:keep|confine|leave)\b.{0,70}\b(?:tosafos|tosafot|rashi|rashbam|gemara|gemorah)\b.{0,70}\b(?:current|existing|own|original)\s+(?:column|region|width)\b.{0,100}\b(?:while|until)\b|\b(?:widen|expand|take\s*over|enter|abut(?:s|ting)?)\b.{0,100}\b(?:only\s+)?(?:after|once|when)\b.{0,80}\b(?:finishes?|finished|ends?|ended|final\s+word|completes?|completed)\b|\b(?:must\s+not|do\s+not|don't|cannot|can't)\b.{0,80}\b(?:widen|expand|enter|abut(?:s|ting)?)\b.{0,100}\b(?:existing|occupied|active|continuing)(?:\s+(?:gemara|gemorah|tosafos|tosafot|rashi|rashbam|commentary))?\s+(?:column|region|text)\b|\b(?:widen|expand|enter|abut(?:s|ting)?)\b.{0,100}\b(?:while|before|until)\b.{0,100}\b(?:still\s+(?:exists?|continues?)|has\s+not\s+(?:finished|ended|completed))\b/u.test(note);
   const releasedSpaceSubject = targetRegion === "gemara" ? "gemara" : targetRegion === "inner-commentary" ? "inner" : targetRegion === "tosafos" ? "tosafot" : /\b(?:keep|confine|leave|widen|expand)\s+(?:the\s+)?(?:tosafos|tosafot)\b/u.test(note) ? "tosafot" : /\b(?:keep|confine|leave|widen|expand)\s+(?:the\s+)?(?:rashi|rashbam|inner commentary)\b/u.test(note) ? "inner" : /\b(?:keep|confine|leave|widen|expand)\s+(?:the\s+)?(?:gemara|gemorah)\b/u.test(note) ? "gemara" : continuingStream;
   const openingCommentaryDisconnected = /\b(?:top|first|opening)\s+(?:(?:\d{1,2}|one|two|three|four|five|six|seven|eight)\s+)?(?:lines?\s+(?:of\s+)?)?commentar(?:y|ies)\b.{0,90}\b(?:disconnect(?:ed)?|separat(?:e|ed)|reconnect|join|connect)\b|\b(?:reconnect|join|connect)\b.{0,90}\b(?:top|first|opening)\s+(?:(?:\d{1,2}|one|two|three|four|five|six|seven|eight)\s+)?(?:lines?\s+(?:of\s+)?)?commentar(?:y|ies)\b|\bcommentar(?:y|ies)\b.{0,70}\b(?:disconnect(?:ed)?\s+from|reconnect(?:ed)?\s+(?:to|with))\b/u.test(note);
   const gutterStreams = [
@@ -225,7 +231,12 @@ function localAgentReview(body) {
     ...(/\b(?:tosafos|tosafot)\b|תוספ/u.test(note) ? ["tosafot"] : [])
   ];
 
-  if (delayedTakeoverRequested) {
+  if (terminalStreamDisconnected) {
+    changes.enforceStreamContinuity = true;
+    const count = continuationLineCount;
+    summary = `Reconnect the ${count ? `last ${count} lines` : "final lines"} of ${teacherStreamLabel(stream)} to the preceding ${teacherStreamLabel(stream)} text.`;
+    reason = "Those lines are the next words of the same source stream, not a new region. The compositor will remove any artificial vertical separation, preserve their source order and current width, and reject the page unless the rendered lines continue at normal leading.";
+  } else if (delayedTakeoverRequested) {
     changes.enforceReleasedSpaceTiming = true;
     const widening = releasedSpaceSubject ? teacherStreamLabel(releasedSpaceSubject) : "The continuing stream";
     summary = `${widening} stays within its existing column until the neighboring text stream finishes.`;
@@ -332,7 +343,7 @@ function localAgentReview(body) {
   } else if (note) {
     summary = "I understood the selected region, but not the requested operation.";
     if (/\bline\b|שורה/u.test(note) && !lineNumber) reason = "Include the Gemara line number and say whether that line begins a takeover, or should align right or left.";
-    else reason = "Describe one bounded change: remove a horizontal gutter, align a partial line, widen from a numbered line, complete a named text stream, remove display punctuation, or identify which commentary finishes and which stream continues.";
+    else reason = "Describe one bounded change: reconnect the final lines of a stream, remove a horizontal gutter, align a partial line, widen from a numbered line, complete a named text stream, remove display punctuation, or identify which commentary finishes and which stream continues.";
   } else if (targetRegion === "gemara") {
     summary = "The Gemara region is selected, but no correction was supplied.";
     reason = "State the visible problem—for example, “Align the incomplete Gemara line right” or “From Gemara line 34 onward, widen into the neighboring commentary region.”";
