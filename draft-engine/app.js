@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.16";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.17";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -404,12 +404,11 @@ function candidates(w){
   if(guided){const completed=STREAMS.includes(state.agentSettings.completedStream)?state.agentSettings.completedStream:"gemara",pair=ordered(STREAMS.filter(stream=>stream!==completed)),survivor=state.agentSettings.preferredSurvivor,lines=state.agentSettings.continuationLines||2,leading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--commentary-leading"))||12.05,pairWidth=releasedPairWidths(three,top,pair);if(!pair.includes(survivor))return[];return stepped(28,82,3).map(upper=>({name:`teacher-guided ${completed} completes; ${survivor} takeover (${lines} narrow lines)`,cascade:true,guided:true,bands:[{height:upper,streams:three,widths:top},{height:0,pixelHeight:lines*leading,streams:pair,widths:pairWidth},{height:100-upper,streams:[survivor],widths:[100]}]}));}
   const expansionLine=Number(state.agentSettings.expansionLine||state.agentSettings.gemaraExpansionLine),expansionStream=STREAMS.includes(state.agentSettings.expansionStream)?state.agentSettings.expansionStream:"gemara",expansionInto=STREAMS.includes(state.agentSettings.expansionIntoStream)&&state.agentSettings.expansionIntoStream!==expansionStream?state.agentSettings.expansionIntoStream:null;
   if(Number.isInteger(expansionLine)){
-    const bodyHeight=Math.max(1,$("bodyGeometry").clientHeight),pageStyle=getComputedStyle($("dafPage")),leading=expansionStream==="gemara"?(parseFloat(pageStyle.getPropertyValue("--gemara-leading"))||16.35):(parseFloat(pageStyle.getPropertyValue("--commentary-leading"))||12.05),gutter=expansionStream==="gemara"?(parseFloat(pageStyle.getPropertyValue("--daf-gutter"))||25):0,opening=expansionStream==="gemara"?0:Math.round(parseFloat(pageStyle.getPropertyValue("--opening-lines"))||4),narrowLines=Math.max(0,expansionLine-1-opening),upper=clamp((gutter+narrowLines*leading)/bodyHeight*100,6,94),guidedPatterns=[];
+    const pageStyle=getComputedStyle($("dafPage")),leading=expansionStream==="gemara"?(parseFloat(pageStyle.getPropertyValue("--gemara-leading"))||16.35):(parseFloat(pageStyle.getPropertyValue("--commentary-leading"))||12.05),gutter=expansionStream==="gemara"?(parseFloat(pageStyle.getPropertyValue("--daf-gutter"))||25):0,opening=expansionStream==="gemara"?0:Math.round(parseFloat(pageStyle.getPropertyValue("--opening-lines"))||4),narrowLines=Math.max(0,expansionLine-1-opening),boundaryHeight=gutter+narrowLines*leading,guidedPatterns=[];
     for(const omitted of expansionInto?[expansionInto]:STREAMS.filter(value=>value!==expansionStream)){
       const pair=ordered(STREAMS.filter(stream=>stream!==omitted)),pairWidth=releasedPairWidths(three,top,pair);
       if(!pair.includes(expansionStream))continue;
-      guidedPatterns.push({name:`teacher-guided ${expansionStream} expansion from line ${expansionLine} after ${omitted}`,cascade:true,guided:true,teacherExactExpansion:true,bands:[{height:upper,streams:three,widths:top},{height:100-upper,streams:pair,widths:pairWidth}]});
-      for(const middle of stepped(8,Math.max(8,Math.min(46,88-upper)),6))if(upper+middle<95)for(const survivor of pair)guidedPatterns.push({name:`teacher-guided ${expansionStream} expansion line ${expansionLine}; ${survivor} survives`,cascade:true,guided:true,teacherExactExpansion:true,bands:[{height:upper,streams:three,widths:top},{height:middle,streams:pair,widths:pairWidth},{height:100-upper-middle,streams:[survivor],widths:[100]}]});
+      guidedPatterns.push({name:`teacher-guided ${expansionStream} expansion from line ${expansionLine} after ${omitted}`,cascade:true,guided:true,teacherExactExpansion:true,expansionStream,expansionLine,bands:[{height:0,pixelHeight:boundaryHeight,streams:three,widths:top},{height:100,streams:pair,widths:pairWidth}]});
     }
     return guidedPatterns;
   }
@@ -446,6 +445,7 @@ function stitchStreamContinuity(final,original){
   for(const stream of STREAMS){
     const regions=compositionRegions(stream),states=final.results?.[stream]?.regionStates||[];
     for(let index=0;index<Math.min(regions.length-1,states.length-1);index++){
+      if(final.pattern.teacherExactExpansion&&final.pattern.expansionStream===stream&&index===0)continue;
       const stateAtBoundary=states[index];
       if(!stateAtBoundary||stateAtBoundary.afterCount<=0)continue;
       const slack=Math.max(0,stateAtBoundary.regionHeight-stateAtBoundary.usedHeight),line=Math.max(1,stateAtBoundary.lineHeight);
@@ -473,6 +473,7 @@ function stitchStreamContinuity(final,original){
   }
   validateStreamContinuity(final,final.completionFailures);
   validateNoActiveRegionTakeover(final,final.completionFailures);
+  const exactFailure=exactExpansionFailure(final.pattern);if(exactFailure)final.completionFailures.push(exactFailure);
 }
 function validateNoActiveRegionTakeover(final,failures){
   if(final.pattern.mapped)return;
@@ -551,7 +552,8 @@ function fillPasses(result){
   for(const stream of STREAMS)(result.results?.[stream]?.occupancy||[]).forEach((ratio,index)=>{if(ratio<=.78)low.push({ratio,state:result.results[stream].regionStates[index]});});
   return result.blankRatio<.10&&low.length>0&&low.every(item=>item.state?.bandIndex===finalBand)&&Math.max(...low.map(item=>item.state.regionHeight))/Math.max(1,$("bodyGeometry").clientHeight)<=.16&&result.minOccupancy>.42;
 }
-function candidatePasses(result){return result.overflow===0&&!result.completionFailures.length&&(result.pattern.teacherExactExpansion||result.transitionGapLines<=1.15&&fillPasses(result));}
+function exactExpansionFailure(pattern){if(!pattern.teacherExactExpansion||!STREAMS.includes(pattern.expansionStream))return null;const opening=pattern.expansionStream==="gemara"?0:Math.round(parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--opening-lines"))||4),first=compositionRegions(pattern.expansionStream)[0],actual=opening+(first?visualLineCount(first):0),expected=Math.max(0,Number(pattern.expansionLine)-1);return actual===expected?null:`${pattern.expansionStream} width transition is after line ${actual}, not line ${pattern.expansionLine}`;}
+function candidatePasses(result){return result.overflow===0&&!result.completionFailures.length&&!exactExpansionFailure(result.pattern)&&(result.pattern.teacherExactExpansion||result.transitionGapLines<=1.15&&fillPasses(result));}
 function sourceRank(result){return [result.results.gemara.rest.length,result.sourceOverflow,result.score];}
 function betterSourceCandidate(candidate,current){if(!current)return true;const next=sourceRank(candidate),old=sourceRank(current);for(let i=0;i<next.length;i++){if(next[i]<old[i])return true;if(next[i]>old[i])return false;}return false;}
 function nextPaint(){return new Promise(resolve=>requestAnimationFrame(resolve));}
