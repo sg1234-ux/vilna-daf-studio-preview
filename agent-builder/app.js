@@ -205,6 +205,21 @@ function teacherContinuationLines(note) {
   return named ? words[named[1]] : null;
 }
 
+function teacherTargetLineCount(note) {
+  const patterns = [
+    /\b(?:should|must|needs?\s+to)\s+(?:be|have)\s+(\d{1,3})\s+(?:visual\s+)?lines?(?:\s+long)?\b/u,
+    /\b(?:has|have|having|contains?)\s+(\d{1,3})\s+(?:visual\s+)?lines?\b/u,
+    /\bmake\b.{0,45}\b(\d{1,3})\s+(?:visual\s+)?lines?(?:\s+long)?\b/u,
+    /\b(?:change|switch|adjust)\b.{0,60}\bto\s+(\d{1,3})\s+(?:visual\s+)?lines?\b/u,
+    /\b(\d{1,3})\s+(?:visual\s+)?lines?\s+(?:long|total|altogether)\b/u
+  ];
+  for (const pattern of patterns) {
+    const match = note.match(pattern), count = Number(match?.[1]);
+    if (Number.isInteger(count) && count >= 1 && count <= 200) return count;
+  }
+  return null;
+}
+
 function localAgentReview(body) {
   const rawNote = String(body.feedback?.note || "").trim();
   const note = rawNote.toLowerCase().replace(/[“”]/g, '"').replace(/[’]/g, "'");
@@ -222,6 +237,7 @@ function localAgentReview(body) {
   const completedStream = teacherCompletedStream(note);
   const continuingStream = teacherContinuingStream(note);
   const continuationLineCount = teacherContinuationLines(note);
+  const targetLineCount = teacherTargetLineCount(note);
   const removeGemaraDashes = (stream === "gemara" || targetRegion === "whole-page") && /(?:remove|delete|strip|without|take out|eliminate)\b.{0,45}\b(?:dash(?:es)?|hyphen(?:s)?)\b|(?:dash(?:es)?|hyphen(?:s)?)\b.{0,45}\b(?:remove|delete|strip)|(?:הסר|להסיר|מחק|למחוק).{0,30}(?:מקפים|מקף|קווים)/u.test(note);
   const completeGemara = (stream === "gemara" || targetRegion === "whole-page") && /(?:entire|complete|full|all(?: of)? the)\s+(?:gemara|gemorah)|(?:gemara|gemorah).{0,35}(?:entire|complete|full|all|missing|unplaced)/u.test(note);
   const expansionRequested = Boolean(stream) && /(?:and\s+on|onward|onwards|from\s+(?:this|that|there)|following\s+lines?).{0,70}(?:fill|expand|widen|take\s*over|neighbor(?:ing)?\s+(?:commentary|region))|(?:fill|expand|widen|widens|widened|take\s*over).{0,70}(?:region|column|commentary|gemara|gemorah|rashi|rashbam|tosafos|tosafot)|(?:do\s+not|don't|needn't)\s+(?:need\s+to\s+)?be\s+aligned.{0,70}(?:commentary|region)/u.test(note);
@@ -261,6 +277,16 @@ function localAgentReview(body) {
       : gutterStreams.includes("gemara")
         ? "The Gemara may change width when a neighboring commentary finishes, but its next source line will follow at normal leading with no blank horizontal band. Validation rejects an unstitched continuing Gemara boundary."
         : "The Gemara top or bottom wall will remain inside the Gemara column only. Commentary text will continue through the same vertical space without a page-wide bridge row or an artificial break inside Tosafos.";
+  } else if (targetLineCount) {
+    if (!stream) {
+      summary = `I understand that a text stream should contain exactly ${targetLineCount} visual lines.`;
+      reason = "Name the stream: Gemara, Rashi/Rashbam, or Tosafos.";
+    } else {
+      const current = diagnostics.settings?.targetLineCounts && typeof diagnostics.settings.targetLineCounts === "object" ? diagnostics.settings.targetLineCounts : {};
+      changes.targetLineCounts = { ...current, [stream]: targetLineCount };
+      summary = `Set ${teacherStreamLabel(stream)} to exactly ${targetLineCount} visual lines.`;
+      reason = "The compositor will search the permitted type scale, preserve every source word and saved region boundary, and reject the draft unless the rendered stream has exactly the requested number of visible lines.";
+    }
   } else if (lineAnchor.requested) {
     if (!stream) {
       summary = "I understand that you are defining a line by its opening and closing text.";

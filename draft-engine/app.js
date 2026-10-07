@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.21";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.22";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -407,12 +407,12 @@ function auditCompletionEventPatterns(patterns){
   }
   return failures;
 }
-function candidates(w){
+function candidates(w,scale=1){
   const three=ordered(STREAMS),top=primaryWidths(w),guided=state.agentSettings.forceCascade&&STREAMS.includes(state.agentSettings.preferredSurvivor);
   if(guided){const completed=STREAMS.includes(state.agentSettings.completedStream)?state.agentSettings.completedStream:"gemara",pair=ordered(STREAMS.filter(stream=>stream!==completed)),survivor=state.agentSettings.preferredSurvivor,lines=state.agentSettings.continuationLines||2,leading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--commentary-leading"))||12.05,pairWidth=releasedPairWidths(three,top,pair);if(!pair.includes(survivor))return[];return stepped(28,82,3).map(upper=>({name:`teacher-guided ${completed} completes; ${survivor} takeover (${lines} narrow lines)`,cascade:true,guided:true,bands:[{height:upper,streams:three,widths:top},{height:0,pixelHeight:lines*leading,streams:pair,widths:pairWidth},{height:100-upper,streams:[survivor],widths:[100]}]}));}
   const expansionLine=Number(state.agentSettings.expansionLine||state.agentSettings.gemaraExpansionLine),expansionStream=STREAMS.includes(state.agentSettings.expansionStream)?state.agentSettings.expansionStream:"gemara",expansionInto=STREAMS.includes(state.agentSettings.expansionIntoStream)&&state.agentSettings.expansionIntoStream!==expansionStream?state.agentSettings.expansionIntoStream:null;
   if(Number.isInteger(expansionLine)){
-    const pageStyle=getComputedStyle($("dafPage")),type=typographyProfile()?.typography||{},settings=state.agentSettings||{},leading=expansionStream==="gemara"?(type.gemaraLeading||16.35)*(settings.gemaraScale||1):(type.commentaryLeading||12.05)*(settings.commentaryScale||1),gutter=expansionStream==="gemara"?(parseFloat(pageStyle.getPropertyValue("--daf-gutter"))||25):0,opening=expansionStream==="gemara"?0:Math.round(settings.openingLines||parseFloat(pageStyle.getPropertyValue("--opening-lines"))||4),narrowLines=Math.max(0,expansionLine-1-opening),boundaryHeight=gutter+narrowLines*leading,guidedPatterns=[];
+    const pageStyle=getComputedStyle($("dafPage")),type=typographyProfile()?.typography||{},settings=state.agentSettings||{},parts=scaleParts(scale),leading=expansionStream==="gemara"?(type.gemaraLeading||16.35)*(settings.gemaraScale||1)*parts.gemara:(type.commentaryLeading||12.05)*(settings.commentaryScale||1)*parts.commentary,gutter=expansionStream==="gemara"?(parseFloat(pageStyle.getPropertyValue("--daf-gutter"))||25):0,opening=expansionStream==="gemara"?0:Math.round(settings.openingLines||parseFloat(pageStyle.getPropertyValue("--opening-lines"))||4),narrowLines=Math.max(0,expansionLine-1-opening),boundaryHeight=gutter+narrowLines*leading,guidedPatterns=[];
     for(const omitted of expansionInto?[expansionInto]:STREAMS.filter(value=>value!==expansionStream)){
       const pair=ordered(STREAMS.filter(stream=>stream!==omitted)),pairWidth=releasedPairWidths(three,top,pair);
       if(!pair.includes(expansionStream))continue;
@@ -531,6 +531,39 @@ function validateRenderedGemaraLines(failures){
   rows.sort((a,b)=>a.top-b.top);
   if(rows.some((row,index)=>index&&row.top-rows[index-1].top<Math.min(row.line,rows[index-1].line)*.55))failures.push("gemara rendered lines overlap at transition");
 }
+function renderedStreamTextRows(stream){
+  const rows=[];
+  for(const region of streamRegions(stream)){
+    const mapped=[...region.querySelectorAll(":scope > .mapped-line:not(.mapped-blank-line)")];
+    if(mapped.length){for(const line of mapped){const rect=line.getBoundingClientRect();rows.push({top:rect.top,baseline:rect.bottom,words:String(line.textContent||"").trim().split(/\s+/u).filter(Boolean)});}continue;}
+    const local=[];
+    for(const token of region.querySelectorAll(".layout-token,.word-token")){
+      if(!token.textContent.trim())continue;
+      const rect=token.getBoundingClientRect(),baseline=rect.bottom;
+      let row=local.find(item=>Math.abs(item.baseline-baseline)<=2.5);
+      if(!row){row={top:rect.top,baseline,words:[]};local.push(row);}
+      row.top=Math.min(row.top,rect.top);row.words.push(token.textContent.trim());
+    }
+    rows.push(...local);
+  }
+  return rows.sort((a,b)=>a.top-b.top);
+}
+function currentRenderedLineCounts(){return Object.fromEntries(STREAMS.map(stream=>[stream,renderedStreamTextRows(stream).length]));}
+function targetLineCountFailures(result){
+  const targets=state.agentSettings.targetLineCounts||{},counts=result?.renderedLineCounts||currentRenderedLineCounts(),failures=[];
+  for(const stream of STREAMS){const target=Number(targets[stream]);if(Number.isInteger(target)&&counts[stream]!==target)failures.push(`${stream} has ${counts[stream]} rendered lines, not ${target}`);}
+  return failures;
+}
+function validateAgentLineAnchors(){
+  const failures=[];
+  for(const anchor of state.agentSettings.lineAnchors||[]){
+    const row=renderedStreamTextRows(anchor.stream)[Number(anchor.line)-1],words=row?.words.map(normalizedAnchorWord).filter(Boolean)||[],start=anchorPhraseWords(anchor.startText),end=anchorPhraseWords(anchor.endText);
+    if(!row)failures.push(`${anchor.stream} line ${anchor.line} is not rendered`);
+    else if(!start.every((word,index)=>words[index]===word))failures.push(`${anchor.stream} line ${anchor.line} does not begin with the requested words`);
+    else if(!end.every((word,index)=>words[words.length-end.length+index]===word))failures.push(`${anchor.stream} line ${anchor.line} does not end with the requested words`);
+  }
+  return failures;
+}
 function validateRenderedStreamLeading(final,failures){
   if(final.pattern.mapped)return;
   const page=$("dafPage"),pageRect=page.getBoundingClientRect(),pageScale=pageRect.width/Math.max(1,page.offsetWidth);
@@ -574,7 +607,7 @@ function fillPasses(result){
   return result.blankRatio<.10&&low.length>0&&low.every(item=>item.state?.bandIndex===finalBand)&&Math.max(...low.map(item=>item.state.regionHeight))/Math.max(1,$("bodyGeometry").clientHeight)<=.16&&result.minOccupancy>.42;
 }
 function exactExpansionFailure(pattern){if(!pattern.teacherExactExpansion||!STREAMS.includes(pattern.expansionStream))return null;const opening=pattern.expansionStream==="gemara"?0:Math.round(parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--opening-lines"))||4),regions=compositionRegions(pattern.expansionStream),first=regions[0],actual=opening+(first?visualLineCount(first):0),expected=Math.max(0,Number(pattern.expansionLine)-1);if(actual!==expected)return`${pattern.expansionStream} width transition is after line ${actual}, not line ${pattern.expansionLine}`;const next=regions[1],lastNarrow=first?renderedRows(first).at(-1):null,firstWide=next?renderedRows(next)[0]:null,line=first?parseFloat(getComputedStyle(first).lineHeight)||1:1;if(!firstWide)return`${pattern.expansionStream} line ${pattern.expansionLine} is not visibly rendered`;if(lastNarrow&&firstWide.top-lastNarrow.top<line*.55)return`${pattern.expansionStream} line ${pattern.expansionLine} overlaps the preceding line`;return null;}
-function candidatePasses(result){return result.overflow===0&&!result.completionFailures.length&&!exactExpansionFailure(result.pattern)&&(result.pattern.teacherExactExpansion||result.transitionGapLines<=1.15&&fillPasses(result));}
+function candidatePasses(result){result.renderedLineCounts=currentRenderedLineCounts();result.lineCountFailures=targetLineCountFailures(result);return result.overflow===0&&!result.completionFailures.length&&!result.lineCountFailures.length&&!exactExpansionFailure(result.pattern)&&(result.pattern.teacherExactExpansion||result.transitionGapLines<=1.15&&fillPasses(result));}
 function sourceRank(result){return [result.results.gemara.rest.length,result.sourceOverflow,result.score];}
 function betterSourceCandidate(candidate,current){if(!current)return true;const next=sourceRank(candidate),old=sourceRank(current);for(let i=0;i<next.length;i++){if(next[i]<old[i])return true;if(next[i]>old[i])return false;}return false;}
 function nextPaint(){return new Promise(resolve=>requestAnimationFrame(resolve));}
@@ -622,15 +655,15 @@ async function compose(){
     status("Exact PDF token map loaded — calculating completion-driven region transitions…");
     setScale(1);$("bodyGeometry").style.visibility="hidden";
     const final=composeMappedExact(tokens,profile),pattern=final.pattern;
-    $("bodyGeometry").style.visibility=originalBodyVisibility;await nextPaint();$("dafPage").querySelectorAll(".reference-mapped").forEach(fitMappedLineWidths);await nextPaint();final.failures=validateComposition(final);state.composition=final;state.dirty=false;
+    $("bodyGeometry").style.visibility=originalBodyVisibility;await nextPaint();$("dafPage").querySelectorAll(".reference-mapped").forEach(fitMappedLineWidths);await nextPaint();final.renderedLineCounts=currentRenderedLineCounts();final.failures=[...new Set([...validateComposition(final),...targetLineCountFailures(final),...validateAgentLineAnchors()])];state.composition=final;state.dirty=false;
     $("patternReport").textContent=pattern.name.replace("inner","Rashi/Rashbam");$("fillReport").textContent=final.failures.length?"Final test failed":"Mapped amud";$("rulesReport").textContent=final.failures.length?`Review: ${final.failures.join(", ")}`:"All mapped and region rules passed";
     setComposing(false);afterCompose();status(final.failures.length?`Mapped composition failed: ${final.failures.join(", ")}.`:`Mapped composition complete — exact lines, gutter box and cascading takeovers passed for ${state.ref}.`,final.failures.length>0);return final;
   }
-  const w=weightsFor(tokens),patterns=candidates(w),globalScales=[1],openingCandidates=SOLVER_REGRESSION_MODE&&knownReferenceProfile()?.layout?.openingLines?[knownReferenceProfile().layout.openingLines]:(state.agentSettings.openingLines?[state.agentSettings.openingLines]:[4]),total=patterns.length*globalScales.length*openingCandidates.length;
+  const w=weightsFor(tokens),targets=state.agentSettings.targetLineCounts||{},targetScaleStream=Number.isInteger(Number(targets.gemara))?"gemara":STREAMS.find(stream=>Number.isInteger(Number(targets[stream]))),scaleValues=targetScaleStream?Array.from({length:41},(_,index)=>.78+index*.01):[1],globalScales=scaleValues.map(value=>targetScaleStream==="gemara"?{gemara:value,commentary:1}:targetScaleStream?{gemara:1,commentary:value}:1),patterns=candidates(w,1),openingCandidates=SOLVER_REGRESSION_MODE&&knownReferenceProfile()?.layout?.openingLines?[knownReferenceProfile().layout.openingLines]:(state.agentSettings.openingLines?[state.agentSettings.openingLines]:[4]),total=globalScales.reduce((sum,scale)=>sum+candidates(w,scale).length,0)*openingCandidates.length;
   $("bodyGeometry").style.visibility="hidden";
   let best=null,bestPassing=null,bestSource=null,done=0;const familyBest=new Map,coarseResults=[];
   const consider=r=>{if(!best||r.score<best.score)best=r;if(betterSourceCandidate(r,bestSource))bestSource=r;if(candidatePasses(r)&&(!bestPassing||r.score<bestPassing.score))bestPassing=r;};
-  for(const openingLines of openingCandidates)for(const scale of globalScales)for(const seedPattern of patterns){
+  for(const openingLines of openingCandidates)for(const scale of globalScales)for(const seedPattern of candidates(w,scale)){
     $("dafPage").style.setProperty("--opening-lines",openingLines);
     const pattern=seedPattern.eventDriven?alignedCompletionPattern(seedPattern,scale,tokens):seedPattern;
     if(!pattern){done++;continue;}
@@ -671,7 +704,7 @@ async function compose(){
   // An invalid preview still favors the layout that places the most source text,
   // with Gemara completion first. It never becomes approvable until every rule passes.
   const selected=bestPassing||bestSource||best;if(!state.agentSettings.openingLines)state.agentSettings.openingLines=selected.openingLines||4;$("dafPage").style.setProperty("--opening-lines",state.agentSettings.openingLines);const final=evaluate(selected.pattern,selected.scale,tokens,true);final.openingLines=state.agentSettings.openingLines;stitchStreamContinuity(final,tokens);
-  $("bodyGeometry").style.visibility=originalBodyVisibility;const validationFinal=final.pattern.teacherExactExpansion?{...final,transitionGapLines:0,blankRatio:0,minOccupancy:1}:final;final.failures=validateComposition(validationFinal);if(final.pattern.teacherExactExpansion)final.failures=final.failures.filter(failure=>failure!=="commentary baseline transition");if(fillPasses(final))final.failures=final.failures.filter(failure=>failure!=="underfilled transition");if(!bestPassing)final.failures=[...new Set(["no completion-safe layout",...final.failures])];state.composition=final;state.dirty=false;
+  $("bodyGeometry").style.visibility=originalBodyVisibility;const validationFinal=final.pattern.teacherExactExpansion?{...final,transitionGapLines:0,blankRatio:0,minOccupancy:1}:final;final.renderedLineCounts=currentRenderedLineCounts();final.failures=[...new Set([...validateComposition(validationFinal),...targetLineCountFailures(final),...validateAgentLineAnchors()])];if(final.pattern.teacherExactExpansion)final.failures=final.failures.filter(failure=>failure!=="commentary baseline transition");if(fillPasses(final))final.failures=final.failures.filter(failure=>failure!=="underfilled transition");if(!bestPassing)final.failures=[...new Set(["no completion-safe layout",...final.failures])];state.composition=final;state.dirty=false;
   $("patternReport").textContent=final.pattern.name.replace("inner","Rashi/Rashbam");$("fillReport").textContent=final.overflow?"Incomplete source draft":final.failures.length?"Final test failed":"Full page";$("rulesReport").textContent=final.failures.length?`Review: ${final.failures.join(", ")}`:"All hard rules passed";
   setComposing(false);afterCompose();status(final.failures.length?`Final composition test complete${profile?" with PDF line anchors":""} — failed: ${final.failures.join(", ")}.`:`Final composition test complete — all hard region rules passed${profile?" with PDF line anchors":""} for ${state.ref}.`,final.failures.length>0);return final;
 }
@@ -1002,6 +1035,7 @@ function safeAgentSettings(value={}){
   if(["gemara","inner","tosafot"].includes(value.expansionIntoStream))clean.expansionIntoStream=value.expansionIntoStream;
   if(["right","left","center","justify","natural"].includes(value.gemaraAlignment))clean.gemaraAlignment=value.gemaraAlignment;
   if(Array.isArray(value.lineAnchors))clean.lineAnchors=value.lineAnchors.slice(0,100).filter(item=>item&&["gemara","inner","tosafot"].includes(item.stream)&&Number.isInteger(Number(item.line))&&Number(item.line)>=1&&Number(item.line)<=200&&String(item.startText||"").trim()&&String(item.endText||"").trim()).map(item=>({stream:item.stream,line:Math.round(Number(item.line)),startText:String(item.startText).trim().slice(0,180),endText:String(item.endText).trim().slice(0,180)}));
+  if(value.targetLineCounts&&typeof value.targetLineCounts==="object"){const counts={};for(const stream of STREAMS){const count=Number(value.targetLineCounts[stream]);if(Number.isInteger(count)&&count>=1&&count<=200)counts[stream]=count;}if(Object.keys(counts).length)clean.targetLineCounts=counts;}
   if(value.streamAlignments&&typeof value.streamAlignments==="object"){const alignments={};for(const stream of ["inner","tosafot"]){const item=value.streamAlignments[stream];if(item&&["right","left","center","justify"].includes(item.alignment)){const line=Number(item.line);alignments[stream]={alignment:item.alignment,...(Number.isInteger(line)&&line>=1&&line<=200?{line}:{})};}}if(Object.keys(alignments).length)clean.streamAlignments=alignments;}
   return clean;
 }
