@@ -208,6 +208,7 @@ function teacherContinuationLines(note) {
 function teacherTargetLineCount(note) {
   const patterns = [
     /\b(?:should|must|needs?\s+to)\s+(?:be|have)\s+(\d{1,3})\s+(?:visual\s+)?lines?(?:\s+long)?\b/u,
+    /\b(?:should|must|needs?\s+to)\s+(?:contain|include)\s+(?:exactly\s+)?(\d{1,3})\s+(?:visual\s+)?lines?\b/u,
     /\b(?:has|have|having|contains?)\s+(\d{1,3})\s+(?:visual\s+)?lines?\b/u,
     /\bmake\b.{0,45}\b(\d{1,3})\s+(?:visual\s+)?lines?(?:\s+long)?\b/u,
     /\b(?:change|switch|adjust)\b.{0,60}\bto\s+(\d{1,3})\s+(?:visual\s+)?lines?\b/u,
