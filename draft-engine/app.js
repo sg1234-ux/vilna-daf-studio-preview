@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.19";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.20";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -465,9 +465,13 @@ function stitchStreamContinuity(final,original){
         next.style.position="relative";next.style.top=`${delta}px`;next.style.height=`calc(100% - ${delta}px)`;next.dataset.delayedWidening=String(delta);next.dataset.continuityBridgeTokens=String(bridgeChunk.length);
         if(row)row.style.overflow="visible";
       }else{
-        next.style.position="relative";next.style.top=`-${slack}px`;next.style.height=`calc(100% + ${slack}px)`;next.style.zIndex="2";
-        if(row)row.style.overflow="visible";
-        next.dataset.continuityLift=String(slack);
+        const previousRow=previous.parentElement,nextHeight=next.offsetHeight,nextContinues=states[index+1].afterCount>0;
+        previous.append(document.createTextNode(" "),...[...next.childNodes]);
+        previous.classList.remove("line-end-justify","line-end-center");
+        previous.style.position="relative";previous.style.height=`calc(100% + ${nextHeight}px)`;previous.style.zIndex="2";
+        previous.dataset.continuityMerged="true";next.replaceChildren();next.dataset.continuityMergedInto=String(previous.dataset.band);
+        finishRegionLine(previous,nextContinues);
+        if(previousRow)previousRow.style.overflow="visible";if(row)row.style.overflow="visible";
       }
     }
   }
@@ -502,13 +506,22 @@ function validateStreamContinuity(final,failures){
       if(footprintChanges){
         const bridge=previous.parentElement.querySelector(`[data-continuity-bridge="${stream}"]`),previousRect=previous.getBoundingClientRect(),bridgeRect=bridge?.getBoundingClientRect(),nextRect=next.getBoundingClientRect();
         if(!bridge||next.dataset.continuityLift||!bridgeRect||Math.abs(bridgeRect.left-previousRect.left)>1||Math.abs(bridgeRect.width-previousRect.width)>1||nextRect.top<bridgeRect.bottom-1)failures.push(`${stream} widens before neighboring stream completes`);
-      }else{
-        const lift=Number(next.dataset.continuityLift);
-        if(!Number.isFinite(lift)||Math.abs(lift-slack)>.75)failures.push(`${stream} stream continuity gap`);
-      }
+      }else if(previous.dataset.continuityMerged!=="true"||next.dataset.continuityMergedInto!==String(previous.dataset.band)||next.textContent.trim())failures.push(`${stream} stream continuity gap`);
     }
   }
   validateRenderedStreamLeading(final,failures);
+  validateRenderedGemaraLines(failures);
+}
+function renderedRows(region){
+  const line=parseFloat(getComputedStyle(region).lineHeight)||1,rects=[...region.querySelectorAll(".layout-token,.word-token")].filter(token=>token.textContent.trim()).map(token=>token.getBoundingClientRect()).sort((a,b)=>a.top-b.top),rows=[];
+  for(const rect of rects){const center=rect.top+rect.height/2,last=rows.at(-1);if(!last||center-last.center>line*.55)rows.push({top:rect.top,bottom:rect.bottom,center});else{last.top=Math.min(last.top,rect.top);last.bottom=Math.max(last.bottom,rect.bottom);}}
+  return rows;
+}
+function validateRenderedGemaraLines(failures){
+  const regions=compositionRegions("gemara"),rows=[];
+  for(const region of regions){const box=region.getBoundingClientRect(),line=parseFloat(getComputedStyle(region).lineHeight)||1;for(const row of renderedRows(region)){if(row.top<box.top-2||row.bottom>box.bottom+2)failures.push("gemara rendered line is clipped");rows.push({...row,line});}}
+  rows.sort((a,b)=>a.top-b.top);
+  if(rows.some((row,index)=>index&&row.top-rows[index-1].top<Math.min(row.line,rows[index-1].line)*.55))failures.push("gemara rendered lines overlap at transition");
 }
 function validateRenderedStreamLeading(final,failures){
   if(final.pattern.mapped)return;
@@ -552,7 +565,7 @@ function fillPasses(result){
   for(const stream of STREAMS)(result.results?.[stream]?.occupancy||[]).forEach((ratio,index)=>{if(ratio<=.78)low.push({ratio,state:result.results[stream].regionStates[index]});});
   return result.blankRatio<.10&&low.length>0&&low.every(item=>item.state?.bandIndex===finalBand)&&Math.max(...low.map(item=>item.state.regionHeight))/Math.max(1,$("bodyGeometry").clientHeight)<=.16&&result.minOccupancy>.42;
 }
-function exactExpansionFailure(pattern){if(!pattern.teacherExactExpansion||!STREAMS.includes(pattern.expansionStream))return null;const opening=pattern.expansionStream==="gemara"?0:Math.round(parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--opening-lines"))||4),first=compositionRegions(pattern.expansionStream)[0],actual=opening+(first?visualLineCount(first):0),expected=Math.max(0,Number(pattern.expansionLine)-1);return actual===expected?null:`${pattern.expansionStream} width transition is after line ${actual}, not line ${pattern.expansionLine}`;}
+function exactExpansionFailure(pattern){if(!pattern.teacherExactExpansion||!STREAMS.includes(pattern.expansionStream))return null;const opening=pattern.expansionStream==="gemara"?0:Math.round(parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--opening-lines"))||4),regions=compositionRegions(pattern.expansionStream),first=regions[0],actual=opening+(first?visualLineCount(first):0),expected=Math.max(0,Number(pattern.expansionLine)-1);if(actual!==expected)return`${pattern.expansionStream} width transition is after line ${actual}, not line ${pattern.expansionLine}`;const next=regions[1],lastNarrow=first?renderedRows(first).at(-1):null,firstWide=next?renderedRows(next)[0]:null,line=first?parseFloat(getComputedStyle(first).lineHeight)||1:1;if(!firstWide)return`${pattern.expansionStream} line ${pattern.expansionLine} is not visibly rendered`;if(lastNarrow&&firstWide.top-lastNarrow.top<line*.55)return`${pattern.expansionStream} line ${pattern.expansionLine} overlaps the preceding line`;return null;}
 function candidatePasses(result){return result.overflow===0&&!result.completionFailures.length&&!exactExpansionFailure(result.pattern)&&(result.pattern.teacherExactExpansion||result.transitionGapLines<=1.15&&fillPasses(result));}
 function sourceRank(result){return [result.results.gemara.rest.length,result.sourceOverflow,result.score];}
 function betterSourceCandidate(candidate,current){if(!current)return true;const next=sourceRank(candidate),old=sourceRank(current);for(let i=0;i<next.length;i++){if(next[i]<old[i])return true;if(next[i]>old[i])return false;}return false;}
