@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.26";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.27";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -301,13 +301,13 @@ function phrasePositions(words,phrase,from=0){const hits=[];for(let index=from;i
 function applyStreamLineAnchors(tokens,stream){
   const anchors=(state.agentSettings.lineAnchors||[]).filter(item=>item.stream===stream).sort((a,b)=>a.line-b.line);
   if(!anchors.length||referenceProfile())return tokens;
-  const words=tokens.filter(token=>!token.break&&!token.blankLine),before=new Set,after=new Set;
+  const words=tokens.filter(token=>!token.break&&!token.blankLine),before=new Set,after=new Set;let searchFrom=0;
   for(const anchor of anchors){
-    const startPhrase=anchorPhraseWords(anchor.startText),endPhrase=anchorPhraseWords(anchor.endText),starts=phrasePositions(words,startPhrase);
-    if(starts.length!==1){state.agentAnchorFailures.push(`${stream} line ${anchor.line} opening anchor ${starts.length?"is ambiguous":"was not found"}`);continue;}
-    const start=starts[0],ends=phrasePositions(words,endPhrase,start).filter(index=>index>=start);
-    if(ends.length!==1){state.agentAnchorFailures.push(`${stream} line ${anchor.line} closing anchor ${ends.length?"is ambiguous":"was not found"}`);continue;}
-    const end=ends[0]+endPhrase.length-1;if(end<start){state.agentAnchorFailures.push(`${stream} line ${anchor.line} anchor order is invalid`);continue;}
+    const startPhrase=anchorPhraseWords(anchor.startText),endPhrase=anchorPhraseWords(anchor.endText),start=phrasePositions(words,startPhrase,searchFrom)[0];
+    if(!Number.isInteger(start)){state.agentAnchorFailures.push(`${stream} line ${anchor.line} opening anchor was not found in sequence`);continue;}
+    const endStart=phrasePositions(words,endPhrase,start).find(index=>index>=start);
+    if(!Number.isInteger(endStart)){state.agentAnchorFailures.push(`${stream} line ${anchor.line} closing anchor was not found after its opening`);continue;}
+    const end=endStart+endPhrase.length-1;if(end<start){state.agentAnchorFailures.push(`${stream} line ${anchor.line} anchor order is invalid`);continue;}searchFrom=end+1;
     if(start>0)before.add(start);if(end<words.length-1)after.add(end);
   }
   const out=[];words.forEach((token,index)=>{if(before.has(index))out.push({break:true,agentAnchor:true});out.push(token);if(after.has(index))out.push({break:true,agentAnchor:true});});return out;
