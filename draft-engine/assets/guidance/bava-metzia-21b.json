@@ -1142,7 +1142,9 @@
     "openingLines": 5,
     "continuousCommentaryStreams": [
       "tosafot"
-    ]
+    ],
+    "finalGemaraGutterLines": 2,
+    "pageHeight": 1090
   },
   "textSource": "https://www.sefaria.org/Bava_Metzia.21b",
   "textVersion": "William Davidson Edition - Vocalized Aramaic",
