@@ -1,0 +1,346 @@
+{
+  "ref": "Bava Metzia 21b",
+  "source": "https://images.e-daf.com/DafImg.asp?ID=3067&size=2",
+  "status": "Scan-derived Gemara boundaries; rendered layout requires validation. Sefaria expansions and variants are retained.",
+  "settings": {
+    "targetLineCounts": {
+      "gemara": 54
+    },
+    "expansionLine": 54,
+    "gemaraExpansionLine": 54,
+    "expansionStream": "gemara",
+    "expansionIntoStream": "tosafot",
+    "innerSide": "right",
+    "stripGemaraDashes": true,
+    "enforceStreamContinuity": true,
+    "lineAnchors": [
+      {
+        "stream": "gemara",
+        "line": 1,
+        "startText": "יֵאוּשׁ שֶׁלֹּא",
+        "endText": "הָוֵי יֵאוּשׁ."
+      },
+      {
+        "stream": "gemara",
+        "line": 2,
+        "startText": "וְרָבָא אָמַר:",
+        "endText": "בּוֹ סִימָן"
+      },
+      {
+        "stream": "gemara",
+        "line": 3,
+        "startText": "כּוּלֵּי עָלְמָא",
+        "endText": "יֵאוּשׁ. וְאַף"
+      },
+      {
+        "stream": "gemara",
+        "line": 4,
+        "startText": "עַל גַּב",
+        "endText": "לָא הָוֵי"
+      },
+      {
+        "stream": "gemara",
+        "line": 5,
+        "startText": "יֵאוּשׁ, דְּכִי",
+        "endText": "הוּא דַּאֲתָא"
+      },
+      {
+        "stream": "gemara",
+        "line": 6,
+        "startText": "לִידֵיהּ, דִּלְכִי",
+        "endText": "לָא מִיָּאַשׁ,"
+      },
+      {
+        "stream": "gemara",
+        "line": 7,
+        "startText": "מֵימָר אָמַר:",
+        "endText": "בְּגַוֵּיהּ, יָהֵבְנָא"
+      },
+      {
+        "stream": "gemara",
+        "line": 8,
+        "startText": "סִימָנָא וְשָׁקֵילְנָא",
+        "endText": "יָם וּבִשְׁלוּלִיתוֹ"
+      },
+      {
+        "stream": "gemara",
+        "line": 9,
+        "startText": "שֶׁל נָהָר,",
+        "endText": "רַחֲמָנָא שַׁרְיֵיהּ,"
+      },
+      {
+        "stream": "gemara",
+        "line": 10,
+        "startText": "כִּדְבָעֵינַן לְמֵימַר",
+        "endText": "בְּדָבָר שֶׁאֵין"
+      },
+      {
+        "stream": "gemara",
+        "line": 11,
+        "startText": "בּוֹ סִימָן.",
+        "endText": "דְּהָא לָא"
+      },
+      {
+        "stream": "gemara",
+        "line": 12,
+        "startText": "יָדַע דִּנְפַל",
+        "endText": "יֵאוּשׁ, דִּלְכִי"
+      },
+      {
+        "stream": "gemara",
+        "line": 13,
+        "startText": "יָדַע דִּנְפַל",
+        "endText": "אָמַר: סִימָנָא"
+      },
+      {
+        "stream": "gemara",
+        "line": 14,
+        "startText": "לֵית לִי",
+        "endText": "דְּמִיָּאַשׁ. (סִימַן"
+      },
+      {
+        "stream": "gemara",
+        "line": 15,
+        "startText": "פמג״ש ממקגט״י",
+        "endText": "שְׁמַע: פֵּירוֹת"
+      },
+      {
+        "stream": "gemara",
+        "line": 16,
+        "startText": "מְפוּזָּרִין, הָא",
+        "endText": "הָא אָמַר"
+      },
+      {
+        "stream": "gemara",
+        "line": 17,
+        "startText": "רַב עוּקְבָא",
+        "endText": "[דְּבֵי דָרֵי]"
+      },
+      {
+        "stream": "gemara",
+        "line": 18,
+        "startText": "עָסְקִינַן, דַּאֲבֵידָה",
+        "endText": "שְׁמַע: מָעוֹת"
+      },
+      {
+        "stream": "gemara",
+        "line": 19,
+        "startText": "מְפוּזָּרוֹת הֲרֵי",
+        "endText": "לָא יָדַע"
+      },
+      {
+        "stream": "gemara",
+        "line": 20,
+        "startText": "דִּנְפַל מִינֵּיהּ!",
+        "endText": "יִצְחָק דְּאָמַר:"
+      },
+      {
+        "stream": "gemara",
+        "line": 21,
+        "startText": "אָדָם עָשׂוּי",
+        "endText": "בְּכׇל שָׁעָה"
+      },
+      {
+        "stream": "gemara",
+        "line": 22,
+        "startText": "וְשָׁעָה. הָכָא",
+        "endText": "לְמַשְׁמֵשׁ בְּכִיסוֹ"
+      },
+      {
+        "stream": "gemara",
+        "line": 23,
+        "startText": "בְּכׇל שָׁעָה",
+        "endText": "דְבֵילָה וְכִכָּרוֹת"
+      },
+      {
+        "stream": "gemara",
+        "line": 24,
+        "startText": "שֶׁל נַחְתּוֹם",
+        "endText": "לָא יָדַע"
+      },
+      {
+        "stream": "gemara",
+        "line": 25,
+        "startText": "דִּנְפַל מִינֵּיהּ?",
+        "endText": "דְּיַקִּירֵי מִידָּע"
+      },
+      {
+        "stream": "gemara",
+        "line": 26,
+        "startText": "יָדַע בְּהוּ.",
+        "endText": "הֲרֵי אֵלּוּ"
+      },
+      {
+        "stream": "gemara",
+        "line": 27,
+        "startText": "שֶׁלּוֹ. וְאַמַּאי?",
+        "endText": "מִינֵּיהּ! הָתָם"
+      },
+      {
+        "stream": "gemara",
+        "line": 28,
+        "startText": "נָמֵי, אַגַּב",
+        "endText": "מְמַשְׁמֵשׁ בְּהוּ,"
+      },
+      {
+        "stream": "gemara",
+        "line": 29,
+        "startText": "וְכִדְרַבִּי יִצְחָק.",
+        "endText": "מָעוֹת בְּבָתֵּי"
+      },
+      {
+        "stream": "gemara",
+        "line": 30,
+        "startText": "כְנֵסִיּוֹת וּבְבָתֵּי",
+        "endText": "מָקוֹם שֶׁהָרַבִּים"
+      },
+      {
+        "stream": "gemara",
+        "line": 31,
+        "startText": "מְצוּיִין שָׁם",
+        "endText": "מִפְּנֵי שֶׁהַבְּעָלִים"
+      },
+      {
+        "stream": "gemara",
+        "line": 32,
+        "startText": "מִתְיָאֲשִׁין מֵהֶן.",
+        "endText": "מִינֵּיהּ? אָמַר"
+      },
+      {
+        "stream": "gemara",
+        "line": 33,
+        "startText": "רַבִּי יִצְחָק:",
+        "endText": "בְּכִיסוֹ בְּכׇל"
+      },
+      {
+        "stream": "gemara",
+        "line": 34,
+        "startText": "שָׁעָה. תָּא",
+        "endText": "אָדָם מוּתָּרִים"
+      },
+      {
+        "stream": "gemara",
+        "line": 35,
+        "startText": "בַּלֶּקֶט? מִשֶּׁיֵּלְכוּ",
+        "endText": "וְאָמְרִינַן: מַאי"
+      },
+      {
+        "stream": "gemara",
+        "line": 36,
+        "startText": "נָמוֹשׁוֹת? וְאָמַר",
+        "endText": "דְּאָזְלִי אַתִּיגְרָא."
+      },
+      {
+        "stream": "gemara",
+        "line": 37,
+        "startText": "רֵישׁ לָקִישׁ",
+        "endText": "לָקוֹטֵי. וְאַמַּאי?"
+      },
+      {
+        "stream": "gemara",
+        "line": 38,
+        "startText": "נְהִי דַּעֲנִיִּים",
+        "endText": "אִיכָּא עֲנִיִּים"
+      },
+      {
+        "stream": "gemara",
+        "line": 39,
+        "startText": "בְּדוּכְתָּא אַחְרִיתָא",
+        "endText": "אָמְרִי: כֵּיוָן"
+      },
+      {
+        "stream": "gemara",
+        "line": 40,
+        "startText": "דְּאִיכָּא עֲנִיִּים",
+        "endText": "מֵעִיקָּרָא אִיָּאוֹשֵׁי"
+      },
+      {
+        "stream": "gemara",
+        "line": 41,
+        "startText": "מִיָּאַשׁ, וְאָמְרִי:",
+        "endText": "תָּא שְׁמַע:"
+      },
+      {
+        "stream": "gemara",
+        "line": 42,
+        "startText": "קְצִיעוֹת בַּדֶּרֶךְ,",
+        "endText": "שְׂדֵה קְצִיעוֹת,"
+      },
+      {
+        "stream": "gemara",
+        "line": 43,
+        "startText": "וְכֵן תְּאֵנָה",
+        "endText": "וּמָצָא תְּאֵנִים"
+      },
+      {
+        "stream": "gemara",
+        "line": 44,
+        "startText": "תַּחְתֶּיהָ מוּתָּרוֹת",
+        "endText": "וּפְטוּרוֹת מִן"
+      },
+      {
+        "stream": "gemara",
+        "line": 45,
+        "startText": "הַמַּעֲשֵׂר. בְּזֵיתִים",
+        "endText": "אָסוּר. בִּשְׁלָמָא"
+      },
+      {
+        "stream": "gemara",
+        "line": 46,
+        "startText": "רֵישָׁא לְאַבָּיֵי",
+        "endText": "אַגַּב דַּחֲשִׁיבִי"
+      },
+      {
+        "stream": "gemara",
+        "line": 47,
+        "startText": "מְמַשְׁמֵשׁ בְּהוּ.",
+        "endText": "יְדִיעַ דְּנָתְרָא."
+      },
+      {
+        "stream": "gemara",
+        "line": 48,
+        "startText": "אֶלָּא סֵיפָא",
+        "endText": "דְּקָתָנֵי ״בְּזֵיתִים"
+      },
+      {
+        "stream": "gemara",
+        "line": 49,
+        "startText": "וּבְחָרוּבִים אָסוּר״,",
+        "endText": "שָׁאנֵי זַיִת,"
+      },
+      {
+        "stream": "gemara",
+        "line": 50,
+        "startText": "הוֹאִיל וְחָזוּתוֹ",
+        "endText": "גַּב דְּנָתְרִין"
+      },
+      {
+        "stream": "gemara",
+        "line": 51,
+        "startText": "זֵיתֵי מִידָּע",
+        "endText": "דְּאִינִישׁ אִינִישׁ"
+      },
+      {
+        "stream": "gemara",
+        "line": 52,
+        "startText": "הוּא. אִי",
+        "endText": "אָמַר רַב"
+      },
+      {
+        "stream": "gemara",
+        "line": 53,
+        "startText": "פָּפָּא: תְּאֵנָה",
+        "endText": "נִמְאֶסֶת. תָּא"
+      },
+      {
+        "stream": "gemara",
+        "line": 54,
+        "startText": "שְׁמַע: הַגַּנָּב",
+        "endText": "גזלן שנטל מזה ונתן לזה"
+      }
+    ]
+  },
+  "textSource": "https://www.sefaria.org/Bava_Metzia.21b",
+  "textVersion": "William Davidson Edition - Vocalized Aramaic",
+  "textLicense": "CC-BY-NC"
+}

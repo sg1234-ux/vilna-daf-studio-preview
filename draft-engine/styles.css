@@ -455,3 +455,6 @@ input[type="color"] { width: 100%; height: 34px; padding: 2px; border: 1px solid
   .page-zoom-shell { width: auto !important; height: auto !important; margin: 0; }
   .daf-page { margin: 0; box-shadow: none; transform: none !important; }
 }
+
+/* Complete teacher anchors retain one row per line, without protected-page indentation. */
+.body-geometry .gemara.anchor-mapped .mapped-line { width:100%; margin-inline:0; }
