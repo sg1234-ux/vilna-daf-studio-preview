@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.34";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.35";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -629,15 +629,26 @@ async function calibratedAnchorScale(tokens){
   if(scale.gemara<.78||scale.gemara>1.18)return null;
   const omitted=settings.expansionIntoStream,survivor=STREAMS.find(stream=>stream!=="gemara"&&stream!==omitted);
   if(!STREAMS.includes(omitted)||!survivor)return null;
-  for(const stream of [omitted,survivor]){
-    let lo=.7,hi=1.6;
-    for(let attempt=0;attempt<12;attempt++){
-      const value=(lo+hi)/2;scale[stream==="inner"?"innerFontFactor":"tosafotFontFactor"]=value;
-      const pattern=candidates(weightsFor(tokens),scale)[0],result=evaluate(pattern,scale,tokens);
-      if(result.results[stream].rest.length===0)lo=value;else hi=value;
-      if(attempt%2===1){status(`Calibrating ${stream==="inner"?"Rashi":"Tosafos"} against the anchored Gemara boundary…`);await nextPaint();}
+  for(let pass=0;pass<5;pass++){
+    for(const stream of [omitted,survivor]){
+      let lo=.7,hi=1.6;
+      for(let attempt=0;attempt<12;attempt++){
+        const value=(lo+hi)/2;scale[stream==="inner"?"innerFontFactor":"tosafotFontFactor"]=value;
+        const pattern=candidates(weightsFor(tokens),scale)[0],result=evaluate(pattern,scale,tokens);
+        if(result.results[stream].rest.length===0)lo=value;else hi=value;
+        if(attempt%2===1){status(`Calibrating ${stream==="inner"?"Rashi":"Tosafos"} against the anchored Gemara boundary…`);await nextPaint();}
+      }
+      scale[stream==="inner"?"innerFontFactor":"tosafotFontFactor"]=lo;
     }
-    scale[stream==="inner"?"innerFontFactor":"tosafotFontFactor"]=lo;
+    const result=evaluate(candidates(weightsFor(tokens),scale)[0],scale,tokens),boundary=lastStateForBand(result.results[omitted],0);
+    const slack=boundary.regionHeight-boundary.usedHeight;
+    if(slack<=boundary.lineHeight*1.15)break;
+    // Discrete word wraps can leave a gap even at the largest font that fits.
+    // Move the anchored boundary toward measured completion, then refit both
+    // commentaries; never waive the one-line transition rule.
+    const next=scale.gemara-(slack-boundary.lineHeight*.5)/((count-1)*leading);
+    if(next<.78)break;
+    scale.gemara=next;
   }
   return scale;
 }
