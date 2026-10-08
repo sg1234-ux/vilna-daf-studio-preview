@@ -5,7 +5,7 @@ const source=fs.readFileSync(new URL('../draft-engine/app.js',import.meta.url),'
 const ctx=vm.createContext({});
 vm.runInContext(source.slice(source.indexOf('const REFERENCE_PROFILES='),source.indexOf('// Exact phrase rows'))+'; globalThis.profiles=REFERENCE_PROFILES;',ctx);
 const p=ctx.profiles['pesachim 100a'];
-assert.equal(p.reviewStatus,'draft');
+assert.equal(p.reviewStatus,'approved');
 assert.equal(p.maps.gemara.lineEndTokens.length,25);
 assert.equal(p.layout.boxWalls,true);
 assert.ok(Math.abs(p.typography.commentaryLeading*31-(25*p.typography.gemaraLeading+50))<0.001);
