@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.42";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.43";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -271,7 +271,7 @@ function visualLineCount(element){
   for(const rect of rects){const center=rect.top+rect.height/2;if(!rows.length||center-rows[rows.length-1]>line*.55)rows.push(center);}
   return rows.length;
 }
-function fitTokens(tokens,region){if(!tokens.length||region.clientWidth<5||region.clientHeight<5)return{chunk:[],rest:tokens,usedHeight:0};const p=makeProbe(region),mapped=region.classList.contains("reference-mapped");let lo=0,hi=tokens.length;while(lo<hi){const mid=Math.ceil((lo+hi)/2);p.innerHTML=renderedTokens(tokens.slice(0,mid),region);if(p.getBoundingClientRect().height<=region.clientHeight+.35&&(mapped||p.scrollWidth<=p.clientWidth+1))lo=mid;else hi=mid-1;}if(mapped&&lo<tokens.length){let boundary=0;for(let i=0;i<lo;i++)if(tokens[i].break||tokens[i].blankLine)boundary=i+1;lo=boundary;}if(lo>0&&lo<tokens.length&&tokens[lo-1].transition&&tokens[lo].transition)while(lo>0&&tokens[lo-1].transition)lo--;const chunk=tokens.slice(0,lo);p.innerHTML=renderedTokens(chunk,region);const usedHeight=p.getBoundingClientRect().height;p.remove();return{chunk,rest:tokens.slice(lo),usedHeight};}
+function fitTokens(tokens,region){if(!tokens.length||region.clientWidth<5||region.clientHeight<5)return{chunk:[],rest:tokens,usedHeight:0};const p=makeProbe(region),mapped=region.classList.contains("reference-mapped"),capacity=mapped?region.getBoundingClientRect().height/($("dafPage").getBoundingClientRect().width/$("dafPage").offsetWidth):region.clientHeight;let lo=0,hi=tokens.length;while(lo<hi){const mid=Math.ceil((lo+hi)/2);p.innerHTML=renderedTokens(tokens.slice(0,mid),region);if(p.getBoundingClientRect().height<=capacity+.35&&(mapped||p.scrollWidth<=p.clientWidth+1))lo=mid;else hi=mid-1;}if(mapped&&lo<tokens.length){let boundary=0;for(let i=0;i<lo;i++)if(tokens[i].break||tokens[i].blankLine)boundary=i+1;lo=boundary;}if(lo>0&&lo<tokens.length&&tokens[lo-1].transition&&tokens[lo].transition)while(lo>0&&tokens[lo-1].transition)lo--;const chunk=tokens.slice(0,lo);p.innerHTML=renderedTokens(chunk,region);const usedHeight=p.getBoundingClientRect().height;p.remove();return{chunk,rest:tokens.slice(lo),usedHeight};}
 function fitOpeningTokens(tokens,region,targetLines){
   if(!tokens.length||region.clientWidth<5)return{chunk:[],rest:tokens,usedHeight:0};
   const p=makeProbe(region);let lo=0,hi=tokens.length;
@@ -345,11 +345,11 @@ function measureAnchorLine(tokens,stream,anchor){
 }
 function calibratePrimaryWidths(tokens){
   const body=$("bodyGeometry"),pageStyle=getComputedStyle($("dafPage")),gutter=parseFloat(pageStyle.getPropertyValue("--daf-side-gutter"))||20,baselineGutter=parseFloat(pageStyle.getPropertyValue("--daf-gutter"))||25,available=Math.max(1,body.clientWidth-2*gutter),baselineAvailable=Math.max(1,body.clientWidth-2*baselineGutter),base={gemara:2.5,inner:1.625,tosafot:1.625},baseTotal=5.75,widths=Object.fromEntries(STREAMS.map(stream=>[stream,baselineAvailable*base[stream]/baseTotal])),anchors=state.agentSettings.lineAnchors||[];
-  for(const stream of STREAMS){const anchor=anchors.find(item=>item.stream===stream&&item.line===1);if(!anchor)continue;const measured=measureAnchorLine(tokens[stream],stream,anchor);if(measured)widths[stream]=measured;}
+  for(const stream of STREAMS){if(stream!=="gemara"&&state.agentLockedStreams?.[stream])continue;const anchor=anchors.find(item=>item.stream===stream&&item.line===1);if(!anchor)continue;const measured=measureAnchorLine(tokens[stream],stream,anchor);if(measured)widths[stream]=measured;}
   const minimum={gemara:baselineAvailable*2.5/baseTotal,inner:baselineAvailable*1.625/baseTotal,tosafot:baselineAvailable*1.625/baseTotal};
   for(const stream of STREAMS)widths[stream]=Math.max(minimum[stream],widths[stream]);
   const total=STREAMS.reduce((sum,stream)=>sum+widths[stream],0);if(total>available){const scale=available/total;for(const stream of STREAMS)widths[stream]*=scale;}
-  else{const unanchored=STREAMS.filter(stream=>!anchors.some(item=>item.stream===stream&&item.line===1)),targets=unanchored.length?unanchored:STREAMS;for(const stream of targets)widths[stream]+=(available-total)/targets.length;}
+  else{const unanchored=STREAMS.filter(stream=>(stream!=="gemara"&&state.agentLockedStreams?.[stream])||!anchors.some(item=>item.stream===stream&&item.line===1)),targets=unanchored.length?unanchored:STREAMS;for(const stream of targets)widths[stream]+=(available-total)/targets.length;}
   return widths;
 }
 function removeGemaraDashes(tokens){return tokens.flatMap(token=>{if(token.break)return[token];const text=String(token.text||"").replace(/[\u2010-\u2015\u2212-]+/gu,"");return text?[{...token,text}]:[];});}
