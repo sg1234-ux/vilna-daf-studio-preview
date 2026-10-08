@@ -7,7 +7,8 @@ vm.runInContext(source.slice(source.indexOf('const REFERENCE_PROFILES='),source.
 const p=ctx.profiles['pesachim 100a'];
 assert.equal(p.reviewStatus,'draft');
 assert.equal(p.maps.gemara.lineEndTokens.length,25);
-assert.equal(p.layout.boxWalls,false);
+assert.equal(p.layout.boxWalls,true);
+assert.ok(Math.abs(p.typography.commentaryLeading*31-(25*p.typography.gemaraLeading+50))<0.001);
 assert.deepEqual(Array.from(p.layout.stages[0].streams),['tosafot','gemara','inner']);
 assert.deepEqual(Array.from(p.layout.stages.at(-1).streams),['tosafot']);
 const plain=stream=>JSON.parse(fs.readFileSync(new URL(`../draft-engine/assets/data/pesachim-100a-${stream}.json`,import.meta.url))).he.flat(Infinity).map(html=>html.replace(/<[^>]+>/g,'').replace(/\s*[–—-]\s*/u,'. ')).join(' ').trim().split(/\s+/u);
