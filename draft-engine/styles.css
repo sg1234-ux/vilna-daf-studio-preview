@@ -458,3 +458,7 @@ input[type="color"] { width: 100%; height: 34px; padding: 2px; border: 1px solid
 
 /* Complete teacher anchors retain one row per line, without protected-page indentation. */
 .body-geometry .gemara.anchor-mapped .mapped-line { width:100%; margin-inline:0; }
+
+/* Independent measured font sizes share commentary baselines. */
+.commentary[data-stream="inner"], .top-commentary[data-stream="inner"] { font-size:calc(var(--commentary-size) * var(--inner-font-factor, 1)); }
+.commentary[data-stream="tosafot"], .top-commentary[data-stream="tosafot"] { font-size:calc(var(--commentary-size) * var(--tosafot-font-factor, 1)); }

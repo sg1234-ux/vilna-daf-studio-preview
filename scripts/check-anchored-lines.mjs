@@ -41,7 +41,12 @@ assert.equal(context.applyStreamLineAnchors(['א','ב','ג','ד'].map(text=>({te
 context.state.agentSettings.lineAnchors[1].endText='missing';context.state.agentAnchorFailures=[];
 context.applyStreamLineAnchors(['א','ב','ג','ד'].map(text=>({text})),'gemara');
 assert.ok(context.state.agentAnchorFailures.length);assert.equal(context.state.agentLockedStreams.gemara,false);
-const candidateContext=vm.createContext({currentRenderedLineCounts:()=>({gemara:54}),targetLineCountFailures:()=>[],validateAgentLineAnchors:()=>['bad anchor'],validateAnchoredLineGeometry:()=>[],exactExpansionFailure:()=>null,fillPasses:()=>true});
-vm.runInContext(source.slice(source.indexOf('function candidatePasses('),source.indexOf('function validateAnchoredLineGeometry(')),candidateContext);
+const candidateContext=vm.createContext({currentRenderedLineCounts:()=>({gemara:54}),targetLineCountFailures:()=>[],validateAgentLineAnchors:()=>['bad anchor'],validateAnchoredLineGeometry:()=>[],exactExpansionFailure:()=>null,fillPasses:()=>true,geometryTilesPage:()=>true});
+vm.runInContext(source.slice(source.indexOf('function candidatePasses('),source.indexOf('function geometryTilesPage(')),candidateContext);
 assert.equal(candidateContext.candidatePasses({overflow:0,completionFailures:[],pattern:{teacherExactExpansion:true},transitionGapLines:0}),false);
+candidateContext.validateAgentLineAnchors=()=>[];
+candidateContext.geometryTilesPage=()=>false;
+assert.equal(candidateContext.candidatePasses({overflow:0,completionFailures:[],pattern:{teacherExactExpansion:true},transitionGapLines:0}),false,'A correct line count must not hide page-height overflow');
+candidateContext.geometryTilesPage=()=>true;candidateContext.fillPasses=()=>false;
+assert.equal(candidateContext.candidatePasses({overflow:0,completionFailures:[],pattern:{teacherExactExpansion:true},transitionGapLines:0}),false,'Exact transitions still require adequate fill');
 console.log('PASS: 54 scan boundaries, every source word preserved, no duplicate breaks, side override, editable counts, missing anchors, protected sides, candidate rejection.');
