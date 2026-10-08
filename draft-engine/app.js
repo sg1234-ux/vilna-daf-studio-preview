@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.32";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.33";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -457,6 +457,7 @@ function flowOpening(tokens,shapeLines=false){const right=physicalOrder()[2],lef
 function lastStateForBand(result,bandIndex){return[...(result?.regionStates||[])].reverse().find(item=>item.bandIndex===bandIndex)||null;}
 function completionAudit(pattern,results){const failures=[];let maxCompletionSlack=0;for(let index=0;index<pattern.bands.length-1;index++){const current=new Set(pattern.bands[index].streams),next=new Set(pattern.bands[index+1].streams);for(const stream of next)if(!current.has(stream))failures.push(`${stream} reappears after completion`);for(const stream of current){const stateAtBoundary=lastStateForBand(results[stream],index);if(!stateAtBoundary){failures.push(`${stream} missing completion measurement`);continue;}const removed=!next.has(stream),hasRemaining=stateAtBoundary.afterCount>0;if(removed&&hasRemaining)failures.push(`${stream} removed before source completion`);if(!removed&&!hasRemaining)failures.push(`${stream} continues after source completion`);if(removed&&!hasRemaining){const slack=Math.max(0,stateAtBoundary.regionHeight-stateAtBoundary.usedHeight),limit=Math.max(2,stateAtBoundary.lineHeight*1.15);maxCompletionSlack=Math.max(maxCompletionSlack,slack);if(slack>limit)failures.push(`${stream} transition delayed by more than one line`);}}}const finalBand=pattern.bands.length-1,finalStates=pattern.bands[finalBand].streams.map(stream=>({stream,state:lastStateForBand(results[stream],finalBand)})).filter(item=>item.state);if(finalStates.length>1){const latest=Math.max(...finalStates.map(item=>item.state.usedHeight));for(const{stream,state}of finalStates){const slack=Math.max(0,latest-state.usedHeight),limit=Math.max(2,state.lineHeight*1.15);maxCompletionSlack=Math.max(maxCompletionSlack,slack);if(slack>limit)failures.push(`${stream} ends early without space reclamation`);}}for(const stream of STREAMS)if(results[stream].rest.length)failures.push(`${stream} source not fully placed`);return{failures:[...new Set(failures)],maxCompletionSlack};}
 function compositionRegions(stream){return[...$("bodyGeometry").querySelectorAll(`.geometry-band > .flow-region[data-stream="${stream}"]:not(.transition-continuity-bridge)`)];}
+function streamFootprintChanges(previous,next){const a=previous.getBoundingClientRect(),b=next.getBoundingClientRect();return Math.abs(a.width-b.width)>1||Math.abs(a.left-b.left)>1;}
 function stitchStreamContinuity(final,original){
   if(final.pattern.mapped)return;
   for(const stream of STREAMS){
@@ -467,7 +468,7 @@ function stitchStreamContinuity(final,original){
       if(!stateAtBoundary||stateAtBoundary.afterCount<=0)continue;
       const slack=Math.max(0,stateAtBoundary.regionHeight-stateAtBoundary.usedHeight),line=Math.max(1,stateAtBoundary.lineHeight);
       if(slack<=line*.12)continue;
-      const previous=regions[index],next=regions[index+1],row=next.parentElement,footprintChanges=Math.abs(previous.offsetWidth-next.offsetWidth)>1||Math.abs(previous.offsetLeft-next.offsetLeft)>1;
+      const previous=regions[index],next=regions[index+1],row=next.parentElement,footprintChanges=streamFootprintChanges(previous,next);
       if(footprintChanges){
         const requestedLines=Math.max(1,Math.ceil(slack/line)),start=(original[stream]?.length||0)-states[0].beforeCount+states.slice(0,index+1).reduce((sum,item)=>sum+item.placedCount,0),nextCount=states[index+1].placedCount,nextChunk=(original[stream]||[]).slice(start,start+nextCount),bridgeFit=fitOpeningTokens(nextChunk,previous,requestedLines),bridgeChunk=bridgeFit.chunk;
         if(!bridgeChunk.length)continue;
@@ -519,7 +520,7 @@ function validateStreamContinuity(final,failures){
       if(!stateAtBoundary||stateAtBoundary.afterCount<=0)continue;
       const slack=Math.max(0,stateAtBoundary.regionHeight-stateAtBoundary.usedHeight),line=Math.max(1,stateAtBoundary.lineHeight);
       if(slack<=line*.12)continue;
-      const previous=regions[index],next=regions[index+1],footprintChanges=Math.abs(previous.offsetWidth-next.offsetWidth)>1||Math.abs(previous.offsetLeft-next.offsetLeft)>1;
+      const previous=regions[index],next=regions[index+1],footprintChanges=streamFootprintChanges(previous,next);
       if(footprintChanges){
         const bridge=previous.parentElement.querySelector(`[data-continuity-bridge="${stream}"]`),previousRect=previous.getBoundingClientRect(),bridgeRect=bridge?.getBoundingClientRect(),nextRect=next.getBoundingClientRect();
         if(!bridge||next.dataset.continuityLift||!bridgeRect||Math.abs(bridgeRect.left-previousRect.left)>1||Math.abs(bridgeRect.width-previousRect.width)>1||nextRect.top<bridgeRect.bottom-1)failures.push(`${stream} widens before neighboring stream completes`);
