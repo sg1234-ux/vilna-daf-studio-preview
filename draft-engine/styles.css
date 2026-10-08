@@ -468,3 +468,6 @@ input[type="color"] { width: 100%; height: 34px; padding: 2px; border: 1px solid
 .body-geometry .commentary.anchor-mapped[data-stream="inner"] { line-height: var(--inner-body-leading, var(--commentary-leading)); }
 .commentary.anchor-mapped[data-stream="inner"] .mapped-line { height: var(--inner-body-leading, var(--commentary-leading)); }
 .top-commentary.anchor-mapped[data-stream="inner"] .mapped-line { height: var(--commentary-leading); }
+
+/* Hide punctuation without changing word widths, line breaks, or source text. */
+.daf-page.punctuation-hidden .display-punctuation { visibility: hidden; }

@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+const source=fs.readFileSync(new URL('../draft-engine/app.js',import.meta.url),'utf8');
+const context=vm.createContext({});
+vm.runInContext(source.slice(source.indexOf('function isDisplayPunctuation('),source.indexOf('function decoratePunctuation(')),context);
+vm.runInContext(source.slice(source.indexOf('function glyphRun('),source.indexOf('function intersects(')),context);
+const text='שְׁמַע: (ת"ש) אע״ג וכו\'...';
+const parts=Array.from(context.punctuationParts(text));
+assert.equal(parts.join(''),text,'The source text must survive punctuation decoration');
+assert.equal(parts.filter(part=>!context.isDisplayPunctuation(part)).join(''),'שְׁמַע ת"ש אע״ג וכו\'','Preserve Hebrew letters, nekudos, and abbreviation marks');
+const font={unitsPerEm:1000,getKerningValue:()=>0,stringToGlyphs:text=>Array.from(text,char=>({unicode:char.codePointAt(0),advanceWidth:500,getPath:x=>({commands:[{}],getBoundingBox:()=>({x1:x,y1:-8,x2:x+4,y2:1}),toPathData:()=>char})}))};
+const visible=context.glyphRun(font,'אב:',12),hidden=context.glyphRun(font,'אב:',12,true);
+assert.equal(hidden.advance,visible.advance,'SVG must reserve the hidden punctuation width');
+assert.deepEqual(hidden.box,visible.box,'SVG baseline and scaling must remain fixed');
+assert.equal(hidden.d.includes(':'),false);assert.equal(visible.d.includes(':'),true);
+assert.equal(context.glyphRun(font,':',12,true),null);
+console.log('PASS: source and abbreviation preservation, punctuation removal, unchanged SVG advance and baseline.');
