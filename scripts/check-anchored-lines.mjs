@@ -73,4 +73,10 @@ vm.runInContext(source.slice(source.indexOf('function streamFootprintChanges('),
 const region=(left,width,offsetLeft)=>({offsetLeft,getBoundingClientRect:()=>({left,width})});
 assert.equal(footprintContext.streamFootprintChanges(region(400,160,400),region(400,160,0)),false);
 assert.equal(footprintContext.streamFootprintChanges(region(400,160,0),region(0,560,0)),true);
+// Source placement is insufficient when a post-fit region is too short.
+const clipContext=vm.createContext({STREAMS:['inner','gemara','tosafot'],streamRegions:stream=>stream==='tosafot'?[{textContent:'last commentary words',clientHeight:28,scrollHeight:38,getBoundingClientRect:()=>({bottom:28})}]:[],renderedRows:()=>[{bottom:38}]});
+vm.runInContext(source.slice(source.indexOf('function renderedClippedStreams('),source.indexOf('function validateRenderedGemaraLines(')),clipContext);
+assert.deepEqual(Array.from(clipContext.renderedClippedStreams()),['tosafot']);
+clipContext.streamRegions=stream=>stream==='tosafot'?[{textContent:'last commentary words',clientHeight:38,scrollHeight:38,getBoundingClientRect:()=>({bottom:38})}]:[];
+assert.equal(clipContext.renderedClippedStreams().length,0);
 console.log('PASS: scan anchors, source preservation, editable counts, sides, candidate rejection, completion-driven space reclamation.');
