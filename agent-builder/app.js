@@ -79,6 +79,7 @@ async function resolvePolicy(ref, rashbamPresent) {
 
 function localCommentaryPolicy(ref, rashbamPresent) {
   const normalized = String(ref).trim().replace(/\s+/g, " ").toLowerCase();
+  if (normalized === "pesachim 100a") return { ref, resolved: true, rashbam: "present", headingMode: "short", confidence: "scan-reference", reason: "Rashbam continues from Pesachim 99b; the Vilna 100a scan uses its short heading." };
   if (normalized === "pesachim 99b") return { ref, resolved: true, rashbam: "present", headingMode: "full", confidence: "protected-page", reason: "Protected Build 44 first Rashbam amud." };
   if (normalized === "bava metzia 21a" || rashbamPresent === false) return { ref, resolved: true, rashbam: "absent", headingMode: "none", confidence: rashbamPresent === false ? "source-probe" : "protected-page", reason: "No Rashbam source text is used on this amud." };
   const status = $("perekRashbamStatus").value;

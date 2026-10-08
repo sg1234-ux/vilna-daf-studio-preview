@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.49";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.50";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -14,6 +14,7 @@ const TYPOGRAPHY_PRESETS={
   "build31":{className:"type-build31",label:"Build 31 comparison: Frank Ruhl Libre with Noto Rashi Hebrew.",localFonts:[]}
 };
 const PAGE_REGISTRY=[
+  {tractate:"Pesachim",tractateLabel:"פסחים",ref:"Pesachim 100a",pageLabel:"ק ע״א — draft",verified:false},
   {tractate:"Bava Metzia",tractateLabel:"בבא מציעא",ref:"Bava Metzia 21a",pageLabel:"כא ע״א",verified:true}
 ];
 const savedTypography=localStorage.getItem("vilna-daf-typography");
@@ -41,6 +42,250 @@ async function applyTypography(key,{recompose=true}={}){
 // The isolated catchword at the bottom of a printed region previews the next
 // amud and is intentionally excluded; Sefaria's page boundary governs content.
 const REFERENCE_PROFILES={
+  "pesachim 100a":{
+  "source": "DafYomi.org Vilna Pesachim 100a reference; editable text from the recovered Sefaria responses",
+  "typography": {
+    "gemaraSize": 15.1,
+    "commentarySize": 9.4,
+    "gemaraOpeningScale": 1,
+    "innerDibburScale": 1.02,
+    "tosafotDibburScale": 1.04,
+    "gemaraLeading": 16.35,
+    "commentaryLeading": 13.185483870967744,
+    "pageHeight": 1016,
+    "pageBottomPadding": 32
+  },
+  "layout": {
+    "openingLines": 4,
+    "boxWalls": false,
+    "allowHorizontalCompression": true,
+    "stages": [
+      {
+        "streams": [
+          "tosafot",
+          "gemara",
+          "inner"
+        ],
+        "widths": [
+          1.625,
+          2.5,
+          1.625
+        ],
+        "counts": {
+          "gemara": 25,
+          "inner": 31,
+          "tosafot": 31
+        }
+      },
+      {
+        "streams": [
+          "tosafot",
+          "inner"
+        ],
+        "widths": [
+          50,
+          50
+        ],
+        "counts": {
+          "inner": 32,
+          "tosafot": 33
+        }
+      },
+      {
+        "streams": [
+          "tosafot"
+        ],
+        "widths": [
+          100
+        ],
+        "counts": {
+          "tosafot": 1
+        }
+      }
+    ]
+  },
+  "maps": {
+    "gemara": {
+      "tokenCount": 190,
+      "lineEndTokens": [
+        6,
+        13,
+        21,
+        28,
+        35,
+        44,
+        53,
+        61,
+        68,
+        74,
+        80,
+        90,
+        97,
+        108,
+        114,
+        122,
+        129,
+        136,
+        146,
+        152,
+        160,
+        169,
+        177,
+        184,
+        189
+      ]
+    },
+    "inner": {
+      "tokenCount": 566,
+      "blankAfterTokens": [
+        112
+      ],
+      "lineEndTokens": [
+        9,
+        21,
+        30,
+        40,
+        46,
+        52,
+        58,
+        64,
+        70,
+        75,
+        82,
+        86,
+        92,
+        97,
+        103,
+        109,
+        112,
+        113,
+        119,
+        125,
+        130,
+        135,
+        140,
+        146,
+        151,
+        156,
+        162,
+        168,
+        174,
+        180,
+        185,
+        191,
+        197,
+        202,
+        213,
+        224,
+        235,
+        246,
+        256,
+        267,
+        276,
+        288,
+        300,
+        313,
+        325,
+        337,
+        349,
+        359,
+        371,
+        384,
+        395,
+        407,
+        419,
+        430,
+        440,
+        452,
+        463,
+        473,
+        485,
+        496,
+        509,
+        520,
+        531,
+        542,
+        554,
+        565
+      ]
+    },
+    "tosafot": {
+      "tokenCount": 602,
+      "lineEndTokens": [
+        8,
+        16,
+        29,
+        42,
+        46,
+        50,
+        55,
+        61,
+        67,
+        72,
+        78,
+        84,
+        89,
+        96,
+        104,
+        110,
+        116,
+        122,
+        126,
+        129,
+        134,
+        140,
+        146,
+        151,
+        157,
+        163,
+        168,
+        174,
+        180,
+        186,
+        191,
+        197,
+        203,
+        208,
+        213,
+        223,
+        233,
+        246,
+        261,
+        269,
+        279,
+        290,
+        302,
+        316,
+        325,
+        336,
+        344,
+        354,
+        364,
+        375,
+        385,
+        398,
+        408,
+        417,
+        428,
+        441,
+        452,
+        462,
+        478,
+        485,
+        497,
+        508,
+        517,
+        528,
+        540,
+        550,
+        563,
+        576,
+        601
+      ]
+    }
+  },
+  "reviewStatus": "draft"
+},
   "pesachim 99b":{
     source:"Uploaded Vilna PDF / Shas.org page 840",
     typography:{gemaraOpeningScale:1.34,innerDibburScale:1.055,tosafotDibburScale:1.11,gemaraLeading:16.35,commentaryLeading:15.2161,pageHeight:1112,pageBottomPadding:16.7839},
@@ -844,9 +1089,10 @@ async function compose(){
   setComposing(false);afterCompose();status(final.failures.length?`Final composition test complete${profile?" with PDF line anchors":""} — failed: ${final.failures.join(", ")}.`:`Final composition test complete — all hard region rules passed${profile?" with PDF line anchors":""} for ${state.ref}.`,final.failures.length>0);return final;
 }
 
+const LOCAL_PESACHIM_DATA={"pesachim 100a": "assets/data/pesachim-100a-gemara.json", "rashi on pesachim 100a": "assets/data/pesachim-100a-rashi.json", "rashbam on pesachim 100a": "assets/data/pesachim-100a-rashbam.json", "tosafot on pesachim 100a": "assets/data/pesachim-100a-tosafot.json"};
 const LOCAL_BAVA_DATA={"bava metzia 21a":"assets/data/bava-metzia-21a-gemara.json","rashi on bava metzia 21a":"assets/data/bava-metzia-21a-rashi.json","tosafot on bava metzia 21a":"assets/data/bava-metzia-21a-tosafot.json"};
-async function fetchText(ref,{commentary=false}={}){const url=`https://www.sefaria.org/api/texts/${encodeURIComponent(ref)}?context=0&commentary=0&pad=0&stripItags=0&alts=1`,local=LOCAL_BAVA_DATA[ref.trim().toLowerCase()];let data;try{const res=await fetch(url);if(!res.ok)throw new Error(`Sefaria returned ${res.status}`);data=await res.json();}catch(error){if(!local)throw error;const fallback=await fetch(local);if(!fallback.ok)throw error;data=await fallback.json();}if(data.error&&!local)return{html:"",heRef:ref,heTitle:""};return{html:flattenSefaria(data.he,{commentary}),heRef:data.heRef||ref,heTitle:data.heTitle||""};}
-function headerFor(ref,g){if(/^Pesachim\s+99b$/i.test(ref))return"ערבי פסחים פרק עשירי פסחים";if(/^Bava\s+Metzia\s+21[ab]$/i.test(ref))return"אלו מציאות פרק שני בבא מציעא";return g.heTitle||g.heRef.replace(/[\d.:]+/g,"").trim()||ref;}
+async function fetchText(ref,{commentary=false}={}){const url=`https://www.sefaria.org/api/texts/${encodeURIComponent(ref)}?context=0&commentary=0&pad=0&stripItags=0&alts=1`,local=LOCAL_BAVA_DATA[ref.trim().toLowerCase()],pinned=LOCAL_PESACHIM_DATA[ref.trim().toLowerCase()];if(pinned){const res=await fetch(pinned);if(!res.ok)throw new Error("The saved Sefaria source could not be loaded");const data=await res.json();return{html:flattenSefaria(data.he,{commentary}),heRef:data.heRef||ref,heTitle:data.heTitle||""};}let data;try{const res=await fetch(url);if(!res.ok)throw new Error(`Sefaria returned ${res.status}`);data=await res.json();}catch(error){if(!local)throw error;const fallback=await fetch(local);if(!fallback.ok)throw error;data=await fallback.json();}if(data.error&&!local)return{html:"",heRef:ref,heTitle:""};return{html:flattenSefaria(data.he,{commentary}),heRef:data.heRef||ref,heTitle:data.heTitle||""};}
+function headerFor(ref,g){if(/^Pesachim\s+(99b|100a)$/i.test(ref))return"ערבי פסחים פרק עשירי פסחים";if(/^Bava\s+Metzia\s+21[ab]$/i.test(ref))return"אלו מציאות פרק שני בבא מציעא";return g.heTitle||g.heRef.replace(/[\d.:]+/g,"").trim()||ref;}
 function normalizeOpeningGemara(html,ref){if(!/^Pesachim\s+99b$/i.test(ref))return html;const marks="[\\u0591-\\u05C7]*",marker=new RegExp(`^\\s*מ${marks}ת${marks}(?:נ${marks}י${marks})?[׳']?\\s*[.:׃-]?\\s*`,"u"),box=document.createElement("div");box.innerHTML=html.replace(marker,"");const opening=box.querySelector("strong,b");if(opening)opening.replaceWith(...opening.childNodes);return box.innerHTML.replace(/^(\s*)(\S+\s+\S+)/u,"$1<strong>$2</strong>");}
 function normalizeGemaraForRef(html,ref){let normalized=normalizeOpeningGemara(html,ref);if(!/^Bava\s+Metzia\s+21a$/i.test(ref)||/הדרן\s+עלך\s+שנים\s+אוחזין/u.test(stripNekudos(htmlToPlain(normalized))))return normalized;const marks="[\\u0591-\\u05C7]*",mishnah=new RegExp(`מ${marks}ת${marks}נ${marks}י${marks}[׳']?`,"u");return normalized.replace(mishnah,match=>`<strong>הדרן עלך שנים אוחזין</strong> ${match}`);}
 function normalizeCommentaryForRef(html,ref,stream){if(stream!=="inner"||!/^Bava\s+Metzia\s+21a$/i.test(ref)||/הדרן\s+עלך\s+שנים\s+אוחזין/u.test(html))return html;return html.replace(/(?=<(?:strong|b)>\s*מתני[׳']?\s+אלו\s+מציאות)/u,"<strong>הדרן עלך שנים אוחזין</strong> ");}
@@ -854,7 +1100,7 @@ function registryEntry(ref=state.ref){return PAGE_REGISTRY.find(entry=>entry.ref
 function populateTractateSelector(){const select=$("tractateSelect"),tractates=[...new Map(PAGE_REGISTRY.map(entry=>[entry.tractate,entry])).values()];select.innerHTML=tractates.map(entry=>`<option value="${entry.tractate}">${entry.tractateLabel} — ${entry.tractate}</option>`).join("");}
 function populatePageSelector(preferredRef=""){const pages=PAGE_REGISTRY.filter(entry=>entry.tractate===$("tractateSelect").value),select=$("pageSelect");select.innerHTML=pages.map(entry=>`<option value="${entry.ref}">${entry.pageLabel} — ${entry.ref}</option>`).join("");if(pages.some(entry=>entry.ref===preferredRef))select.value=preferredRef;updateVerificationStatus(select.value);}
 function syncRegistrySelection(ref=state.ref){const entry=registryEntry(ref);if(entry){$("tractateSelect").value=entry.tractate;populatePageSelector(entry.ref);}updateVerificationStatus(ref);}
-function updateVerificationStatus(ref=state.ref){const mapped=Boolean(REFERENCE_PROFILES[String(ref||"").trim().toLowerCase()]),element=$("verificationStatus");element.classList.toggle("verified",mapped);element.textContent=mapped?"Verified against uploaded Vilna PDF":"Automatic composition — PDF line map not yet verified";}
+function updateVerificationStatus(ref=state.ref){if(/^Pesachim 100a$/i.test(ref)){const element=$("verificationStatus");element.classList.remove("verified");element.textContent="Reference layout — awaiting teacher approval";return;}const mapped=Boolean(REFERENCE_PROFILES[String(ref||"").trim().toLowerCase()]),element=$("verificationStatus");element.classList.toggle("verified",mapped);element.textContent=mapped?"Verified against uploaded Vilna PDF":"Automatic composition — PDF line map not yet verified";}
 async function applyScanGuidance(ref){
   if(state.agentSettingsRef&&state.agentSettingsRef.toLowerCase()!==ref.toLowerCase())state.agentSettings={};
   state.agentSettingsRef=ref;
@@ -865,7 +1111,7 @@ async function applyScanGuidance(ref){
   state.agentSettings={...safeAgentSettings(guidance.settings),...existing};
   // Explicit teacher corrections replace these defaults; other amudim are unaffected.
 }
-async function loadDaf({automatic=false}={}){const ref=$("dafRef").value.trim();if(!/\d+[ab]\s*$/i.test(ref)){status("Use a Talmud reference ending in a or b, such as Pesachim 99b.",true);return;}$("loadDaf").disabled=true;status("Step 1 of 2 — loading complete Gemara, Rashi, Tosafos, and applicable Rashbam from Sefaria…");try{const tractate=ref.replace(/\s+\d+[ab]\s*$/i,""),location=ref.match(/\d+[ab]\s*$/i)[0].trim(),commentary={commentary:true},rashbamRequest=state.rashbamAllowed===false?Promise.resolve({html:""}):fetchText(`Rashbam on ${tractate} ${location}`,commentary).catch(()=>({html:""})),requests=[fetchText(ref),fetchText(`Rashi on ${tractate} ${location}`,commentary),fetchText(`Tosafot on ${tractate} ${location}`,commentary),rashbamRequest],[g,r,t,b]=await Promise.all(requests);if(!g.html)throw new Error("No Hebrew Gemara text was returned");const gemaraHtml=normalizeGemaraForRef(g.html,ref),rashiHtml=normalizeCommentaryForRef(r.html,ref,"inner");Object.assign(state,{ref,header:headerFor(ref,g),gemaraHtml,rashiHtml,tosafotHtml:t.html,rashbamHtml:b.html,isSample:false,selectedWordId:null,editSelectedWordIds:[],wordFontScales:{},whitedWordIds:{},focusEnabled:false,focusWindow:1,visualLinks:{},notes:{},annotations:[],annotationUndo:[],annotationRedo:[],selection:null});await applyScanGuidance(ref);syncRegistrySelection(ref);clearExcerpt();syncAnnotationCanvas();status(`Step 2 of 2 — text loaded${b.html?" with Rashbam":""}; starting the composition test…`);await nextPaint();await compose();}catch(e){setComposing(false);status(`${automatic?"Automatic import failed":"Could not load this daf"}: ${e.message}. The demonstration text remains available.`,true);postAgentDiagnostics([`source load: ${e.message}`]);}finally{$("loadDaf").disabled=false;}}
+async function loadDaf({automatic=false}={}){const ref=$("dafRef").value.trim();if(!/\d+[ab]\s*$/i.test(ref)){status("Use a Talmud reference ending in a or b, such as Pesachim 99b.",true);return;}$("loadDaf").disabled=true;status("Step 1 of 2 — loading complete Gemara, Rashi, Tosafos, and applicable Rashbam from Sefaria…");try{const tractate=ref.replace(/\s+\d+[ab]\s*$/i,""),location=ref.match(/\d+[ab]\s*$/i)[0].trim(),commentary={commentary:true},rashbamRequest=state.rashbamAllowed===false?Promise.resolve({html:""}):fetchText(`Rashbam on ${tractate} ${location}`,commentary).catch(()=>({html:""})),requests=[fetchText(ref),fetchText(`Rashi on ${tractate} ${location}`,commentary),fetchText(`Tosafot on ${tractate} ${location}`,commentary),rashbamRequest],[g,r,t,b]=await Promise.all(requests);if(!g.html)throw new Error("No Hebrew Gemara text was returned");const gemaraHtml=normalizeGemaraForRef(g.html,ref),rashiHtml=normalizeCommentaryForRef(r.html,ref,"inner");Object.assign(state,{ref,header:headerFor(ref,g),gemaraHtml,rashiHtml,tosafotHtml:t.html,rashbamHtml:b.html,isSample:false,selectedWordId:null,editSelectedWordIds:[],wordFontScales:{},whitedWordIds:{},focusEnabled:false,focusWindow:1,visualLinks:{},notes:{},annotations:[],annotationUndo:[],annotationRedo:[],selection:null});if(/^Pesachim 100a$/i.test(ref)){state.rashbamHeadingMode="short";}await applyScanGuidance(ref);syncRegistrySelection(ref);clearExcerpt();syncAnnotationCanvas();status(`Step 2 of 2 — text loaded${b.html?" with Rashbam":""}; starting the composition test…`);await nextPaint();await compose();}catch(e){setComposing(false);status(`${automatic?"Automatic import failed":"Could not load this daf"}: ${e.message}. The demonstration text remains available.`,true);postAgentDiagnostics([`source load: ${e.message}`]);}finally{$("loadDaf").disabled=false;}}
 function status(text,error=false){$("loadStatus").textContent=text;$("loadStatus").classList.toggle("error",error);}
 function commentaryPlain(text){return escapeHtml(text).replace(/(^|:\s+)([^:]{1,90}?[.׃])\s+/g,(_,p,o)=>`${p}<strong>${o}</strong> `);}
 function overlayFreeHtml(element){const clone=element.cloneNode(true);clone.querySelectorAll(".phrase-visual-icon").forEach(node=>node.remove());return clone.innerHTML;}
@@ -1212,4 +1458,4 @@ window.addEventListener("message",async event=>{
     if(next!==state.rashbamHeadingMode){state.rashbamHeadingMode=next;await compose();}
   }
 });
-$("dafPage").addEventListener("input",e=>{if(!e.target.closest(".flow-region,.top-commentary"))return;state.dirty=true;status("Page edited directly. Choose Reflow page edits when ready.");requestAnimationFrame(renderGemaraLineNumbers);});window.addEventListener("resize",()=>{syncAnnotationCanvas();renderGemaraLineNumbers();if(!state.dirty&&!$("dafPage").classList.contains("composing"))requestAnimationFrame(()=>compose());});document.fonts.ready.then(async()=>{updateDisplayToggles();await applyTypography(state.typography,{recompose:false});if(new URLSearchParams(location.search).has("builder"))window.parent.postMessage({type:"vilna-agent-ready"},location.origin);else await loadDaf({automatic:true});});
+$("dafPage").addEventListener("input",e=>{if(!e.target.closest(".flow-region,.top-commentary"))return;state.dirty=true;status("Page edited directly. Choose Reflow page edits when ready.");requestAnimationFrame(renderGemaraLineNumbers);});window.addEventListener("resize",()=>{syncAnnotationCanvas();renderGemaraLineNumbers();if(!state.dirty&&!$("dafPage").classList.contains("composing"))requestAnimationFrame(()=>compose());});document.fonts.ready.then(async()=>{updateDisplayToggles();await applyTypography(state.typography,{recompose:false});if(new URLSearchParams(location.search).has("builder"))window.parent.postMessage({type:"vilna-agent-ready"},location.origin);else{const requested=new URLSearchParams(location.search).get("ref");if(requested&&registryEntry(requested))$("dafRef").value=requested;await loadDaf({automatic:true});}});

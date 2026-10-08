@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+const source=fs.readFileSync(new URL('../draft-engine/app.js',import.meta.url),'utf8');
+const ctx=vm.createContext({});
+vm.runInContext(source.slice(source.indexOf('const REFERENCE_PROFILES='),source.indexOf('// Exact phrase rows'))+'; globalThis.profiles=REFERENCE_PROFILES;',ctx);
+const p=ctx.profiles['pesachim 100a'];
+assert.equal(p.reviewStatus,'draft');
+assert.equal(p.maps.gemara.lineEndTokens.length,25);
+assert.equal(p.layout.boxWalls,false);
+assert.deepEqual(Array.from(p.layout.stages[0].streams),['tosafot','gemara','inner']);
+assert.deepEqual(Array.from(p.layout.stages.at(-1).streams),['tosafot']);
+const plain=stream=>JSON.parse(fs.readFileSync(new URL(`../draft-engine/assets/data/pesachim-100a-${stream}.json`,import.meta.url))).he.flat(Infinity).map(html=>html.replace(/<[^>]+>/g,'').replace(/\s*[–—-]\s*/u,'. ')).join(' ').trim().split(/\s+/u);
+const g=plain('gemara'),r=plain('rashi'),b=plain('rashbam'),t=plain('tosafot');
+assert.equal(g.length,p.maps.gemara.tokenCount);
+assert.equal(r.length+b.length+1,p.maps.inner.tokenCount);
+assert.equal(t.length,p.maps.tosafot.tokenCount);
+for(const stream of ['inner','gemara','tosafot']){
+ const m=p.maps[stream],opening=stream==='gemara'?0:p.layout.openingLines;
+ assert.equal(m.lineEndTokens.at(-1),m.tokenCount-1);
+ assert.ok(m.lineEndTokens.every((end,i)=>i===0||end>m.lineEndTokens[i-1]));
+ assert.equal(m.lineEndTokens.length+(m.blankAfterTokens?.length||0),opening+p.layout.stages.reduce((sum,stage)=>sum+(stage.counts[stream]||0),0));
+}
+const normalize=t=>t.replace(/[\u0591-\u05c7]/g,'').replace(/[^א-ת]/g,'');
+assert.equal(normalize(g[0]),'דילמא');
+assert.equal(normalize(g.at(-1)),'לקידוש');
+assert.equal(normalize(t[p.maps.tosafot.lineEndTokens.at(-2)+1]),'סבר');
+assert.equal(normalize(b.at(-1)),'מיירי');
+assert.ok(source.includes('const LOCAL_PESACHIM_DATA='));
+console.log('PASS: Pesachim 100a source coverage, 25 Gemara lines, Rashbam transition, side order, full-width Tosafos footer, and review status.');
