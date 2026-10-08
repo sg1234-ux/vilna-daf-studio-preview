@@ -43,6 +43,7 @@
   --page-height: 1030px;
   --page-bottom-padding: 32px;
   --daf-gutter: 25px;
+  --daf-side-gutter: 20px;
   --gemara-size: 15.2px;
   --gemara-leading: 16.5px;
   --commentary-size: 11.15px;
@@ -227,7 +228,7 @@ input[type="color"] { width: 100%; height: 34px; padding: 2px; border: 1px solid
 }
 .geometry-band {
   display: grid;
-  column-gap: var(--daf-gutter);
+  column-gap: var(--daf-side-gutter);
   row-gap: 0;
   overflow: hidden;
   direction: ltr;
@@ -237,6 +238,7 @@ input[type="color"] { width: 100%; height: 34px; padding: 2px; border: 1px solid
   column-gap: var(--daf-gutter);
 }
 .geometry-band .flow-region { direction: rtl; }
+.body-geometry.mapped-geometry { --daf-side-gutter: var(--daf-gutter); }
 .body-geometry.mapped-geometry > .geometry-band:last-child {
   grid-template-columns: minmax(0, 1fr) !important;
   column-gap: 0 !important;

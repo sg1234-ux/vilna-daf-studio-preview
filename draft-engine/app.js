@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.39";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.40";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -322,9 +322,9 @@ function measureAnchorLine(tokens,stream,anchor){
   let withNext=current;if(next){probe.innerHTML=tokensHtml([...line,next]);withNext=probe.getBoundingClientRect().width;}probe.remove();return Math.max(current,(current+withNext)/2);
 }
 function calibratePrimaryWidths(tokens){
-  const body=$("bodyGeometry"),gutter=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--daf-gutter"))||25,available=Math.max(1,body.clientWidth-2*gutter),base={gemara:2.5,inner:1.625,tosafot:1.625},baseTotal=5.75,widths=Object.fromEntries(STREAMS.map(stream=>[stream,available*base[stream]/baseTotal])),anchors=state.agentSettings.lineAnchors||[];
+  const body=$("bodyGeometry"),pageStyle=getComputedStyle($("dafPage")),gutter=parseFloat(pageStyle.getPropertyValue("--daf-side-gutter"))||20,baselineGutter=parseFloat(pageStyle.getPropertyValue("--daf-gutter"))||25,available=Math.max(1,body.clientWidth-2*gutter),baselineAvailable=Math.max(1,body.clientWidth-2*baselineGutter),base={gemara:2.5,inner:1.625,tosafot:1.625},baseTotal=5.75,widths=Object.fromEntries(STREAMS.map(stream=>[stream,baselineAvailable*base[stream]/baseTotal])),anchors=state.agentSettings.lineAnchors||[];
   for(const stream of STREAMS){const anchor=anchors.find(item=>item.stream===stream&&item.line===1);if(!anchor)continue;const measured=measureAnchorLine(tokens[stream],stream,anchor);if(measured)widths[stream]=measured;}
-  const minimum={gemara:available*2.5/baseTotal,inner:available*1.625/baseTotal,tosafot:available*1.625/baseTotal};
+  const minimum={gemara:baselineAvailable*2.5/baseTotal,inner:baselineAvailable*1.625/baseTotal,tosafot:baselineAvailable*1.625/baseTotal};
   for(const stream of STREAMS)widths[stream]=Math.max(minimum[stream],widths[stream]);
   const total=STREAMS.reduce((sum,stream)=>sum+widths[stream],0);if(total>available){const scale=available/total;for(const stream of STREAMS)widths[stream]*=scale;}
   else{const unanchored=STREAMS.filter(stream=>!anchors.some(item=>item.stream===stream&&item.line===1)),targets=unanchored.length?unanchored:STREAMS;for(const stream of targets)widths[stream]+=(available-total)/targets.length;}
@@ -339,7 +339,7 @@ function clamp(value,min,max){return Math.max(min,Math.min(max,value));}
 function primaryWidths(){const order=ordered(STREAMS),map=state.agentPrimaryWidths||{gemara:2.5,inner:1.625,tosafot:1.625};return order.map(stream=>map[stream]);}
 function stepped(start,end,step){const values=[];for(let value=start;value<=end;value+=step)values.push(value);return values;}
 function releasedPairWidths(previousStreams,previousWidths,nextStreams){
-  const bodyWidth=Math.max(1,$("bodyGeometry").clientWidth),gutter=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--daf-gutter"))||25,oldAvailable=Math.max(1,bodyWidth-gutter*Math.max(0,previousStreams.length-1)),nextAvailable=Math.max(1,bodyWidth-gutter*Math.max(0,nextStreams.length-1)),oldTotal=previousWidths.reduce((sum,value)=>sum+value,0)||1,oldPixels=Object.fromEntries(previousStreams.map((stream,index)=>[stream,previousWidths[index]/oldTotal*oldAvailable])),removed=previousStreams.filter(stream=>!nextStreams.includes(stream));
+  const bodyWidth=Math.max(1,$("bodyGeometry").clientWidth),gutter=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--daf-side-gutter"))||20,oldAvailable=Math.max(1,bodyWidth-gutter*Math.max(0,previousStreams.length-1)),nextAvailable=Math.max(1,bodyWidth-gutter*Math.max(0,nextStreams.length-1)),oldTotal=previousWidths.reduce((sum,value)=>sum+value,0)||1,oldPixels=Object.fromEntries(previousStreams.map((stream,index)=>[stream,previousWidths[index]/oldTotal*oldAvailable])),removed=previousStreams.filter(stream=>!nextStreams.includes(stream));
   if(nextStreams.length!==2||removed.length!==1)return nextStreams.map(()=>100/Math.max(1,nextStreams.length));
   const removedIndex=previousStreams.indexOf(removed[0]),pixels={};
   if(removedIndex===0){pixels[nextStreams[1]]=oldPixels[nextStreams[1]];pixels[nextStreams[0]]=nextAvailable-pixels[nextStreams[1]];}
