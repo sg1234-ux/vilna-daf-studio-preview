@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.46";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.47";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -446,7 +446,8 @@ function candidates(w,scale=1){
       // the surviving commentary to continue across the remaining page width.
       if(expansionStream==="gemara"&&state.agentLockedStreams?.gemara&&Number(settings.targetLineCounts?.gemara)===expansionLine){
         const gutterLines=Number(settings.finalGemaraGutterLines)||0,finalGutter=gutterLines*parseFloat(pageStyle.getPropertyValue("--commentary-leading"));
-        bands[1]={...bands[1],height:0,pixelHeight:leading+2*finalGutter,gemaraGutter:finalGutter};
+        bands[0]={...bands[0],commentaryBottomGutter:finalGutter,commentaryGutterStream:omitted};
+        bands[1]={...bands[1],height:0,pixelHeight:leading+finalGutter,gemaraGutter:finalGutter};
         const survivor=pair.find(stream=>stream!=="gemara");bands.push({height:100,streams:[survivor],widths:[100]});
       }
       guidedPatterns.push({name:`teacher-guided ${expansionStream} expansion from line ${expansionLine} after ${omitted}`,cascade:true,guided:true,teacherExactExpansion:true,expansionStream,expansionLine,bands});
@@ -462,11 +463,12 @@ function buildGeometry(pattern){
   let used=0;pattern.bands.forEach((band,i)=>{if(i===pattern.bands.length-1)heights.push(Math.max(0,totalHeight-used));else{const desired=Number.isFinite(band.pixelHeight)?band.pixelHeight:totalHeight*band.height/100,snapped=Number.isFinite(band.pixelHeight)?desired:Math.max(leading,Math.round(desired/leading)*leading);heights.push(snapped);used+=snapped;}});
   if(!pattern.mapped&&state.agentLockedStreams?.inner&&pattern.bands[0].streams.includes('inner')&&!pattern.bands[1]?.streams.includes('inner')){
     const bodyLines=Number(state.agentSettings.targetLineCounts?.inner)-(state.agentSettings.openingLines||4);
-    if(bodyLines>0)$('dafPage').style.setProperty('--inner-body-leading',`${heights[0]/bodyLines}px`);
+    if(bodyLines>0)$('dafPage').style.setProperty('--inner-body-leading',`${(heights[0]-(pattern.bands[0].commentaryBottomGutter||0))/bodyLines}px`);
   }
   const gemaraBox=!pattern.mapped&&pattern.bands.length>1&&pattern.bands[0].streams.includes("gemara")&&!pattern.bands[1].streams.includes("gemara")&&pattern.bands[1].streams.includes("inner")&&pattern.bands[1].streams.includes("tosafot");
   body.innerHTML="";body.classList.toggle("mapped-geometry",Boolean(pattern.mapped));body.classList.toggle("mapped-no-box-walls",Boolean(pattern.mapped&&pattern.boxWalls===false));body.classList.toggle("general-gemara-box",gemaraBox);body.classList.toggle("strict-stream-continuity",Boolean(state.agentSettings.enforceStreamContinuity||state.agentSettings.enforceCommentaryContinuity));
-  const addRegion=(row,stream,bandIndex)=>{const r=document.createElement("div"),profile=referenceProfile(),mapped=Boolean(profile?.maps?.[stream]?.lineEndTokens?.length||state.agentLockedStreams?.[stream]);r.className=`flow-region ${stream==="gemara"?"gemara":"commentary"}${mapped?" reference-mapped":""}${state.agentLockedStreams?.[stream]?" anchor-mapped":""}`;r.dataset.stream=stream;r.dataset.band=bandIndex;r.contentEditable=state.mode==="edit"?"true":"false";r.spellcheck=false;r.setAttribute("aria-label",`${stream} editable region`);if(stream==="gemara"&&pattern.bands[bandIndex].gemaraGutter){const gutter=pattern.bands[bandIndex].gemaraGutter;r.style.paddingTop=`${gutter}px`;r.style.paddingBottom=`${gutter}px`;r.dataset.finalGemaraGutter=String(gutter);}
+  const addRegion=(row,stream,bandIndex)=>{const r=document.createElement("div"),profile=referenceProfile(),mapped=Boolean(profile?.maps?.[stream]?.lineEndTokens?.length||state.agentLockedStreams?.[stream]);r.className=`flow-region ${stream==="gemara"?"gemara":"commentary"}${mapped?" reference-mapped":""}${state.agentLockedStreams?.[stream]?" anchor-mapped":""}`;r.dataset.stream=stream;r.dataset.band=bandIndex;r.contentEditable=state.mode==="edit"?"true":"false";r.spellcheck=false;r.setAttribute("aria-label",`${stream} editable region`);if(stream==="gemara"&&pattern.bands[bandIndex].gemaraGutter){const gutter=pattern.bands[bandIndex].gemaraGutter;r.style.paddingBottom=`${gutter}px`;r.dataset.finalGemaraGutter=String(gutter);}
+    if(stream===pattern.bands[bandIndex].commentaryGutterStream&&pattern.bands[bandIndex].commentaryBottomGutter){r.style.paddingBottom=`${pattern.bands[bandIndex].commentaryBottomGutter}px`;r.dataset.commentaryBottomGutter=String(pattern.bands[bandIndex].commentaryBottomGutter);}
     row.appendChild(r);regions[stream].push(r);};
   pattern.bands.forEach((band,i)=>{const row=document.createElement("div"),isPair=band.streams.length===2&&band.streams.includes("inner")&&band.streams.includes("tosafot");row.className=`geometry-band${isPair?" commentary-pair":""}`;row.style.flex=`0 0 ${heights[i]}px`;row.style.height=`${heights[i]}px`;row.style.gridTemplateColumns=band.widths.map(x=>`${x}fr`).join(" ");band.streams.forEach(stream=>addRegion(row,stream,i));body.appendChild(row);});return regions;
 }
@@ -653,7 +655,7 @@ function validateRenderedStreamLeading(final,failures){
       const previous=regions[index],next=regions[index+1],previousTokens=previous.querySelectorAll(".layout-token"),nextToken=next.querySelector(".layout-token");
       if(!previousTokens.length||!nextToken)continue;
       const lastToken=previousTokens[previousTokens.length-1],gap=nextToken.getBoundingClientRect().top-lastToken.getBoundingClientRect().top,line=(Number.parseFloat(getComputedStyle(previous).lineHeight)||1)*pageScale;
-      const requestedGutter=Number(next.dataset.finalGemaraGutter||0)*pageScale;
+      const requestedGutter=Number.parseFloat(getComputedStyle(next).paddingTop||0)*pageScale;
       if(gap>line*1.55+requestedGutter+1)failures.push(`${stream} rendered text is separated from the rest of its stream`);
     }
   }
@@ -699,7 +701,7 @@ async function calibratedAnchorScale(tokens){
   const continuous=(settings.continuousCommentaryStreams||[]).find(stream=>state.agentLockedStreams?.[stream]),printedCount=Number(settings.targetLineCounts?.[continuous]);
   if(continuous&&printedCount){scale.commentary=($("bodyGeometry").clientHeight+(settings.openingLines||4)*commentaryLeading)/(printedCount*commentaryLeading);setScale(scale);}
   const actualCommentaryLeading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--commentary-leading"));
-  scale.gemara=($("bodyGeometry").clientHeight-gutter-(2+2*(Number(settings.finalGemaraGutterLines)||0))*actualCommentaryLeading-(continuous?0:1))/(count*leading);
+  scale.gemara=($("bodyGeometry").clientHeight-gutter-(2+(Number(settings.finalGemaraGutterLines)||0))*actualCommentaryLeading-(continuous?0:1))/(count*leading);
   if(scale.gemara<.78||scale.gemara>1.18)return null;
   const omitted=settings.expansionIntoStream,survivor=STREAMS.find(stream=>stream!=="gemara"&&stream!==omitted);
   if(!STREAMS.includes(omitted)||!survivor)return null;
