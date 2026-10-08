@@ -4,7 +4,8 @@
   "status": "Scan-derived Gemara boundaries; rendered layout requires validation. Sefaria expansions and variants are retained.",
   "settings": {
     "targetLineCounts": {
-      "gemara": 54
+      "gemara": 54,
+      "tosafot": 70
     },
     "expansionLine": 54,
     "gemaraExpansionLine": 54,
@@ -337,7 +338,431 @@
         "line": 54,
         "startText": "שְׁמַע: הַגַּנָּב",
         "endText": "גזלן שנטל מזה ונתן לזה"
+      },
+      {
+        "stream": "tosafot",
+        "line": 1,
+        "startText": "דלכי נפל",
+        "endText": "מיאש אקראי בעלמא"
+      },
+      {
+        "stream": "tosafot",
+        "line": 2,
+        "startText": "הוא ומתחילה",
+        "endText": "ת\"ש המוצא מעות"
+      },
+      {
+        "stream": "tosafot",
+        "line": 3,
+        "startText": "כו' -",
+        "endText": "מפוזרות אמאי פריך"
+      },
+      {
+        "stream": "tosafot",
+        "line": 4,
+        "startText": "תו מהך",
+        "endText": "למלתיה אמתני' וי\"ל"
+      },
+      {
+        "stream": "tosafot",
+        "line": 5,
+        "startText": "דברייתא אלימא",
+        "endText": "ליה לאקשויי דמשמע"
+      },
+      {
+        "stream": "tosafot",
+        "line": 6,
+        "startText": "דבכל ענין",
+        "endText": "שלו אע\"ג דאיכא"
+      },
+      {
+        "stream": "tosafot",
+        "line": 7,
+        "startText": "סימן מדמוקי",
+        "endText": "טעמא שהרבים מצויין"
+      },
+      {
+        "stream": "tosafot",
+        "line": 8,
+        "startText": "שם ומשמע",
+        "endText": "אע\"ג דכשזה הגביה"
+      },
+      {
+        "stream": "tosafot",
+        "line": 9,
+        "startText": "עדיין היה",
+        "endText": "אבידה בבית המדרש"
+      },
+      {
+        "stream": "tosafot",
+        "line": 10,
+        "startText": "ולא ידע",
+        "endText": "ידע שנפל מיניה:"
+      },
+      {
+        "stream": "tosafot",
+        "line": 11,
+        "startText": "ופטורות ממעשר",
+        "endText": "- במס' פאה"
+      },
+      {
+        "stream": "tosafot",
+        "line": 12,
+        "startText": "(פ\"א מ\"ו)",
+        "endText": "מ\"ו) מוכח דוקא"
+      },
+      {
+        "stream": "tosafot",
+        "line": 13,
+        "startText": "בהפקיר קודם",
+        "endText": "גמר מלאכה פטור"
+      },
+      {
+        "stream": "tosafot",
+        "line": 14,
+        "startText": "מן המעשר",
+        "endText": "אם הפקיר לאחר"
+      },
+      {
+        "stream": "tosafot",
+        "line": 15,
+        "startText": "גמר מלאכה",
+        "endText": "שנתחייב כבר במעשר"
+      },
+      {
+        "stream": "tosafot",
+        "line": 16,
+        "startText": "אין בכך",
+        "endText": "מיירי קודם גמר"
+      },
+      {
+        "stream": "tosafot",
+        "line": 17,
+        "startText": "מלאכה שלא",
+        "endText": "נתייבשו עדיין כדמוכח"
+      },
+      {
+        "stream": "tosafot",
+        "line": 18,
+        "startText": "בביצה פרק",
+        "endText": "(דף לד:) דתאנים"
+      },
+      {
+        "stream": "tosafot",
+        "line": 19,
+        "startText": "העומדין לשוטחן",
+        "endText": "בשדה ולעשות מהן"
+      },
+      {
+        "stream": "tosafot",
+        "line": 20,
+        "startText": "קציעות לא",
+        "endText": "נגמר מלאכתן למעשר"
+      },
+      {
+        "stream": "tosafot",
+        "line": 21,
+        "startText": "עד שיתייבשו",
+        "endText": "זכה בהן המוצא"
+      },
+      {
+        "stream": "tosafot",
+        "line": 22,
+        "startText": "קודם שיתייבשו",
+        "endText": "פטורות מן המעשר"
+      },
+      {
+        "stream": "tosafot",
+        "line": 23,
+        "startText": "כדאמרינן בב\"ק",
+        "endText": "(דף כח.) המפקיר"
+      },
+      {
+        "stream": "tosafot",
+        "line": 24,
+        "startText": "כרמו והשכים",
+        "endText": "בבקר ובצרו פטור"
+      },
+      {
+        "stream": "tosafot",
+        "line": 25,
+        "startText": "מן המעשר",
+        "endText": "אינו כן שאם"
+      },
+      {
+        "stream": "tosafot",
+        "line": 26,
+        "startText": "הקדיש קודם",
+        "endText": "גמר מלאכה ונפדה"
+      },
+      {
+        "stream": "tosafot",
+        "line": 27,
+        "startText": "קודם גמר",
+        "endText": "מלאכה חייב במעשר"
+      },
+      {
+        "stream": "tosafot",
+        "line": 28,
+        "startText": "כדמוכח קצת",
+        "endText": "בפרק האומר (סב:):"
+      },
+      {
+        "stream": "tosafot",
+        "line": 29,
+        "startText": "תאנה נמי",
+        "endText": "מידע ידיע דנתרא"
+      },
+      {
+        "stream": "tosafot",
+        "line": 30,
+        "startText": "- פירוש",
+        "endText": "פירוש בשלמא לאביי"
+      },
+      {
+        "stream": "tosafot",
+        "line": 31,
+        "startText": "תאנה מותרת",
+        "endText": "כיון דרגילות היא"
+      },
+      {
+        "stream": "tosafot",
+        "line": 32,
+        "startText": "דנתרא מעיקרא",
+        "endText": "מתיאש לפי שסבור"
+      },
+      {
+        "stream": "tosafot",
+        "line": 33,
+        "startText": "שהמוצא יקחנה",
+        "endText": "הוא לא ידע"
+      },
+      {
+        "stream": "tosafot",
+        "line": 34,
+        "startText": "שנפלה מן",
+        "endText": "אלא סבור הוא"
+      },
+      {
+        "stream": "tosafot",
+        "line": 35,
+        "startText": "מעוברי דרכים",
+        "endText": "נפלה ובזיתים ובחרובין"
+      },
+      {
+        "stream": "tosafot",
+        "line": 36,
+        "startText": "אסור דלא",
+        "endText": "דנתרי אע\"ג דאם"
+      },
+      {
+        "stream": "tosafot",
+        "line": 37,
+        "startText": "היה יודע",
+        "endText": "היה מתיאש לפי"
+      },
+      {
+        "stream": "tosafot",
+        "line": 38,
+        "startText": "שעוברי דרכים",
+        "endText": "כי יתלו דנפל"
+      },
+      {
+        "stream": "tosafot",
+        "line": 39,
+        "startText": "מעוברי דרכים",
+        "endText": "דלא ידע סבור"
+      },
+      {
+        "stream": "tosafot",
+        "line": 40,
+        "startText": "שלא נפלו",
+        "endText": "דהוה ליה יאוש"
+      },
+      {
+        "stream": "tosafot",
+        "line": 41,
+        "startText": "שלא מדעת",
+        "endText": "לרבא דהוי יאוש"
+      },
+      {
+        "stream": "tosafot",
+        "line": 42,
+        "startText": "אמאי אסור",
+        "endText": "דין הוא לתלות"
+      },
+      {
+        "stream": "tosafot",
+        "line": 43,
+        "startText": "בעוברי דרכים",
+        "endText": "ולא באילן שאצלו"
+      },
+      {
+        "stream": "tosafot",
+        "line": 44,
+        "startText": "אמאי אסור",
+        "endText": "בזיתים ובחרובין וי\"ל"
+      },
+      {
+        "stream": "tosafot",
+        "line": 45,
+        "startText": "דבדין ודאי",
+        "endText": "לתלות בעוברי דרכים"
+      },
+      {
+        "stream": "tosafot",
+        "line": 46,
+        "startText": "אלא באילן",
+        "endText": "אלא שהבעלים מתיאשים"
+      },
+      {
+        "stream": "tosafot",
+        "line": 47,
+        "startText": "לפי שסבורין",
+        "endText": "שעוברי דרכים דלא"
+      },
+      {
+        "stream": "tosafot",
+        "line": 48,
+        "startText": "מעלי יורו",
+        "endText": "היתירא בפירות שמוצאים"
+      },
+      {
+        "stream": "tosafot",
+        "line": 49,
+        "startText": "ויתלום בעוברי",
+        "endText": "וא\"ת אם כן"
+      },
+      {
+        "stream": "tosafot",
+        "line": 50,
+        "startText": "מאי פריך",
+        "endText": "נימא דזיתים וחרובין"
+      },
+      {
+        "stream": "tosafot",
+        "line": 51,
+        "startText": "אסירי משום",
+        "endText": "דאף לאחר שידעו"
+      },
+      {
+        "stream": "tosafot",
+        "line": 52,
+        "startText": "הבעלים שנפלו",
+        "endText": "לא נתיאשו לפי"
+      },
+      {
+        "stream": "tosafot",
+        "line": 53,
+        "startText": "שיודעין שהמוצא",
+        "endText": "לא יקחם שיתלה"
+      },
+      {
+        "stream": "tosafot",
+        "line": 54,
+        "startText": "שנפלו מן",
+        "endText": "כאשר הוא האמת"
+      },
+      {
+        "stream": "tosafot",
+        "line": 55,
+        "startText": "שאין לתלות",
+        "endText": "בעוברי דרכים וי\"ל"
+      },
+      {
+        "stream": "tosafot",
+        "line": 56,
+        "startText": "דאם אינן",
+        "endText": "מתיאשים בתאנה אמאי"
+      },
+      {
+        "stream": "tosafot",
+        "line": 57,
+        "startText": "מותרים מיהו",
+        "endText": "אית ספרים דגרסינן"
+      },
+      {
+        "stream": "tosafot",
+        "line": 58,
+        "startText": "שאני זית",
+        "endText": "וזיתו מוכיח עליו"
+      },
+      {
+        "stream": "tosafot",
+        "line": 59,
+        "startText": "דבזה מתורץ",
+        "endText": "שהקשינו כלומר לפי"
+      },
+      {
+        "stream": "tosafot",
+        "line": 60,
+        "startText": "שהם תחת",
+        "endText": "הזית יחשבו הבעלים"
+      },
+      {
+        "stream": "tosafot",
+        "line": 61,
+        "startText": "שהמוצא לא",
+        "endText": "יקחם לתלות בעוברי"
+      },
+      {
+        "stream": "tosafot",
+        "line": 62,
+        "startText": "דרכים אבל",
+        "endText": "תאנה עם נפילתה"
+      },
+      {
+        "stream": "tosafot",
+        "line": 63,
+        "startText": "נמאסת פירוש",
+        "endText": "פירוש מתלכלכת ונמאסת"
+      },
+      {
+        "stream": "tosafot",
+        "line": 64,
+        "startText": "בעיניו ומפקירה",
+        "endText": "אבל ברוב ספרים"
+      },
+      {
+        "stream": "tosafot",
+        "line": 65,
+        "startText": "גרסינן הואיל",
+        "endText": "וחזותו מוכיח עליו"
+      },
+      {
+        "stream": "tosafot",
+        "line": 66,
+        "startText": "ואע\"ג דמנתרא",
+        "endText": "מידע ידעי דוכתא"
+      },
+      {
+        "stream": "tosafot",
+        "line": 67,
+        "startText": "דאיניש איניש",
+        "endText": "זיתים שנפלו דומין"
+      },
+      {
+        "stream": "tosafot",
+        "line": 68,
+        "startText": "לזיתים שעומדין",
+        "endText": "באילן ולפיכך אף"
+      },
+      {
+        "stream": "tosafot",
+        "line": 69,
+        "startText": "כשידעו הבעלים",
+        "endText": "נמסת בלא אל\"ף"
+      },
+      {
+        "stream": "tosafot",
+        "line": 70,
+        "startText": "ואין דומין",
+        "endText": "דומה לתאנה שבאילן:"
       }
+    ],
+    "openingLines": 5,
+    "continuousCommentaryStreams": [
+      "tosafot"
     ]
   },
   "textSource": "https://www.sefaria.org/Bava_Metzia.21b",
@@ -350,7 +775,8 @@
     },
     "tosafot": {
       "side": "right",
-      "opening": "דלכי נפל מיניה לא מיאש"
+      "opening": "דלכי נפל מיניה לא מיאש",
+      "lineMapEvidence": "70 printed lines: 5 wide opening, 63 narrow, 2 full-width ending; manually checked against the e-daf Vilna scan. Sefaria spelling variants are retained."
     }
   }
 }
