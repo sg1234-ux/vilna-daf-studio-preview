@@ -109,3 +109,14 @@ for(let i=0;i<63;i++){
 assert.equal(context.normalizedAnchorWord(rashiLines[0].at(-1).text),'וכשמצאו');
 assert.equal(context.normalizedAnchorWord(rashiLines[1][0].text),'עדיין');
 console.log('PASS: scan anchors, source preservation, editable counts, sides, candidate rejection, completion-driven space reclamation.');
+
+// The upper final-line gutter belongs to the completed commentary only.
+assert.equal(guidance.settings.openingLines,4);
+const gutterContext=vm.createContext({state:{agentSettings:guidance.settings,agentLockedStreams:{gemara:true}},STREAMS:['inner','gemara','tosafot'],ordered:values=>values,primaryWidths:()=>[28,44,28],scaleParts:()=>({gemara:1,commentary:1}),typographyProfile:()=>({typography:{gemaraLeading:16.35}}),$:()=>({}),getComputedStyle:()=>({getPropertyValue:name=>name==='--commentary-leading'?'14':'25'}),releasedPairWidths:()=>[72,28]});
+vm.runInContext(source.slice(source.indexOf('function candidates('),source.indexOf('function buildGeometry(')),gutterContext);
+const gutterPattern=gutterContext.candidates({},1)[0];
+assert.equal(gutterPattern.bands[0].commentaryGutterStream,'inner');
+assert.equal(gutterPattern.bands[0].commentaryBottomGutter,28);
+assert.equal(gutterPattern.bands[1].pixelHeight,16.35+28);
+assert.equal(gutterPattern.bands[1].gemaraGutter,28);
+console.log('PASS: four opening lines and upper gutter restricted to completed Rashi.');
