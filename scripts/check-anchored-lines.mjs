@@ -41,7 +41,29 @@ assert.equal(context.applyStreamLineAnchors(['א','ב','ג','ד'].map(text=>({te
 context.state.agentSettings.lineAnchors[1].endText='missing';context.state.agentAnchorFailures=[];
 context.applyStreamLineAnchors(['א','ב','ג','ד'].map(text=>({text})),'gemara');
 assert.ok(context.state.agentAnchorFailures.length);assert.equal(context.state.agentLockedStreams.gemara,false);
-const candidateContext=vm.createContext({currentRenderedLineCounts:()=>({gemara:54}),targetLineCountFailures:()=>[],validateAgentLineAnchors:()=>['bad anchor'],validateAnchoredLineGeometry:()=>[],exactExpansionFailure:()=>null,fillPasses:()=>true});
-vm.runInContext(source.slice(source.indexOf('function candidatePasses('),source.indexOf('function validateAnchoredLineGeometry(')),candidateContext);
+const candidateContext=vm.createContext({currentRenderedLineCounts:()=>({gemara:54}),targetLineCountFailures:()=>[],validateAgentLineAnchors:()=>['bad anchor'],validateAnchoredLineGeometry:()=>[],exactExpansionFailure:()=>null,fillPasses:()=>true,geometryTilesPage:()=>true});
+vm.runInContext(source.slice(source.indexOf('function candidatePasses('),source.indexOf('function geometryTilesPage(')),candidateContext);
 assert.equal(candidateContext.candidatePasses({overflow:0,completionFailures:[],pattern:{teacherExactExpansion:true},transitionGapLines:0}),false);
-console.log('PASS: 54 scan boundaries, every source word preserved, no duplicate breaks, side override, editable counts, missing anchors, protected sides, candidate rejection.');
+candidateContext.validateAgentLineAnchors=()=>[];
+candidateContext.geometryTilesPage=()=>false;
+assert.equal(candidateContext.candidatePasses({overflow:0,completionFailures:[],pattern:{teacherExactExpansion:true},transitionGapLines:0}),false,'A correct line count must not hide page-height overflow');
+candidateContext.geometryTilesPage=()=>true;candidateContext.fillPasses=()=>false;
+assert.equal(candidateContext.candidatePasses({overflow:0,completionFailures:[],pattern:{teacherExactExpansion:true},transitionGapLines:0}),false,'Exact transitions still require adequate fill');
+// Explicit anchors must not waive completion or space-reclamation rules.
+const completionContext=vm.createContext({STREAMS:['inner','gemara','tosafot']});
+vm.runInContext(source.slice(source.indexOf('function lastStateForBand('),source.indexOf('function compositionRegions(')),completionContext);
+const pattern={teacherExactExpansion:true,bands:[{streams:['tosafot','gemara','inner']},{streams:['gemara','inner']},{streams:['inner']}]};
+const band=(bandIndex,afterCount,usedHeight,regionHeight)=>({bandIndex,afterCount,usedHeight,regionHeight,lineHeight:10});
+const results={
+ tosafot:{rest:[],regionStates:[band(0,0,100,100)]},
+ gemara:{rest:[],regionStates:[band(0,1,100,100),band(1,0,10,10)]},
+ inner:{rest:[],regionStates:[band(0,2,100,100),band(1,1,10,10),band(2,0,20,20)]}
+};
+assert.equal(completionContext.completionAudit(pattern,results).failures.length,0);
+results.tosafot.regionStates[0].usedHeight=50;
+assert.ok(completionContext.completionAudit(pattern,results).failures.includes('tosafot transition delayed by more than one line'),'Anchors cannot leave a finished commentary column empty');
+results.tosafot.regionStates[0].usedHeight=100;results.tosafot.regionStates[0].afterCount=1;
+assert.ok(completionContext.completionAudit(pattern,results).failures.includes('tosafot removed before source completion'),'Gemara cannot enter unfinished Tosafos space');
+results.tosafot.regionStates[0].afterCount=0;results.inner.regionStates[0].afterCount=0;
+assert.ok(completionContext.completionAudit(pattern,results).failures.includes('inner continues after source completion'),'An ended stream cannot reserve a continuing column');
+console.log('PASS: scan anchors, source preservation, editable counts, sides, candidate rejection, completion-driven space reclamation.');
