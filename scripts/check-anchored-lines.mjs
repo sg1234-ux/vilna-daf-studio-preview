@@ -25,8 +25,9 @@ for(let i=0;i<54;i++){
 assert.match(lines[39].map(t=>context.normalizedAnchorWord(t.text)).join(' '),/^דאיכא עניים הכא הנך מעיקרא איאושי$/);
 assert.equal(context.normalizedAnchorWord(lines[52].at(-1).text),'תא');
 assert.equal(context.normalizedAnchorWord(lines[53][0].text),'שמע');
-assert.deepEqual(Array.from(context.physicalOrder()),['tosafot','gemara','inner']);
-assert.equal(context.safeAgentSettings({innerSide:'right'}).innerSide,'right');
+assert.deepEqual(Array.from(context.physicalOrder()),['inner','gemara','tosafot']);
+assert.equal(context.safeAgentSettings({innerSide:'left'}).innerSide,'left');
+assert.equal(guidance.settings.expansionIntoStream,'inner');
 assert.equal(context.safeAgentSettings({innerSide:'invalid'}).innerSide,undefined);
 context.state.agentSettings={targetLineCounts:{gemara:55},lineAnchors:guidance.settings.lineAnchors};
 context.state.agentLockedStreams={};context.applyStreamLineAnchors(tokens,'gemara');
