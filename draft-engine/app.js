@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.52";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.53";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -14,7 +14,7 @@ const TYPOGRAPHY_PRESETS={
   "build31":{className:"type-build31",label:"Build 31 comparison: Frank Ruhl Libre with Noto Rashi Hebrew.",localFonts:[]}
 };
 const PAGE_REGISTRY=[
-  {tractate:"Pesachim",tractateLabel:"פסחים",ref:"Pesachim 100a",pageLabel:"ק ע״א — draft",verified:false},
+  {tractate:"Pesachim",tractateLabel:"פסחים",ref:"Pesachim 100a",pageLabel:"ק ע״א",verified:true},
   {tractate:"Bava Metzia",tractateLabel:"בבא מציעא",ref:"Bava Metzia 21a",pageLabel:"כא ע״א",verified:true}
 ];
 const savedTypography=localStorage.getItem("vilna-daf-typography");
@@ -284,7 +284,7 @@ const REFERENCE_PROFILES={
       ]
     }
   },
-  "reviewStatus": "draft"
+  "reviewStatus": "approved"
 },
   "pesachim 99b":{
     source:"Uploaded Vilna PDF / Shas.org page 840",
@@ -1111,7 +1111,13 @@ function registryEntry(ref=state.ref){return PAGE_REGISTRY.find(entry=>entry.ref
 function populateTractateSelector(){const select=$("tractateSelect"),tractates=[...new Map(PAGE_REGISTRY.map(entry=>[entry.tractate,entry])).values()];select.innerHTML=tractates.map(entry=>`<option value="${entry.tractate}">${entry.tractateLabel} — ${entry.tractate}</option>`).join("");}
 function populatePageSelector(preferredRef=""){const pages=PAGE_REGISTRY.filter(entry=>entry.tractate===$("tractateSelect").value),select=$("pageSelect");select.innerHTML=pages.map(entry=>`<option value="${entry.ref}">${entry.pageLabel} — ${entry.ref}</option>`).join("");if(pages.some(entry=>entry.ref===preferredRef))select.value=preferredRef;updateVerificationStatus(select.value);}
 function syncRegistrySelection(ref=state.ref){const entry=registryEntry(ref);if(entry){$("tractateSelect").value=entry.tractate;populatePageSelector(entry.ref);}updateVerificationStatus(ref);}
-function updateVerificationStatus(ref=state.ref){if(/^Pesachim 100a$/i.test(ref)){const element=$("verificationStatus");element.classList.remove("verified");element.textContent="Reference layout — awaiting teacher approval";return;}const mapped=Boolean(REFERENCE_PROFILES[String(ref||"").trim().toLowerCase()]),element=$("verificationStatus");element.classList.toggle("verified",mapped);element.textContent=mapped?"Verified against uploaded Vilna PDF":"Automatic composition — PDF line map not yet verified";}
+function updateVerificationStatus(ref=state.ref){
+  const approved=knownReferenceProfile(ref)?.reviewStatus==="approved";
+  $("buildBadge").textContent=`Build ${BUILD_VERSION} ${approved?"Studio":"Draft"}`;
+  document.querySelector(".app-header h1").textContent=approved?ref:"New Amud Draft";
+  document.querySelector(".control-panel .panel-section h2").textContent=approved?"Amud":"Agent draft";
+  document.title=approved?`${ref} — Vilna Daf Studio`:`Vilna Daf Studio Agent Draft - Build ${BUILD_VERSION}`;
+if(/^Pesachim 100a$/i.test(ref)){const element=$("verificationStatus");element.classList.add("verified");element.textContent="Teacher-approved reference layout";return;}const mapped=Boolean(REFERENCE_PROFILES[String(ref||"").trim().toLowerCase()]),element=$("verificationStatus");element.classList.toggle("verified",mapped);element.textContent=mapped?"Verified against uploaded Vilna PDF":"Automatic composition — PDF line map not yet verified";}
 async function applyScanGuidance(ref){
   if(state.agentSettingsRef&&state.agentSettingsRef.toLowerCase()!==ref.toLowerCase())state.agentSettings={};
   state.agentSettingsRef=ref;
