@@ -84,7 +84,7 @@ const flatten=value=>Array.isArray(value)?value.flatMap(flatten):[value];
 const tosafosTokens=flatten(tosafosFixture.he).join(' ').replace(/<[^>]+>/g,' ').split(/\s+/u).filter(Boolean).map(text=>({text}));
 context.state.agentAnchorFailures=[];context.state.agentLockedStreams={};
 context.state.agentSettings=context.safeAgentSettings(guidance.settings);
-assert.equal(context.state.agentSettings.lineAnchors.length,124);
+assert.equal(context.state.agentSettings.lineAnchors.length,187);
 const tosafosAnchored=context.applyStreamLineAnchors(tosafosTokens,'tosafot'),tosafosLines=context.splitMappedLines(tosafosAnchored);
 assert.equal(tosafosLines.length,70);assert.equal(context.state.agentLockedStreams.tosafot,true);
 assert.deepEqual(Array.from(tosafosAnchored.filter(token=>!token.break),token=>token.text),tosafosTokens.map(token=>token.text));
@@ -95,4 +95,17 @@ for(let i=0;i<70;i++){
 }
 assert.match(tosafosLines[5].map(token=>token.text).join(' '),/^דבכל ענין/);
 assert.match(tosafosLines[68].map(token=>token.text).join(' '),/^כשידעו הבעלים/);
+const rashiFixture=JSON.parse(fs.readFileSync(new URL('./bm21b-rashi-source-fixture.json',import.meta.url),'utf8'));
+const rashiTokens=flatten(rashiFixture.he).join(' ').replace(/<[^>]+>/g,' ').split(/\s+/u).filter(Boolean).map(text=>({text}));
+context.state.agentAnchorFailures=[];context.state.agentLockedStreams={};
+const rashiAnchored=context.applyStreamLineAnchors(rashiTokens,'inner'),rashiLines=context.splitMappedLines(rashiAnchored);
+assert.equal(rashiLines.length,63);assert.equal(context.state.agentLockedStreams.inner,true);
+assert.deepEqual(Array.from(rashiAnchored.filter(token=>!token.break),token=>token.text),rashiTokens.map(token=>token.text));
+for(let i=0;i<63;i++){
+ const words=rashiLines[i].map(token=>context.normalizedAnchorWord(token.text)).filter(Boolean),anchor=guidance.settings.lineAnchors.find(anchor=>anchor.stream==='inner'&&anchor.line===i+1);
+ const start=Array.from(context.anchorPhraseWords(anchor.startText)),end=Array.from(context.anchorPhraseWords(anchor.endText));
+ assert.deepEqual(Array.from(words.slice(0,start.length)),start);assert.deepEqual(Array.from(words.slice(-end.length)),end);
+}
+assert.equal(context.normalizedAnchorWord(rashiLines[0].at(-1).text),'וכשמצאו');
+assert.equal(context.normalizedAnchorWord(rashiLines[1][0].text),'עדיין');
 console.log('PASS: scan anchors, source preservation, editable counts, sides, candidate rejection, completion-driven space reclamation.');

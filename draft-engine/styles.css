@@ -464,3 +464,7 @@ input[type="color"] { width: 100%; height: 34px; padding: 2px; border: 1px solid
 /* Independent measured font sizes share commentary baselines. */
 .commentary[data-stream="inner"], .top-commentary[data-stream="inner"] { font-size:calc(var(--commentary-size) * var(--inner-font-factor, 1)); }
 .commentary[data-stream="tosafot"], .top-commentary[data-stream="tosafot"] { font-size:calc(var(--commentary-size) * var(--tosafot-font-factor, 1)); }
+
+.body-geometry .commentary.anchor-mapped[data-stream="inner"] { line-height: var(--inner-body-leading, var(--commentary-leading)); }
+.commentary.anchor-mapped[data-stream="inner"] .mapped-line { height: var(--inner-body-leading, var(--commentary-leading)); }
+.top-commentary.anchor-mapped[data-stream="inner"] .mapped-line { height: var(--commentary-leading); }
