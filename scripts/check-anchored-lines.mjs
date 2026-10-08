@@ -66,4 +66,10 @@ results.tosafot.regionStates[0].usedHeight=100;results.tosafot.regionStates[0].a
 assert.ok(completionContext.completionAudit(pattern,results).failures.includes('tosafot removed before source completion'),'Gemara cannot enter unfinished Tosafos space');
 results.tosafot.regionStates[0].afterCount=0;results.inner.regionStates[0].afterCount=0;
 assert.ok(completionContext.completionAudit(pattern,results).failures.includes('inner continues after source completion'),'An ended stream cannot reserve a continuing column');
+// A positioned bridge changes offset parents without changing the physical column.
+const footprintContext=vm.createContext({});
+vm.runInContext(source.slice(source.indexOf('function streamFootprintChanges('),source.indexOf('function stitchStreamContinuity(')),footprintContext);
+const region=(left,width,offsetLeft)=>({offsetLeft,getBoundingClientRect:()=>({left,width})});
+assert.equal(footprintContext.streamFootprintChanges(region(400,160,400),region(400,160,0)),false);
+assert.equal(footprintContext.streamFootprintChanges(region(400,160,0),region(0,560,0)),true);
 console.log('PASS: scan anchors, source preservation, editable counts, sides, candidate rejection, completion-driven space reclamation.');
