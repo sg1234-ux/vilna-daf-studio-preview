@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.36";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.37";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -556,7 +556,7 @@ function renderedCommentaryLineMap(){
 function renderedClippedStreams(){
   const clipped=new Set();
   for(const stream of STREAMS)for(const region of streamRegions(stream)){
-    if(!region.textContent.trim())continue;
+    if(!region.textContent.trim()||region.classList?.contains("top-commentary"))continue;
     const box=region.getBoundingClientRect(),rows=renderedRows(region);
     if(region.scrollHeight>region.clientHeight+1||rows.some(row=>row.bottom>box.bottom+2))clipped.add(stream);
   }
@@ -755,7 +755,7 @@ async function compose(){
     if(!familyBest.has(family)||r.score<familyBest.get(family).score)familyBest.set(family,r);
     done++;if(done%12===0||done===total){status(`Composition test ${Math.min(48,Math.round(done/total*48))}% — measuring actual completion events…`);await nextPaint();}
   }
-  const winners=[...familyBest.values()].sort((a,b)=>a.score-b.score),legacyThreeBandFamilies=winners.filter(r=>!r.pattern.eventDriven&&r.pattern.bands.length===3),shortlist=[];
+  const winners=[...familyBest.values()].sort((a,b)=>a.score-b.score),legacyThreeBandFamilies=winners.filter(r=>!r.pattern.eventDriven&&!r.pattern.teacherExactExpansion&&r.pattern.bands.length===3),shortlist=[];
   for(const coarse of legacyThreeBandFamilies){
     if(performance.now()>searchDeadline){searchExhausted=true;break;}
     $("dafPage").style.setProperty("--opening-lines",coarse.openingLines);
@@ -773,7 +773,7 @@ async function compose(){
     $("dafPage").style.setProperty("--opening-lines",job.openingLines);const r=evaluate(job.pattern,job.scale,tokens);r.openingLines=job.openingLines;consider(r);
     done++;status(`Composition test ${48+Math.min(30,Math.round(done/Math.max(1,fineJobs.length)*30))}% — refining teacher constraints…`);await nextPaint();
   }
-  if(!bestPassing&&!profile&&!searchExhausted){
+  if(!bestPassing&&!profile&&!searchExhausted&&!calibratedScale){
     const sparsePage=Boolean(bestSource&&bestSource.sourceOverflow===0&&bestSource.minOccupancy<.78),baseRecoveryPatterns=patterns.filter(pattern=>pattern.cascade).sort((a,b)=>Number(b.name===bestSource?.pattern?.name)-Number(a.name===bestSource?.pattern?.name)),recoveryPatterns=sparsePage?[...recoveryWidthPatterns(bestSource?.pattern),...baseRecoveryPatterns]:baseRecoveryPatterns,recoveryOpenings=[state.agentSettings.openingLines||4],recoveryScales=sparsePage?[{gemara:1.045,commentary:1.025},{gemara:1.04,commentary:1.02},{gemara:1,commentary:1},{gemara:1.08,commentary:1.04}]:[{gemara:1.06,commentary:.92},{gemara:1.04,commentary:.90}],recoveryTotal=Math.min(80,recoveryPatterns.length*recoveryScales.length*recoveryOpenings.length);
     let recoveryBest=null;done=0;
     recovery:for(const openingLines of recoveryOpenings)for(const scale of recoveryScales)for(const seedPattern of recoveryPatterns){
