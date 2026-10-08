@@ -9,8 +9,8 @@
     "expansionLine": 54,
     "gemaraExpansionLine": 54,
     "expansionStream": "gemara",
-    "expansionIntoStream": "tosafot",
-    "innerSide": "right",
+    "expansionIntoStream": "inner",
+    "innerSide": "left",
     "stripGemaraDashes": true,
     "enforceStreamContinuity": true,
     "lineAnchors": [
@@ -342,5 +342,15 @@
   },
   "textSource": "https://www.sefaria.org/Bava_Metzia.21b",
   "textVersion": "William Davidson Edition - Vocalized Aramaic",
-  "textLicense": "CC-BY-NC"
+  "textLicense": "CC-BY-NC",
+  "commentaryEvidence": {
+    "rashi": {
+      "side": "left",
+      "opening": "יאוש שלא מדעת"
+    },
+    "tosafot": {
+      "side": "right",
+      "opening": "דלכי נפל מיניה לא מיאש"
+    }
+  }
 }
