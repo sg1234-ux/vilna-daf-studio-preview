@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.50";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.51";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -560,7 +560,18 @@ function fillContinuousAnchoredCommentary(tokens,regions,shapeLines){
 function withoutBreaks(html){return html.replace(/<br\s*\/?\s*>/gi," ").replace(/\s+/g," ").trim();}
 function rashbamHeadingHtml(){if(state.rashbamHeadingMode==="full")return'<span class="commentary-heading"><strong>פירוש רבינו שמואל<br>תלמיד רש״י ז״ל</strong></span>';if(state.rashbamHeadingMode==="short")return'<span class="commentary-heading"><strong>רשב״ם</strong></span>';return"";}
 function innerHtml(){const r=withoutBreaks(state.rashiHtml.trim()),b=withoutBreaks(state.rashbamHtml.trim());if(!b)return r;const heading=rashbamHeadingHtml(),transition=heading?`<span class="rashbam-transition"><br><br>${heading}<br></span>`:"";if(!r)return`${heading}${heading?"<br>":""}${b}`;return`${r}${transition}${b}`;}
-function normalizeMappedSourceTokens(tokens,stream){if(/^Bava\s+Metzia\s+21a$/i.test(state.ref)&&stream==="gemara")return tokens.filter(token=>token.break||!/^[–—-]+$/u.test(token.text||""));return tokens;}
+function normalizeMappedSourceTokens(tokens,stream){
+  // Sefaria dibbur formatting emits the separator as a standalone text node.
+  // Attach punctuation to its preceding word before applying the 100a word map.
+  if(/^Pesachim\s+100a$/i.test(state.ref)&&stream!=="gemara"){
+    const normalized=[];
+    for(const token of tokens){
+      if(!token.break&&/^[.׃,:;!?]+$/u.test(token.text||"")&&normalized.at(-1)?.text)normalized.at(-1).text+=token.text;
+      else normalized.push({...token});
+    }
+    return normalized;
+  }
+if(/^Bava\s+Metzia\s+21a$/i.test(state.ref)&&stream==="gemara")return tokens.filter(token=>token.break||!/^[–—-]+$/u.test(token.text||""));return tokens;}
 function normalizedAnchorWord(value){return String(value||"").normalize("NFKD").replace(/[\u0591-\u05c7]/g,"").replace(/[^\u05d0-\u05eaA-Za-z0-9]/g,"").toLowerCase();}
 function anchorPhraseWords(value){return String(value||"").trim().split(/\s+/u).map(normalizedAnchorWord).filter(Boolean);}
 function phraseEndAt(words,phrase,index){if(!phrase.length)return-1;let cursor=index;for(const part of phrase){while(cursor<words.length&&!normalizedAnchorWord(words[cursor]?.text))cursor++;if(cursor>=words.length||normalizedAnchorWord(words[cursor]?.text)!==part)return-1;cursor++;}return cursor-1;}
