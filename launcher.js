@@ -1,6 +1,7 @@
 const COMBINED_BUILD = 59;
 const APPROVED_KEY = "vilna-daf-agent-approved-v57";
 const PAGES = {
+  "pesachim-100a": { path: "draft-engine/index.html?ref=Pesachim%20100a", title: "Pesachim 100a — Review Draft" },
   "agent-builder": {
     path: "agent-builder/index.html",
     title: "Build a New Amud — Agent"
