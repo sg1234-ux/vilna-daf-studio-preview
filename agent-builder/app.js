@@ -440,7 +440,7 @@ $("approveDraft").addEventListener("click", async () => {
     pages.push({ id, ref: approvedRef, settings: snapshot.settings || {}, headingMode: snapshot.headingMode || "none", approvedAt: new Date().toISOString(), snapshotVersion: 1 });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(pages));
     localStorage.setItem("vilna-daf-agent-approved-updated", String(Date.now()));
-    location.assign(`?approved=${encodeURIComponent(id)}&ui=60.6`);
+    location.assign(`?approved=${encodeURIComponent(id)}&ui=60.7`);
   } catch (error) {
     message(`Could not save the approved page: ${error.message}`, true);
     renderDiagnostics();
