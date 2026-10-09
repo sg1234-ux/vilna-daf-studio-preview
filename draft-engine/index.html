@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;600;700&family=Noto+Rashi+Hebrew:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?ui=60.4&build=62.53">
+  <link rel="stylesheet" href="styles.css?ui=60.5&build=62.53">
 </head>
 <body>
   <header class="app-header">
@@ -23,13 +23,13 @@
   <main class="workspace">
     <aside class="control-panel" aria-label="Daf controls">
       <section class="panel-section">
-        <h2>Agent draft</h2>
+        <h2>Amud</h2>
         <label for="tractateSelect" hidden>Masechta</label>
         <select id="tractateSelect" hidden></select>
         <label for="pageSelect" hidden>Amud</label>
         <select id="pageSelect" hidden></select>
         <button id="loadSelectedPage" class="button wide-button" hidden>Load selected amud</button>
-        <p id="verificationStatus" class="verification-status">Completion-driven geometry; no PDF placement map required.</p>
+        <p id="verificationStatus" class="verification-status">Teacher-approved reference layout</p>
         <input id="dafRef" value="Bava Metzia 21a" type="hidden">
         <button id="loadDaf" type="button" hidden>Load</button>
         <p id="loadStatus" class="status" role="status">Ready. A built-in sample is displayed.</p>
@@ -242,6 +242,6 @@
   </section>
 
   <script src="assets/vendor/opentype.min.js?build=51"></script>
-  <script src="app.js?ui=60.4&build=62.53"></script>
+  <script src="app.js?ui=60.5&build=62.53"></script>
 </body>
 </html>

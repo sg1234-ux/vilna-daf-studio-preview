@@ -421,7 +421,7 @@ $("approveDraft").addEventListener("click", () => {
   localStorage.setItem("vilna-daf-agent-approved-updated", String(Date.now()));
   renderApproved();
   message(`${diagnostics.ref} was approved locally and added to the Build 60 launcher.`);
-  location.assign(`?approved=${encodeURIComponent(id)}&ui=60.4`);
+  location.assign(`?approved=${encodeURIComponent(id)}&ui=60.5`);
 });
 
 window.addEventListener("message", async event => {

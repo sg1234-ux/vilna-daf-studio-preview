@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;600;700&family=Noto+Rashi+Hebrew:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?ui=60.4&build=51">
+  <link rel="stylesheet" href="styles.css?ui=60.5&build=51">
 </head>
 <body>
   <header class="app-header">
@@ -23,13 +23,13 @@
   <main class="workspace">
     <aside class="control-panel" aria-label="Daf controls">
       <section class="panel-section">
-        <h2>Bava Metzia 21a</h2>
-        <label for="tractateSelect">Masechta</label>
-        <select id="tractateSelect"></select>
-        <label for="pageSelect">Amud</label>
-        <select id="pageSelect"></select>
-        <button id="loadSelectedPage" class="button wide-button">Load selected amud</button>
-        <p id="verificationStatus" class="verification-status verified">Verified against uploaded Vilna PDF</p>
+        <h2>Amud</h2>
+        <label for="tractateSelect" hidden>Masechta</label>
+        <select id="tractateSelect" hidden></select>
+        <label for="pageSelect" hidden>Amud</label>
+        <select id="pageSelect" hidden></select>
+        <button id="loadSelectedPage" class="button wide-button" hidden>Load selected amud</button>
+        <p id="verificationStatus" class="verification-status">Teacher-approved reference layout</p>
         <input id="dafRef" value="Bava Metzia 21a" type="hidden">
         <button id="loadDaf" type="button" hidden>Load</button>
         <p id="loadStatus" class="status" role="status">Ready. A built-in sample is displayed.</p>
@@ -51,6 +51,27 @@
           <button id="phraseNavigation" class="button secondary" aria-pressed="false">Phrase by phrase</button>
         </div>
         <p id="navigationUnitStatus" class="status">Word-by-word navigation is active.</p>
+        <div class="focus-navigator" aria-label="Phrase focus navigator">
+          <div class="focus-heading">
+            <p class="control-label">Phrase Focus Navigator</p>
+            <button id="focusNavigatorToggle" class="button ghost" aria-pressed="false">Focus: Off</button>
+          </div>
+          <label for="focusWindowSize">Visible phrase window</label>
+          <div class="focus-window-row">
+            <select id="focusWindowSize">
+              <option value="1">1 phrase</option>
+              <option value="2">2 phrases</option>
+              <option value="3">3 phrases</option>
+              <option value="custom">Custom</option>
+            </select>
+            <input id="focusWindowCustom" type="number" min="1" max="12" value="4" aria-label="Custom phrase window" hidden>
+          </div>
+          <div class="focus-step-row">
+            <button id="focusPrevious" class="button secondary" disabled>Previous</button>
+            <button id="focusNext" class="button secondary" disabled>Next</button>
+          </div>
+          <p id="focusNavigatorStatus" class="status">Choose Phrase by phrase to use automatic page fading.</p>
+        </div>
         <button id="notesToggle" class="button ghost wide-button" aria-pressed="false">Notes: Off</button>
         <p class="status">In Navigate mode, click the text. Left arrow moves forward by the selected unit; right arrow moves backward.</p>
         <div class="edit-tools" aria-label="Edit tools">
@@ -64,10 +85,24 @@
         </div>
       </section>
 
+      <section class="panel-section visual-panel">
+        <h2>Lesson visuals</h2>
+        <p class="status">Attach a Google Slides or Canva link to the currently selected phrase. The icon opens it only when needed.</p>
+        <label for="visualUrl">Visual link</label>
+        <input id="visualUrl" type="url" placeholder="https://…">
+        <div class="visual-actions">
+          <button id="attachVisual" class="button" disabled>Attach</button>
+          <button id="openVisual" class="button secondary" disabled>Open</button>
+          <button id="removeVisual" class="button ghost" disabled>Remove</button>
+        </div>
+        <p id="visualStatus" class="status">Select a verified phrase to attach a visual.</p>
+      </section>
+
       <section class="panel-section">
         <h2>Text display</h2>
         <div class="display-toggles" role="group" aria-label="Text display options">
           <button id="nekudosToggle" class="button secondary wide-button" aria-pressed="true">Nekudos: On</button>
+          <button id="punctuationToggle" class="button secondary wide-button" aria-pressed="true">Punctuation: On</button>
           <button id="lineNumbersToggle" class="button secondary wide-button" aria-pressed="false">Gemara line numbers: Off</button>
         </div>
         <p class="control-label">Whole-page display size</p>
@@ -162,8 +197,9 @@
         <h2>Excerpt workflow</h2>
         <p>Select excerpt, then drag over the daf. Copy or download the clean, caption-free selection.</p>
         <div class="stacked-actions">
+          <button id="downloadExactPng" class="button" disabled>Download Exact Slide PNG</button>
           <button id="copyExcerpt" class="button" disabled>Copy excerpt</button>
-          <button id="downloadExcerpt" class="button secondary" disabled>Download Canva SVG</button>
+          <button id="downloadExcerpt" class="button secondary" disabled>Download Vector SVG (optional)</button>
           <button id="clearExcerpt" class="button ghost" disabled>Clear selection</button>
         </div>
       </section>
@@ -206,6 +242,6 @@
   </section>
 
   <script src="assets/vendor/opentype.min.js?build=51"></script>
-  <script src="app.js?ui=60.4&build=51"></script>
+  <script src="app.js?ui=60.5&build=51"></script>
 </body>
 </html>
