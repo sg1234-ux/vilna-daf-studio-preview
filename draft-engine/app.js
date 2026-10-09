@@ -1365,6 +1365,26 @@ function downloadBlob(blob,name){const a=document.createElement("a"),url=URL.cre
 function saveProject(){const payload=projectPayload(),name=`${state.ref.replace(/\s+/g,"-")}.vds`;downloadBlob(new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),name);$("projectStatus").textContent=`Saved ${name}.`;}
 async function openProjectFile(file){const data=JSON.parse(await file.text());if(data?.format!=="vilna-daf-studio-project"||data.version!==1||!data.daf?.ref)throw new Error("This is not a supported Vilna Daf Studio project");const projectRef=String(data.daf.ref);Object.assign(state,{ref:projectRef,header:String(data.daf.header||""),gemaraHtml:normalizeGemaraForRef(cleanHtml(data.daf.gemaraHtml),projectRef),rashiHtml:normalizeCommentaryForRef(cleanHtml(data.daf.rashiHtml),projectRef,"inner"),rashbamHtml:cleanHtml(data.daf.rashbamHtml),tosafotHtml:cleanHtml(data.daf.tosafotHtml),isSample:Boolean(data.daf.isSample),typography:TYPOGRAPHY_PRESETS[data.view?.typography]?data.view.typography:"archival-open",mode:data.view?.mode==="edit"?"edit":"navigate",navigationUnit:data.view?.navigationUnit==="phrase"?"phrase":"word",selectedWordId:data.view?.selectedWordId||null,editSelectedWordIds:[],wordFontScales:data.view?.wordFontScales&&typeof data.view.wordFontScales==="object"?data.view.wordFontScales:{},whitedWordIds:data.view?.whitedWordIds&&typeof data.view.whitedWordIds==="object"?data.view.whitedWordIds:{},focusEnabled:Boolean(data.view?.focusEnabled),focusWindow:clamp(Number(data.view?.focusWindow)||1,1,12),visualLinks:data.lesson?.visualLinks&&typeof data.lesson.visualLinks==="object"?data.lesson.visualLinks:{},notesEnabled:Boolean(data.view?.notesEnabled),nekudosEnabled:data.view?.nekudosEnabled!==false,punctuationEnabled:data.view?.punctuationEnabled!==false,lineNumbersEnabled:Boolean(data.view?.lineNumbersEnabled),pageZoom:normalizedPageZoom(data.view?.pageZoom),noteWindowPosition:data.view?.noteWindowPosition||null,selection:data.view?.selection||null,notes:data.notes&&typeof data.notes==="object"?data.notes:{},annotations:Array.isArray(data.annotations)?data.annotations:[],annotationTool:["pen","highlighter","eraser"].includes(data.annotationSettings?.tool)?data.annotationSettings.tool:"pen",annotationColor:data.annotationSettings?.color||"#b32424",strokeWidth:Number(data.annotationSettings?.width)||3,annotationUndo:[],annotationRedo:[]});$("dafRef").value=state.ref;syncRegistrySelection(state.ref);$("focusWindowSize").value=[1,2,3].includes(state.focusWindow)?String(state.focusWindow):"custom";$("focusWindowCustom").value=state.focusWindow;$("focusWindowCustom").hidden=$("focusWindowSize").value!=="custom";$("annotationColor").value=state.annotationColor;$("strokeWidth").value=state.strokeWidth;$("strokeWidthValue").textContent=state.strokeWidth;updateDisplayToggles();selectAnnotationTool(state.annotationTool);setAnnotating(false);await applyTypography(state.typography,{recompose:false});await compose();toggleNotes(state.notesEnabled);if(state.selection){const b=$("selectionBox");b.hidden=false;Object.assign(b.style,{left:`${state.selection.x}px`,top:`${state.selection.y}px`,width:`${state.selection.width}px`,height:`${state.selection.height}px`});["downloadExactPng","copyExcerpt","downloadExcerpt","clearExcerpt"].forEach(id=>$(id).disabled=false);}$("projectStatus").textContent=`Opened ${file.name}.`;}
 function wordCount(html){return htmlToPlain(html||"").trim().split(/\s+/u).filter(Boolean).length;}
+function captureAgentEvidence(){
+  const source={gemara:state.gemaraHtml,inner:innerHtml(),tosafot:state.tosafotHtml},page=$("dafPage").getBoundingClientRect();
+  const evidence={ref:state.ref,mode:state.mode,profile:referenceProfile()?.source||null,streams:{}};
+  for(const stream of STREAMS){
+    const plain=document.createElement('div');plain.innerHTML=source[stream];
+    const sourceText=plain.textContent.replace(/\s+/g,' ').trim(),lines=[];
+    for(const region of streamRegions(stream)){
+      const leading=parseFloat(getComputedStyle(region).lineHeight)||1,rows=[];
+      for(const token of region.querySelectorAll('.layout-token,.word-token')){
+        if(!token.textContent.trim())continue;
+        const rect=token.getBoundingClientRect(),center=rect.top+rect.height/2,last=rows.at(-1);
+        if(!last||Math.abs(center-last.center)>leading*.55)rows.push({center,left:rect.left,right:rect.right,top:rect.top,bottom:rect.bottom,words:[token.textContent]});
+        else{last.words.push(token.textContent);last.left=Math.min(last.left,rect.left);last.right=Math.max(last.right,rect.right);last.bottom=Math.max(last.bottom,rect.bottom);}
+      }
+      for(const row of rows)lines.push({line:lines.length+1,text:row.words.join(' ').trim(),x:Math.round(row.left-page.left),y:Math.round(row.top-page.top),width:Math.round(row.right-row.left),height:Math.round(row.bottom-row.top)});
+    }
+    evidence.streams[stream]={sourceText:sourceText.slice(0,24000),sourceTruncated:sourceText.length>24000,lines:lines.slice(0,200),linesTruncated:lines.length>200};
+  }
+  return evidence;
+}
 function postAgentDiagnostics(extraFailures=[]){
   if(window.parent===window)return;
   const final=state.composition,diagnostics={
