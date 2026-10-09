@@ -18,6 +18,19 @@ assert.equal(review('From Gemara line 45 onward widen into Rashi','tosafos').cha
 const anchor=review('Gemara line 2 starts with "אמר רב" and ends with "תיקו"');
 assert.equal(anchor.changes.lineAnchors[0].line,2);
 assert.equal(anchor.changes.lineAnchors[0].startText,'אמר רב');
+for (const instruction of [
+  'line 1 in gemara begin וכן and ends מה שנטל',
+  'line 1 in gemara begins וכן and ends מה שנטל',
+  'Gemara line 1 start וכן end מה שנטל',
+  'Gemara line 1 starts with וכן and ends מה שנטל',
+  'Gemara line 1 begins וכן and ends with מה שנטל',
+  'Gemara line 1 begins "וכן" and ends "מה שנטל"'
+]) {
+  const result=review(instruction,'tosafos');
+  assert.equal(result.unresolved.length,0,instruction);
+  assert.deepEqual(JSON.parse(JSON.stringify(result.changes.lineAnchors)),[{stream:'gemara',line:1,startText:'וכן',endText:'מה שנטל'}],instruction);
+  assert.equal(result.changes.expansionLine,undefined,'Word endpoints do not request a stream takeover');
+}
 const combined=review('Keep only four opening commentary lines; surround the Gemara with a gutter on all sides; remove Gemara dashes');
 assert.equal(combined.changes.openingLines,4);assert.equal(combined.changes.enforceGemaraGutterBox,true);assert.equal(combined.changes.stripGemaraDashes,true);
 const conjunction=review('Gemara should have 54 lines and remove Gemara dashes');
