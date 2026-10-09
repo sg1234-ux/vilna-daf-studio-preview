@@ -1,0 +1,5 @@
+{
+  "functions": {
+    "api/agent/*.mjs": { "maxDuration": 60 }
+  }
+}

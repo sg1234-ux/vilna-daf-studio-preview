@@ -48,7 +48,7 @@ assert.equal(brain.worse([1,0,0],[0,1,5]),true);
 assert.equal(brain.worse([0,0,1],[0,0,4]),false);
 // Exercise repair state transitions: improvement, worsening/rollback, retry limit, explicit undo.
 let sent=[];const nodes={};
-const repairContext={diagnostics:structuredClone(d),pendingAdjustment:null,lastAdjustment:null,structuredClone,Set,JSON,VilnaAgentBrain:brain,frame:{contentWindow:{postMessage(data){sent.push(data)}}},location:{origin:'https://test'},$:id=>nodes[id]||(nodes[id]={}),renderDiagnostics(){},message(){}};
+const repairContext={diagnostics:structuredClone(d),reviewing:false,pendingAdjustment:null,lastAdjustment:null,structuredClone,Set,JSON,VilnaAgentBrain:brain,VilnaAgentConnection:{outcome(){}},frame:{contentWindow:{postMessage(data){sent.push(data)}}},location:{origin:'https://test'},$:id=>nodes[id]||(nodes[id]={}),renderDiagnostics(){},message(){}};
 vm.createContext(repairContext);vm.runInContext(source.slice(source.indexOf('function sendAdjustment'),source.indexOf('$("applyAgent").addEventListener')),repairContext);
 repairContext.sendAdjustment({openingLines:4});repairContext.finishAdjustment({...d,failures:['new failure']});assert.equal(sent.at(-1).type,'vilna-agent-replace-settings');assert.equal(repairContext.pendingAdjustment.restoring,true);
 repairContext.finishAdjustment(d);assert.equal(repairContext.pendingAdjustment,null);

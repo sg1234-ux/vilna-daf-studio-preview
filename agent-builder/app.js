@@ -4,12 +4,17 @@ const frame = $("draftFrame");
 let diagnostics = null;
 let policy = null;
 let proposedReview = null;
+let proposedReviewState = null;
 let aiReady = false;
+let reviewing = false;
 let frameReady = false;
 let pendingAdjustment=null,lastAdjustment=null;
 let migratingApprovedPage = null;
 let migrationSaving = false;
 const snapshotRequests = new Map();
+function reviewStateKey() {
+  return JSON.stringify({ref:diagnostics?.ref,settings:diagnostics?.settings,wordCounts:diagnostics?.wordCounts,unplacedCounts:diagnostics?.unplacedCounts,geometry:diagnostics?.geometry,failures:diagnostics?.failures});
+}
 
 function requestApprovedSnapshot() {
   return new Promise((resolve, reject) => {
@@ -78,12 +83,12 @@ function renderDiagnostics() {
   $("failureList").innerHTML = diagnostics ? (failures.length ? failures.map(item => `<li>${item}</li>`).join("") : "<li>All current hard rules passed.</li>") : "<li>Build a draft to see its exact rule checks.</li>";
   $("approvalValue").textContent = diagnostics ? (failures.length ? "Blocked" : "Eligible for teacher approval") : "Not tested";
   $("approveDraft").disabled = !diagnostics || failures.length > 0;
-  $("buildDraft").disabled = Boolean(pendingAdjustment);
-  $("askAgent").disabled = !diagnostics || Boolean(pendingAdjustment);
-  $("autoRepair").disabled = !diagnostics || Boolean(pendingAdjustment) || !approvalFailures().length;
-  $("undoAgent").disabled = !lastAdjustment || Boolean(pendingAdjustment);
-  $("approveDraft").disabled ||= Boolean(pendingAdjustment);
-  $("applyMeasuredCorrection").disabled = !diagnostics || !$("completedStream").value;
+  $("buildDraft").disabled = Boolean(pendingAdjustment) || reviewing;
+  $("askAgent").disabled = !diagnostics || Boolean(pendingAdjustment) || reviewing;
+  $("autoRepair").disabled = !diagnostics || Boolean(pendingAdjustment) || reviewing || !approvalFailures().length;
+  $("undoAgent").disabled = !lastAdjustment || Boolean(pendingAdjustment) || reviewing;
+  $("approveDraft").disabled ||= Boolean(pendingAdjustment) || reviewing;
+  $("applyMeasuredCorrection").disabled = !diagnostics || !$("completedStream").value || reviewing;
   if(diagnostics&&!pendingAdjustment&&!proposedReview)$("agentResult").textContent=VilnaAgentBrain.diagnose(diagnostics).notes.join(" ");
   setBuildStep(!diagnostics ? "compose" : failures.length ? "validate" : "approve");
 }
@@ -110,6 +115,7 @@ function localCommentaryPolicy(ref, rashbamPresent) {
 }
 
 async function build(ref, saved = null) {
+  VilnaAgentConnection.reset();
   pendingAdjustment=null;lastAdjustment=null;
   diagnostics = null; proposedReview = null; renderDiagnostics();
   $("applyAgent").disabled = true;
@@ -142,23 +148,31 @@ $("buildDraft").addEventListener("click", async () => {
 });
 
 $("askAgent").addEventListener("click", async () => {
-  $("askAgent").disabled = true;
+  if (!diagnostics || reviewing || pendingAdjustment) return;
+  reviewing = true;
+  proposedReview = null;
+  proposedReviewState = null;
+  $("applyAgent").disabled = true;
+  renderDiagnostics();
   $("agentResult").classList.remove("error");
   $("agentResult").textContent = "The agent is reading the specification and reviewing this region…";
   try {
     const body = { ref: diagnostics.ref, diagnostics, rules: VilnaAgentBrain.rules, feedback: { targetRegion: $("targetRegion").value, note: $("feedback").value.trim(), perekHint: $("perekHint").value.trim(), perekRashbamStatus: $("perekRashbamStatus").value } };
+    const requestState = reviewStateKey();
     if (aiReady) {
-      const result = await jsonFetch("../api/agent/review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      proposedReview = result.review;
+      body.evidence = frame.contentWindow.captureAgentEvidence();
+      proposedReview = await VilnaAgentConnection.review(body);
     } else {
       proposedReview = VilnaAgentBrain.review(body,localAgentReview);
     }
-    $("agentResult").textContent = `${proposedReview.summary}${proposedReview.reason ? ` — ${proposedReview.reason}` : ""}`;
+    if (requestState !== reviewStateKey()) { proposedReview=null; throw new Error('The page changed during review. Ask the agent again for the current layout.'); }
+    proposedReviewState = requestState;
+    $("agentResult").textContent = `${aiReady ? 'AI proposal: ' : 'Local rule proposal: '}${proposedReview.summary}${proposedReview.reason ? ` — ${proposedReview.reason}` : ""}${proposedReview.clarifications?.length ? ` Clarification needed: ${proposedReview.clarifications.join(' ')}` : ''}`;
     $("applyAgent").disabled = !Object.keys(proposedReview.changes || {}).length;
   } catch (error) {
     $("agentResult").textContent = error.message;
     $("agentResult").classList.add("error");
-  } finally { $("askAgent").disabled = !diagnostics; }
+  } finally { const text=$("agentResult").textContent; reviewing = false; renderDiagnostics(); $("agentResult").textContent=text; }
 });
 
 function teacherCommandStream(note, targetRegion) {
@@ -427,7 +441,7 @@ function localAgentReview(body) {
 }
 
 function sendAdjustment(changes,{repair=false,replace=false,userRestore=false}={}) {
-  if (!diagnostics||pendingAdjustment||(!replace&&!Object.keys(changes).length)) return;
+  if (!diagnostics||reviewing||pendingAdjustment||(!replace&&!Object.keys(changes).length)) return;
   lastAdjustment=structuredClone(diagnostics.settings||{});
   pendingAdjustment={before:structuredClone(diagnostics),repair,userRestore,attempt:1,tried:new Set([JSON.stringify(changes)]),restoring:false};
   frame.contentWindow.postMessage({type:replace?"vilna-agent-replace-settings":"vilna-agent-adjust",settings:changes},location.origin);
@@ -436,7 +450,7 @@ function sendAdjustment(changes,{repair=false,replace=false,userRestore=false}={
 }
 function finishAdjustment(next) {
   const job=pendingAdjustment;if(!job)return;
-  if(job.restoring){pendingAdjustment=null;message("Restored the previous layout settings after the adjustment worsened measured checks.",true);return;}
+  if(job.restoring){pendingAdjustment=null;VilnaAgentConnection.outcome(next,true);message("Restored the previous layout settings after the adjustment worsened measured checks.",true);return;}
   const sourceChanged=JSON.stringify(next.wordCounts)!==JSON.stringify(job.before.wordCounts);
   if(!job.userRestore&&(sourceChanged||VilnaAgentBrain.worse(VilnaAgentBrain.score(next),VilnaAgentBrain.score(job.before)))){
     job.restoring=true;
@@ -452,10 +466,15 @@ function finishAdjustment(next) {
     }
   }
   pendingAdjustment=null;
+  VilnaAgentConnection.outcome(next,false);
   $("agentResult").textContent=next.failures?.length?`Checked ${job.attempt} adjustment(s). Remaining measured failures: ${next.failures.join(", ")}.`:"The adjustment passed measured checks. Review the intended layout before approval.";
   message(next.failures?.length?"Repair stopped at its limit or needs more specific layout evidence.":"Measured checks passed; ready for teacher review.",Boolean(next.failures?.length));
 }
-$("applyAgent").addEventListener("click",()=>{if(proposedReview)sendAdjustment(proposedReview.changes);});
+$("applyAgent").addEventListener("click",()=>{
+  if (!proposedReview) return;
+  if (proposedReviewState !== reviewStateKey()) { proposedReview=null; $("applyAgent").disabled=true; $("agentResult").textContent='The page changed after this proposal. Ask the agent to review the current layout.'; return; }
+  sendAdjustment(proposedReview.changes);
+});
 $("autoRepair").addEventListener("click",()=>{
   if(!diagnostics)return;
   const plan=VilnaAgentBrain.diagnose(diagnostics);$("agentResult").textContent=plan.notes.join(" ");
@@ -555,17 +574,41 @@ async function start() {
   $("agentRules").textContent=VilnaAgentBrain.rules.map((rule,index)=>`${index+1}. ${rule}`).join("\n");
   renderApproved(); renderDiagnostics();
   if (document.documentElement.classList.contains("approved-view")) return;
-  try {
-    const status = await jsonFetch("../api/agent/status");
-    aiReady = status.aiReady;
-    $("agentStatus").textContent = aiReady ? `AI agent ready · ${status.model}` : "Deterministic builder ready · AI key not configured";
-    $("agentStatus").classList.toggle("ready", aiReady);
-  } catch {
-    aiReady = false;
-    $("agentStatus").textContent = "Layout rule agent ready · optional AI review unavailable";
-  }
+  const config = VilnaAgentConnection.configuration();
+  $("agentHost").value = config.base || '';
+  if (config.base) await connectAgent();
+  else $("agentStatus").textContent = "Local rule agent ready · AI host not connected";
   renderDiagnostics();
 }
+
+async function connectAgent() {
+  aiReady = false;
+  $("connectAgent").disabled = true;
+  $("agentStatus").classList.remove("ready");
+  proposedReview = null; $("applyAgent").disabled = true;
+  try {
+    const status = await VilnaAgentConnection.request('status');
+    aiReady = status.aiReady === true;
+    $("agentStatus").textContent = aiReady ? `AI agent connected · ${status.model}` : "AI host connected · API key still needed";
+    $("agentStatus").classList.toggle("ready", aiReady);
+    $("connectionResult").textContent = aiReady ? "Connected for this browser session. Describe corrections in your own words." : "Add the OpenAI API key to your host, then reconnect.";
+  } catch(error) {
+    $("agentStatus").textContent = "Local rule agent ready · AI connection failed";
+    $("connectionResult").textContent = error.message;
+  } finally { $("connectAgent").disabled = false; }
+}
+$("connectAgent").addEventListener('click', async () => {
+  if(reviewing || pendingAdjustment) return;
+  try { VilnaAgentConnection.configure($("agentHost").value.trim(),$("agentPassword").value); $("agentPassword").value=''; await connectAgent(); }
+  catch(error) { $("connectionResult").textContent=error.message; }
+});
+$("disconnectAgent").addEventListener('click', () => {
+  if(reviewing || pendingAdjustment) return;
+  VilnaAgentConnection.disconnect(); aiReady=false; proposedReview=null;
+  $("applyAgent").disabled=true; $("agentPassword").value='';
+  $("agentStatus").textContent="Local rule agent ready · AI host not connected";
+  $("agentStatus").classList.remove('ready'); $("connectionResult").textContent='Disconnected.';
+});
 
 $("perekRashbamStatus").addEventListener("change", async () => {
   if (!diagnostics) return;

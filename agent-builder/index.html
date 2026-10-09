@@ -14,7 +14,7 @@
       }
     } catch {}
   </script>
-  <link rel="stylesheet" href="styles.css?ui=60.10&build=62.53">
+  <link rel="stylesheet" href="styles.css?ui=60.11&build=62.53">
 </head>
 <body>
   <header class="builder-header">
@@ -27,6 +27,16 @@
 
   <main class="builder-layout">
     <aside class="builder-panel">
+      <details id="agentConnectionPanel">
+        <summary>Connect the AI agent</summary>
+        <label for="agentHost">Agent host address</label>
+        <input id="agentHost" type="url" placeholder="https://your-agent-host.vercel.app" autocomplete="off">
+        <label for="agentPassword">Agent access password</label>
+        <input id="agentPassword" type="password" autocomplete="off">
+        <button id="connectAgent" class="secondary">Connect AI agent</button>
+        <button id="disconnectAgent" class="secondary">Disconnect</button>
+        <p id="connectionResult" class="status">Enter your hosted agent address and its access password. Your OpenAI key stays on the host.</p>
+      </details>
       <nav class="build-steps" aria-label="Build progress">
         <span data-step="source" class="active">1 Source</span>
         <span data-step="compose">2 Compose</span>
@@ -114,11 +124,13 @@
     </aside>
 
     <section class="preview-wrap" aria-label="New amud preview">
-      <iframe id="draftFrame" src="../draft-engine/index.html?builder=1&ui=60.10&build=62.53" title="New amud draft" allow="microphone"></iframe>
+      <iframe id="draftFrame" src="../draft-engine/index.html?builder=1&ui=60.11&build=62.53" title="New amud draft" allow="microphone"></iframe>
     </section>
   </main>
-  <script src="../approved-store.js?ui=60.10"></script>
-  <script src="agent-brain.js?ui=60.10"></script>
-  <script src="app.js?ui=60.10&build=62.53"></script>
+  <script src="../approved-store.js?ui=60.11"></script>
+  <script src="agent-brain.js?ui=60.11"></script>
+  <script src="agent-capabilities.js?ui=60.11"></script>
+  <script src="agent-connection.js?ui=60.11"></script>
+  <script src="app.js?ui=60.11&build=62.53"></script>
 </body>
 </html>
