@@ -475,3 +475,7 @@ body { height: 100vh; display: grid; grid-template-rows: auto minmax(0, 1fr); ov
 .daf-page.punctuation-hidden .display-punctuation { visibility: hidden; }
 
 #punctuationToggle:hover:not(:disabled) { color: white; }
+
+/* A teacher-requested Gemara gutter never inserts a page-wide commentary break. */
+.body-geometry.teacher-gemara-gutter-box { --daf-side-gutter: var(--daf-gutter); }
+.body-geometry.teacher-gemara-gutter-box .geometry-band:first-child .gemara:not(.transition-continuity-bridge) { padding-top: var(--daf-gutter); }

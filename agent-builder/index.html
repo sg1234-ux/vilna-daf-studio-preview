@@ -14,7 +14,7 @@
       }
     } catch {}
   </script>
-  <link rel="stylesheet" href="styles.css?ui=60.7&build=62.53">
+  <link rel="stylesheet" href="styles.css?ui=60.8&build=62.53">
 </head>
 <body>
   <header class="builder-header">
@@ -95,10 +95,14 @@
           <option value="rashbam-heading">Rashbam heading</option>
         </select>
         <label for="feedback">What looks wrong?</label>
-        <textarea id="feedback" rows="4" placeholder="For example: The last 4 lines of Tosafos are cut off from the rest of Tosafos."></textarea>
+        <textarea id="feedback" rows="4" placeholder="For example: Keep four opening commentary lines; surround the Gemara with a gutter on all sides."></textarea>
         <button id="askAgent" class="secondary" disabled>Ask agent to diagnose</button>
         <p id="agentResult" class="status">The page's measured diagnostics will be sent with your region-specific correction.</p>
         <button id="applyAgent" class="secondary" disabled>Apply agent's proposed adjustment</button>
+        <button id="autoRepair" class="secondary" disabled>Diagnose and repair measured failures</button>
+        <button id="undoAgent" class="secondary" disabled>Undo last agent adjustment</button>
+        <p class="status">Repairs stop after three attempts and restore prior settings if measured checks worsen. Exact scan boundaries need verified guidance or your line instructions.</p>
+        <details><summary>Agent layout rules</summary><p id="agentRules" class="status" style="white-space:pre-line"></p></details>
       </section>
 
       <section>
@@ -110,10 +114,11 @@
     </aside>
 
     <section class="preview-wrap" aria-label="New amud preview">
-      <iframe id="draftFrame" src="../draft-engine/index.html?builder=1&ui=60.7&build=62.53" title="New amud draft" allow="microphone"></iframe>
+      <iframe id="draftFrame" src="../draft-engine/index.html?builder=1&ui=60.8&build=62.53" title="New amud draft" allow="microphone"></iframe>
     </section>
   </main>
-  <script src="../approved-store.js?ui=60.7"></script>
-  <script src="app.js?ui=60.7&build=62.53"></script>
+  <script src="../approved-store.js?ui=60.8"></script>
+  <script src="agent-brain.js?ui=60.8"></script>
+  <script src="app.js?ui=60.8&build=62.53"></script>
 </body>
 </html>
