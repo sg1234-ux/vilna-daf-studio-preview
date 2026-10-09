@@ -46,3 +46,13 @@ assert.equal(repairContext.pendingAdjustment,null);assert.equal(sent.filter(x=>x
 repairContext.diagnostics=structuredClone(d);repairContext.sendAdjustment({pageHeight:900},{replace:true,userRestore:true});repairContext.finishAdjustment({...d,failures:['earlier failure']});assert.equal(repairContext.pendingAdjustment,null,'Explicit undo is honored');
 repairContext.diagnostics=structuredClone(d);repairContext.sendAdjustment({},{replace:true,userRestore:true});assert(repairContext.pendingAdjustment,'Undo can restore an empty original settings object');repairContext.finishAdjustment(d);
 console.log('PASS: natural correction examples, stale dropdown, combined operations, evidence gaps, measured repairs, rollback, three-attempt bound, and undo.');
+
+// Run the actual gutter check body: it must read the page gutter locally.
+const engine=fs.readFileSync('draft-engine/app.js','utf8');
+const gutterStart=engine.indexOf('if(state.agentSettings.enforceGemaraGutterBox){');
+const gutterEnd=engine.indexOf('return[...new Set(failures)]',gutterStart);
+let top=25,bottom=25;const gutterContext={state:{agentSettings:{enforceGemaraGutterBox:true}},failures:[],streamRegions:()=>[{edge:'top'},{edge:'bottom'}],$:()=>({edge:'page'}),getComputedStyle:el=>el.edge==='page'?{getPropertyValue:()=>25}:{paddingTop:top,paddingBottom:bottom},parseFloat};
+vm.createContext(gutterContext);vm.runInContext(engine.slice(gutterStart,gutterEnd),gutterContext);assert.equal(gutterContext.failures.length,0);
+bottom=0;vm.runInContext(engine.slice(gutterStart,gutterEnd),gutterContext);assert.equal(gutterContext.failures[0],'Gemara top/bottom gutter');
+assert(engine.includes('postAgentDiagnostics([`adjustment failed: ${error.message}`])'));
+console.log('PASS: gutter validator runtime scope and missing-bottom-wall rejection.');
