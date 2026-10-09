@@ -6,6 +6,7 @@ let policy = null;
 let proposedReview = null;
 let aiReady = false;
 let frameReady = false;
+let pendingAdjustment=null,lastAdjustment=null;
 let migratingApprovedPage = null;
 let migrationSaving = false;
 const snapshotRequests = new Map();
@@ -77,8 +78,13 @@ function renderDiagnostics() {
   $("failureList").innerHTML = diagnostics ? (failures.length ? failures.map(item => `<li>${item}</li>`).join("") : "<li>All current hard rules passed.</li>") : "<li>Build a draft to see its exact rule checks.</li>";
   $("approvalValue").textContent = diagnostics ? (failures.length ? "Blocked" : "Eligible for teacher approval") : "Not tested";
   $("approveDraft").disabled = !diagnostics || failures.length > 0;
-  $("askAgent").disabled = !diagnostics;
+  $("buildDraft").disabled = Boolean(pendingAdjustment);
+  $("askAgent").disabled = !diagnostics || Boolean(pendingAdjustment);
+  $("autoRepair").disabled = !diagnostics || Boolean(pendingAdjustment) || !approvalFailures().length;
+  $("undoAgent").disabled = !lastAdjustment || Boolean(pendingAdjustment);
+  $("approveDraft").disabled ||= Boolean(pendingAdjustment);
   $("applyMeasuredCorrection").disabled = !diagnostics || !$("completedStream").value;
+  if(diagnostics&&!pendingAdjustment&&!proposedReview)$("agentResult").textContent=VilnaAgentBrain.diagnose(diagnostics).notes.join(" ");
   setBuildStep(!diagnostics ? "compose" : failures.length ? "validate" : "approve");
 }
 
@@ -104,6 +110,7 @@ function localCommentaryPolicy(ref, rashbamPresent) {
 }
 
 async function build(ref, saved = null) {
+  pendingAdjustment=null;lastAdjustment=null;
   diagnostics = null; proposedReview = null; renderDiagnostics();
   $("applyAgent").disabled = true;
   setBuildStep("source");
@@ -122,7 +129,7 @@ $("applyMeasuredCorrection").addEventListener("click", () => {
   if (!diagnostics || !$("completedStream").value) return;
   const continuationLines = Math.max(1, Math.min(12, Math.round(Number($("continuationLines").value) || 2)));
   const preferredSurvivor = $("survivingStream").value;
-  frame.contentWindow.postMessage({ type: "vilna-agent-adjust", settings: { forceCascade: true, preferredSurvivor, continuationLines } }, location.origin);
+  sendAdjustment({forceCascade:true,preferredSurvivor,continuationLines});
   $("agentResult").textContent = `Rebuilding only the measured transition: ${continuationLines} narrow continuation line${continuationLines === 1 ? "" : "s"}, then full-width ${preferredSurvivor === "tosafot" ? "Tosafos" : "inner commentary"}.`;
   message("Applying the bounded transition and rerunning every hard rule…");
   setBuildStep("compose");
@@ -139,12 +146,12 @@ $("askAgent").addEventListener("click", async () => {
   $("agentResult").classList.remove("error");
   $("agentResult").textContent = "The agent is reading the specification and reviewing this region…";
   try {
-    const body = { ref: diagnostics.ref, diagnostics, feedback: { targetRegion: $("targetRegion").value, note: $("feedback").value.trim(), perekHint: $("perekHint").value.trim(), perekRashbamStatus: $("perekRashbamStatus").value } };
+    const body = { ref: diagnostics.ref, diagnostics, rules: VilnaAgentBrain.rules, feedback: { targetRegion: $("targetRegion").value, note: $("feedback").value.trim(), perekHint: $("perekHint").value.trim(), perekRashbamStatus: $("perekRashbamStatus").value } };
     if (aiReady) {
       const result = await jsonFetch("../api/agent/review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       proposedReview = result.review;
     } else {
-      proposedReview = localAgentReview(body);
+      proposedReview = VilnaAgentBrain.review(body,localAgentReview);
     }
     $("agentResult").textContent = `${proposedReview.summary}${proposedReview.reason ? ` — ${proposedReview.reason}` : ""}`;
     $("applyAgent").disabled = !Object.keys(proposedReview.changes || {}).length;
@@ -419,12 +426,42 @@ function localAgentReview(body) {
   return { summary, reason, targetRegion, changes, hardFailures: approvalFailures() };
 }
 
-$("applyAgent").addEventListener("click", () => {
-  if (!proposedReview) return;
-  frame.contentWindow.postMessage({ type: "vilna-agent-adjust", settings: proposedReview.changes }, location.origin);
-  $("applyAgent").disabled = true;
-  message(`Applying the agent's ${proposedReview.targetRegion} adjustment and rerunning hard checks…`);
+function sendAdjustment(changes,{repair=false,replace=false,userRestore=false}={}) {
+  if (!diagnostics||pendingAdjustment||(!replace&&!Object.keys(changes).length)) return;
+  lastAdjustment=structuredClone(diagnostics.settings||{});
+  pendingAdjustment={before:structuredClone(diagnostics),repair,userRestore,attempt:1,tried:new Set([JSON.stringify(changes)]),restoring:false};
+  frame.contentWindow.postMessage({type:replace?"vilna-agent-replace-settings":"vilna-agent-adjust",settings:changes},location.origin);
+  $("applyAgent").disabled=true;renderDiagnostics();
+  message(repair?"Testing measured repairs, up to three adjustments…":"Applying the proposed correction and comparing the measured result…");
+}
+function finishAdjustment(next) {
+  const job=pendingAdjustment;if(!job)return;
+  if(job.restoring){pendingAdjustment=null;message("Restored the previous layout settings after the adjustment worsened measured checks.",true);return;}
+  const sourceChanged=JSON.stringify(next.wordCounts)!==JSON.stringify(job.before.wordCounts);
+  if(!job.userRestore&&(sourceChanged||VilnaAgentBrain.worse(VilnaAgentBrain.score(next),VilnaAgentBrain.score(job.before)))){
+    job.restoring=true;
+    frame.contentWindow.postMessage({type:"vilna-agent-replace-settings",settings:job.before.settings||{}},location.origin);
+    $("agentResult").textContent="The adjustment worsened source coverage or measured checks. Restoring the prior settings.";return;
+  }
+  if(job.repair&&next.failures?.length&&job.attempt<3){
+    const plan=VilnaAgentBrain.diagnose(next),key=JSON.stringify(plan.changes);
+    if(Object.keys(plan.changes).length&&!job.tried.has(key)){
+      job.before=structuredClone(next);job.attempt++;job.tried.add(key);
+      frame.contentWindow.postMessage({type:"vilna-agent-adjust",settings:plan.changes},location.origin);
+      $("agentResult").textContent=`Repair attempt ${job.attempt}: ${plan.notes.join(" ")}`;return;
+    }
+  }
+  pendingAdjustment=null;
+  $("agentResult").textContent=next.failures?.length?`Checked ${job.attempt} adjustment(s). Remaining measured failures: ${next.failures.join(", ")}.`:"The adjustment passed measured checks. Review the intended layout before approval.";
+  message(next.failures?.length?"Repair stopped at its limit or needs more specific layout evidence.":"Measured checks passed; ready for teacher review.",Boolean(next.failures?.length));
+}
+$("applyAgent").addEventListener("click",()=>{if(proposedReview)sendAdjustment(proposedReview.changes);});
+$("autoRepair").addEventListener("click",()=>{
+  if(!diagnostics)return;
+  const plan=VilnaAgentBrain.diagnose(diagnostics);$("agentResult").textContent=plan.notes.join(" ");
+  if(Object.keys(plan.changes).length)sendAdjustment(plan.changes,{repair:true});
 });
+$("undoAgent").addEventListener("click",()=>{if(lastAdjustment)sendAdjustment(lastAdjustment,{replace:true,userRestore:true});});
 
 $("approveDraft").addEventListener("click", async () => {
   const failures = approvalFailures();
@@ -440,7 +477,7 @@ $("approveDraft").addEventListener("click", async () => {
     pages.push({ id, ref: approvedRef, settings: snapshot.settings || {}, headingMode: snapshot.headingMode || "none", approvedAt: new Date().toISOString(), snapshotVersion: 1 });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(pages));
     localStorage.setItem("vilna-daf-agent-approved-updated", String(Date.now()));
-    location.assign(`?approved=${encodeURIComponent(id)}&ui=60.7`);
+    location.assign(`?approved=${encodeURIComponent(id)}&ui=60.8`);
   } catch (error) {
     message(`Could not save the approved page: ${error.message}`, true);
     renderDiagnostics();
@@ -507,12 +544,15 @@ window.addEventListener("message", async event => {
   }
   try { policy = await resolvePolicy(diagnostics.ref, diagnostics.rashbamPresent); }
   catch (error) { policy = { resolved: false, headingMode: "unresolved", reason: error.message }; }
+  const adjustmentHandled=Boolean(pendingAdjustment);
+  finishAdjustment(diagnostics);
   renderDiagnostics();
   if (diagnostics.rashbamPresent) frame.contentWindow.postMessage({ type: "vilna-agent-set-rashbam-policy", headingMode: policy.headingMode }, location.origin);
-  message(approvalFailures().length ? `Draft composed. Review the exact failures listed below.` : `Draft composed and all current hard rules pass. Inspect it before approval.`);
+  if (!pendingAdjustment&&!adjustmentHandled) message(approvalFailures().length ? `Draft composed. Review the exact failures listed below.` : `Draft composed and all current hard rules pass. Inspect it before approval.`);
 });
 
 async function start() {
+  $("agentRules").textContent=VilnaAgentBrain.rules.map((rule,index)=>`${index+1}. ${rule}`).join("\n");
   renderApproved(); renderDiagnostics();
   if (document.documentElement.classList.contains("approved-view")) return;
   try {
@@ -522,7 +562,7 @@ async function start() {
     $("agentStatus").classList.toggle("ready", aiReady);
   } catch {
     aiReady = false;
-    $("agentStatus").textContent = "No-download builder ready · optional AI review unavailable";
+    $("agentStatus").textContent = "Layout rule agent ready · optional AI review unavailable";
   }
   renderDiagnostics();
 }
