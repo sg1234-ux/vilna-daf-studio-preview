@@ -6,6 +6,8 @@ Audited October 8, 2026. This is an interface audit for planning a consistent to
 
 **Approved-page opening:** Newly approved builder pages now save their finished rendered text and geometry in browser storage. Existing approvals such as Bava Metzia 21b migrate after one successful load. Later openings restore the saved page without source requests or composition, and resizing does not recompose it. Clearing browser storage removes these local snapshots and approvals; they are not bundled GitHub pages. Storage failures remain visible.
 
+**Phrase navigation:** A Milim ID profile is optional. All page engines can derive navigation phrases from Gemara punctuation and common clause transitions without a network request. Existing matching chart phrases keep their IDs; uncovered ending text uses automatic divisions. These divisions are heuristic teaching units, not a verified semantic phrase map. Phrase focus and lesson visuals work with either source. Printed line geometry is unchanged.
+
 ## Scope and placement key
 
 The live combined selector contains three bundled amudim: Pesachim 99b (Build 44), Pesachim 100a (engine 62.53), and Bava Metzia 21a (Build 51). It also contains “Build a new amud — Agent.” Additional approved drafts are saved in the user's browser and opened through the builder. No additional saved drafts appeared in the inspected browser, so their individual content and enabled states were not verified. Their shared interface is included below as **Builder / saved drafts**.

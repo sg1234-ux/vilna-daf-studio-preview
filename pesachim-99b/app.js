@@ -306,6 +306,7 @@ async function reflowPageEdits(){capturePageEdits();await compose();}
 function streamRegions(stream){const top=[$("topRight"),$("topLeft")].find(el=>el.dataset.stream===stream);return[...(top?[top]:[]),...$("bodyGeometry").querySelectorAll(`[data-stream="${stream}"]`)];}
 function wrapRegionWords(region,stream,startIndex){let index=startIndex;const walker=document.createTreeWalker(region,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement?.closest(".tosafot-notice,.word-token")?NodeFilter.FILTER_REJECT:/\S/u.test(n.data)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT}),nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);for(const node of nodes){const frag=document.createDocumentFragment();for(const part of node.data.split(/(\s+)/u)){if(!part)continue;if(/^\s+$/u.test(part)){frag.append(part);continue;}const span=document.createElement("span"),id=`${stream}:${index++}`;span.className="word-token";span.dataset.wordId=id;span.dataset.stream=stream;span.textContent=part;if(state.notes[id])span.classList.add("has-note");if(state.whitedWordIds[id])span.classList.add("word-whited-out");if(id===state.selectedWordId)span.classList.add("selected-word");const scale=Number(state.wordFontScales[id]);if(Number.isFinite(scale)&&scale!==1)span.style.fontSize=`${scale}em`;frag.append(span);}node.replaceWith(frag);}return index;}
 let phraseNavigationAvailable=false;
+let activePhraseProfile=[],phraseNavigationSource="automatic";
 function isGemaraLabelValue(normalized){return["מתני","משנה","גמ","גמרא"].includes(normalized);}
 function isGemaraLabel(word){return isGemaraLabelValue(normalizeReadWord(word?.textContent));}
 function isPhraseIgnoredValue(normalized){return !normalized||isGemaraLabelValue(normalized);}
@@ -323,8 +324,12 @@ function phraseAssignments(sourceWords,profile){
 }
 function assignPhraseNavigation(){
   const profile=phraseProfile(),words=[...$("dafPage").querySelectorAll('.word-token[data-stream="gemara"]')];
-  words.forEach(word=>delete word.dataset.phraseIndex);if(!profile)return false;const assignments=phraseAssignments(words.map(word=>normalizeReadWord(word.textContent)),profile);if(!assignments)return false;
-  assignments.forEach((phraseIndex,index)=>{if(phraseIndex!=null)words[index].dataset.phraseIndex=String(phraseIndex);});return true;
+  words.forEach(word=>delete word.dataset.phraseIndex);
+  const texts=words.map(word=>word.textContent),mapped=profile?phraseAssignments(texts.map(normalizeReadWord),profile):null;
+  const parsed=GemaraPhraseParser.resolve(texts,profile,mapped,normalizeReadWord,isPhraseIgnoredValue);
+  activePhraseProfile=parsed.phrases;phraseNavigationSource=parsed.source;
+  parsed.assignments.forEach((phraseIndex,index)=>{if(phraseIndex!=null)words[index].dataset.phraseIndex=String(phraseIndex);});
+  return activePhraseProfile.length>0;
 }
 function phraseElements(index){return index==null?[]:[...$("dafPage").querySelectorAll(`.word-token[data-stream="gemara"][data-phrase-index="${index}"]`)];}
 function selectedPhraseIndex(){const selected=selectedWordElement(),value=selected?.dataset.phraseIndex;return value==null?null:Number(value);}
@@ -349,16 +354,16 @@ function applyFocusAppearance(){
   updateFocusNavigatorControls();
 }
 function updateFocusNavigatorControls(){
-  const current=selectedPhraseIndex(),profile=phraseProfile(),available=Boolean(phraseNavigationAvailable&&profile);
+  const current=selectedPhraseIndex(),profile=activePhraseProfile,available=phraseNavigationAvailable;
   $("focusNavigatorToggle").disabled=!available;$("focusNavigatorToggle").setAttribute("aria-pressed",String(state.focusEnabled));$("focusNavigatorToggle").textContent=`Focus: ${state.focusEnabled?"On":"Off"}`;
   $("focusWindowSize").disabled=!available||!state.focusEnabled;$("focusWindowCustom").disabled=!available||!state.focusEnabled;
   $("focusPrevious").disabled=!available||!state.focusEnabled||current==null||current<=0;$("focusNext").disabled=!available||!state.focusEnabled||current==null||current>=(profile?.length||0)-1;
-  $("focusNavigatorStatus").textContent=!available?"A verified Milim ID phrase profile is required.":!state.focusEnabled?"Turn Focus on to fade the full page outside the active phrase window.":current==null?"Select a Gemara phrase to begin.":`Phrase ${current+1} of ${profile.length}; ${focusWindowCount()} phrase${focusWindowCount()===1?"":"s"} remain visible.`;
+  $("focusNavigatorStatus").textContent=!available?"Phrase navigation becomes available when Gemara text is loaded.":!state.focusEnabled?"Turn Focus on to fade the full page outside the active phrase window.":current==null?"Select a Gemara phrase to begin.":`Phrase ${current+1} of ${profile.length}; ${focusWindowCount()} phrase${focusWindowCount()===1?"":"s"} remain visible.`;
 }
 function updateVisualControls(){
   const index=selectedPhraseIndex(),links=index==null?[]:visualLinksFor(index),valid=index!=null&&state.navigationUnit==="phrase";
   $("attachVisual").disabled=!valid;$("openVisual").disabled=!links.length;$("removeVisual").disabled=!links.length;
-  $("visualStatus").textContent=!valid?"Select a verified phrase to attach a visual.":links.length?`Phrase ${index+1} has ${links.length} linked visual${links.length===1?"":"s"}.`:`Phrase ${index+1} has no linked visual.`;
+  $("visualStatus").textContent=!valid?"Select a Gemara phrase to attach a visual.":links.length?`Phrase ${index+1} has ${links.length} linked visual${links.length===1?"":"s"}.`:`Phrase ${index+1} has no linked visual.`;
 }
 function setFocusEnabled(force){
   state.focusEnabled=typeof force==="boolean"?force:!state.focusEnabled;
@@ -388,7 +393,7 @@ function applySelectionAppearance(){clearSelectionAppearance();const selected=se
 function updateNavigationUnitControls(){
   if(state.navigationUnit==="phrase"&&!phraseNavigationAvailable)state.navigationUnit="word";
   $("wordNavigation").setAttribute("aria-pressed",String(state.navigationUnit==="word"));$("phraseNavigation").setAttribute("aria-pressed",String(state.navigationUnit==="phrase"));$("phraseNavigation").disabled=!phraseNavigationAvailable;
-  $("navigationUnitStatus").textContent=!phraseNavigationAvailable?"Word-by-word navigation is active. No Milim ID phrase map is loaded for this daf.":state.navigationUnit==="phrase"?`Phrase-by-phrase navigation is active — ${phraseProfile().length} chart phrases.`:"Word-by-word navigation is active. Phrase navigation is available.";
+  $("navigationUnitStatus").textContent=!phraseNavigationAvailable?"Load Gemara text to enable phrase navigation.":state.navigationUnit==="phrase"?`Phrase-by-phrase navigation is active — ${activePhraseProfile.length} ${phraseNavigationSource==="chart"?"saved":"text-parsed"} phrases.`:"Word-by-word navigation is active. Phrase navigation is available.";
   updateFocusNavigatorControls();updateVisualControls();
 }
 function setNavigationUnit(unit){
