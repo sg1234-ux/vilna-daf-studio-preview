@@ -6,6 +6,21 @@ let policy = null;
 let proposedReview = null;
 let aiReady = false;
 let frameReady = false;
+let migratingApprovedPage = null;
+let migrationSaving = false;
+const snapshotRequests = new Map();
+
+function requestApprovedSnapshot() {
+  return new Promise((resolve, reject) => {
+    const requestId = crypto.randomUUID();
+    const timeout = setTimeout(() => {
+      snapshotRequests.delete(requestId);
+      reject(new Error("The finished page did not respond. Please try again."));
+    }, 15000);
+    snapshotRequests.set(requestId, { resolve, reject, timeout });
+    frame.contentWindow.postMessage({ type: "vilna-approved-capture", requestId }, location.origin);
+  });
+}
 
 function setBuildStep(step) {
   const order = ["source", "compose", "validate", "approve"];
@@ -93,7 +108,7 @@ async function build(ref, saved = null) {
   $("applyAgent").disabled = true;
   setBuildStep("source");
   message(`Loading ${ref} and composing its text streams…`);
-  policy = await resolvePolicy(ref);
+  policy = saved ? { resolved: true, headingMode: saved.headingMode || "none", rashbam: saved.headingMode === "none" ? "absent" : "present" } : await resolvePolicy(ref);
   frame.contentWindow.postMessage({ type: "vilna-agent-load", ref, approved: Boolean(saved), settings: saved?.settings || {}, rashbamHeadingMode: saved?.headingMode || policy.headingMode, rashbamAllowed: policy.rashbam !== "absent" }, location.origin);
 }
 
@@ -411,21 +426,44 @@ $("applyAgent").addEventListener("click", () => {
   message(`Applying the agent's ${proposedReview.targetRegion} adjustment and rerunning hard checks…`);
 });
 
-$("approveDraft").addEventListener("click", () => {
+$("approveDraft").addEventListener("click", async () => {
   const failures = approvalFailures();
   if (!diagnostics || failures.length) return;
-  const pages = approved();
-  const id = `${diagnostics.ref.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`;
-  pages.push({ id, ref: diagnostics.ref, settings: diagnostics.settings || {}, headingMode: policy?.headingMode || "none", approvedAt: new Date().toISOString() });
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(pages));
-  localStorage.setItem("vilna-daf-agent-approved-updated", String(Date.now()));
-  renderApproved();
-  message(`${diagnostics.ref} was approved locally and added to the Build 60 launcher.`);
-  location.assign(`?approved=${encodeURIComponent(id)}&ui=60.5`);
+  const approvedRef = diagnostics.ref;
+  $("approveDraft").disabled = true;
+  try {
+    const snapshot = await requestApprovedSnapshot();
+    if (snapshot.ref !== approvedRef) throw new Error("The selected amud changed. Review it before approval.");
+    const pages = approved();
+    const id = `${approvedRef.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`;
+    await ApprovedPageStore.put(id, snapshot);
+    pages.push({ id, ref: approvedRef, settings: snapshot.settings || {}, headingMode: snapshot.headingMode || "none", approvedAt: new Date().toISOString(), snapshotVersion: 1 });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(pages));
+    localStorage.setItem("vilna-daf-agent-approved-updated", String(Date.now()));
+    location.assign(`?approved=${encodeURIComponent(id)}&ui=60.6`);
+  } catch (error) {
+    message(`Could not save the approved page: ${error.message}`, true);
+    renderDiagnostics();
+  }
 });
 
 window.addEventListener("message", async event => {
   if (event.origin !== location.origin || event.source !== frame.contentWindow) return;
+  if (event.data?.type === "vilna-approved-restore-failed") {
+    const id = new URLSearchParams(location.search).get("approved");
+    const saved = approved().find(page => page.id === id);
+    if (saved) { migratingApprovedPage = saved; await build(saved.ref, saved); }
+    return;
+  }
+  if (event.data?.type === "vilna-approved-captured") {
+    const request = snapshotRequests.get(event.data.requestId);
+    if (!request) return;
+    clearTimeout(request.timeout);
+    snapshotRequests.delete(event.data.requestId);
+    if (event.data.error) request.reject(new Error(event.data.error));
+    else request.resolve(event.data.snapshot);
+    return;
+  }
   if (event.data?.type === "vilna-agent-ready") {
     frameReady = true;
     const approvedId = new URLSearchParams(location.search).get("approved");
@@ -434,12 +472,39 @@ window.addEventListener("message", async event => {
       document.title = `${saved.ref} — Vilna Daf Studio`;
       frame.title = saved.ref;
       $("dafRef").value = saved.ref;
+      try {
+        const snapshot = await ApprovedPageStore.get(saved.id, saved.ref);
+        if (snapshot) {
+          frame.contentWindow.postMessage({ type: "vilna-approved-restore", snapshot }, location.origin);
+          return;
+        }
+      } catch (error) {
+        console.warn("Approved page cache could not be read.", error);
+      }
+      migratingApprovedPage = saved;
       await build(saved.ref, saved);
     }
     return;
   }
   if (event.data?.type !== "vilna-agent-diagnostics") return;
   diagnostics = event.data.diagnostics;
+  if (migratingApprovedPage) {
+    if (migrationSaving || diagnostics.ref !== migratingApprovedPage.ref) return;
+    if (!diagnostics.wordCounts?.gemara || Object.values(diagnostics.unplacedCounts || {}).some(count => count > 0) || diagnostics.failures?.some(failure => failure.startsWith("source load:"))) return;
+    migrationSaving = true;
+    try {
+      const snapshot = await requestApprovedSnapshot();
+      await ApprovedPageStore.put(migratingApprovedPage.id, snapshot);
+      const pages = approved();
+      const page = pages.find(item => item.id === migratingApprovedPage.id);
+      if (page) page.snapshotVersion = 1;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(pages));
+      migratingApprovedPage = null;
+    } catch (error) {
+      frame.contentWindow.postMessage({ type: "vilna-approved-cache-error", message: `Could not save this page for quick opening: ${error.message}` }, location.origin);
+    } finally { migrationSaving = false; }
+    return;
+  }
   try { policy = await resolvePolicy(diagnostics.ref, diagnostics.rashbamPresent); }
   catch (error) { policy = { resolved: false, headingMode: "unresolved", reason: error.message }; }
   renderDiagnostics();
