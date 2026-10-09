@@ -2,7 +2,9 @@
 
 Audited October 8, 2026. This is an interface audit for planning a consistent tool panel. No amud layout or application behavior was changed.
 
-**Interface rules adopted after this audit:** All amud tools belong beside the daf, never above it. Approved amudim must not show the agent menu. The subsequent interface change moves Reflow page edits and Select excerpt into the side panel, keeps that panel beside the daf at every width, and removes the agent shell when opening a saved approved amud. The tables below preserve the original audit for comparison. Daf geometry is unchanged.
+**Interface rules adopted after this audit:** All amud tools belong beside the daf, never above it. Approved amudim must not show the agent menu. The subsequent interface change moves Reflow page edits and Select excerpt into the side panel, keeps that panel beside the daf at every width, and removes the agent shell when opening a saved approved amud. The tables below preserve the original audit for comparison. Daf geometry is unchanged. The 100a/21b toolbox is now the shared structure for all pages, with phrase focus, lesson visuals, punctuation and Exact Slide PNG export added to the older page engines. Approved teaching views also hide the Automatic composition report and composition-test status messages; these diagnostics remain available in draft authoring. Loading and export feedback remain visible. Archival open source is now the default font preset, and the Typography chooser is removed from the visible interface.
+
+**Approved-page opening:** Newly approved builder pages now save their finished rendered text and geometry in browser storage. Existing approvals such as Bava Metzia 21b migrate after one successful load. Later openings restore the saved page without source requests or composition, and resizing does not recompose it. Clearing browser storage removes these local snapshots and approvals; they are not bundled GitHub pages. Storage failures remain visible.
 
 ## Scope and placement key
 
