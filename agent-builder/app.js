@@ -94,7 +94,7 @@ async function build(ref, saved = null) {
   setBuildStep("source");
   message(`Loading ${ref} and composing its text streams…`);
   policy = await resolvePolicy(ref);
-  frame.contentWindow.postMessage({ type: "vilna-agent-load", ref, settings: saved?.settings || {}, rashbamHeadingMode: saved?.headingMode || policy.headingMode, rashbamAllowed: policy.rashbam !== "absent" }, location.origin);
+  frame.contentWindow.postMessage({ type: "vilna-agent-load", ref, approved: Boolean(saved), settings: saved?.settings || {}, rashbamHeadingMode: saved?.headingMode || policy.headingMode, rashbamAllowed: policy.rashbam !== "absent" }, location.origin);
 }
 
 $("completedStream").addEventListener("change", event => {
@@ -421,6 +421,7 @@ $("approveDraft").addEventListener("click", () => {
   localStorage.setItem("vilna-daf-agent-approved-updated", String(Date.now()));
   renderApproved();
   message(`${diagnostics.ref} was approved locally and added to the Build 60 launcher.`);
+  location.assign(`?approved=${encodeURIComponent(id)}&ui=60.3`);
 });
 
 window.addEventListener("message", async event => {
@@ -429,7 +430,12 @@ window.addEventListener("message", async event => {
     frameReady = true;
     const approvedId = new URLSearchParams(location.search).get("approved");
     const saved = approved().find(page => page.id === approvedId);
-    if (saved) { $("dafRef").value = saved.ref; await build(saved.ref, saved); }
+    if (saved) {
+      document.title = `${saved.ref} — Vilna Daf Studio`;
+      frame.title = saved.ref;
+      $("dafRef").value = saved.ref;
+      await build(saved.ref, saved);
+    }
     return;
   }
   if (event.data?.type !== "vilna-agent-diagnostics") return;
@@ -443,6 +449,7 @@ window.addEventListener("message", async event => {
 
 async function start() {
   renderApproved(); renderDiagnostics();
+  if (document.documentElement.classList.contains("approved-view")) return;
   try {
     const status = await jsonFetch("../api/agent/status");
     aiReady = status.aiReady;

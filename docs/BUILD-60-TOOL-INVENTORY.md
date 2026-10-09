@@ -2,6 +2,8 @@
 
 Audited October 8, 2026. This is an interface audit for planning a consistent tool panel. No amud layout or application behavior was changed.
 
+**Interface rules adopted after this audit:** All amud tools belong beside the daf, never above it. Approved amudim must not show the agent menu. The subsequent interface change moves Reflow page edits and Select excerpt into the side panel, keeps that panel beside the daf at every width, and removes the agent shell when opening a saved approved amud. The tables below preserve the original audit for comparison. Daf geometry is unchanged.
+
 ## Scope and placement key
 
 The live combined selector contains three bundled amudim: Pesachim 99b (Build 44), Pesachim 100a (engine 62.53), and Bava Metzia 21a (Build 51). It also contains “Build a new amud — Agent.” Additional approved drafts are saved in the user's browser and opened through the builder. No additional saved drafts appeared in the inspected browser, so their individual content and enabled states were not verified. Their shared interface is included below as **Builder / saved drafts**.

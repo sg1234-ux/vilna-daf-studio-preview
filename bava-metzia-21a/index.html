@@ -10,17 +10,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;600;700&family=Noto+Rashi+Hebrew:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?build=51">
+  <link rel="stylesheet" href="styles.css?ui=60.3&build=51">
 </head>
 <body>
   <header class="app-header">
     <div>
       <p class="eyebrow">Dedicated Bava Metzia compositor <span id="buildBadge" class="build-badge">Build 51</span></p>
       <h1>Bava Metzia 21a Studio</h1>
-    </div>
-    <div class="header-actions">
-      <button id="reflowEdits" class="button secondary">Reflow page edits</button>
-      <button id="excerptMode" class="button">Select excerpt</button>
     </div>
   </header>
 
@@ -37,6 +33,10 @@
         <input id="dafRef" value="Bava Metzia 21a" type="hidden">
         <button id="loadDaf" type="button" hidden>Load</button>
         <p id="loadStatus" class="status" role="status">Ready. A built-in sample is displayed.</p>
+        <div class="sidebar-actions" role="group" aria-label="Page tools">
+          <button id="reflowEdits" class="button secondary">Reflow page edits</button>
+          <button id="excerptMode" class="button">Select excerpt</button>
+        </div>
       </section>
 
       <section class="panel-section">

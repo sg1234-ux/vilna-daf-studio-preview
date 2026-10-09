@@ -10,17 +10,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;600;700&family=Noto+Rashi+Hebrew:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?build=44">
+  <link rel="stylesheet" href="styles.css?ui=60.3&build=44">
 </head>
 <body>
   <header class="app-header">
     <div>
       <p class="eyebrow">Editable Vilna-style compositor <span id="buildBadge" class="build-badge">Build 44</span></p>
       <h1>Vilna Daf Studio</h1>
-    </div>
-    <div class="header-actions">
-      <button id="reflowEdits" class="button secondary">Reflow page edits</button>
-      <button id="excerptMode" class="button">Select excerpt</button>
     </div>
   </header>
 
@@ -33,6 +29,10 @@
           <button id="loadDaf" class="button">Load</button>
         </div>
         <p id="loadStatus" class="status" role="status">Ready. A built-in sample is displayed.</p>
+        <div class="sidebar-actions" role="group" aria-label="Page tools">
+          <button id="reflowEdits" class="button secondary">Reflow page edits</button>
+          <button id="excerptMode" class="button">Select excerpt</button>
+        </div>
       </section>
 
       <section class="panel-section">

@@ -38,4 +38,9 @@ button:disabled { cursor: not-allowed; opacity: .48; }
 .approved-pages a { display: block; margin-top: 7px; color: #5a3718; font-size: 12px; font-weight: 700; }
 .preview-wrap, #draftFrame { width: 100%; height: 100%; min-height: 0; }
 #draftFrame { display: block; border: 0; background: #d8d5ce; }
-@media (max-width: 800px) { body { overflow: auto; } .builder-layout { display: block; } .builder-panel { max-height: none; } .preview-wrap { height: 900px; } }
+/* Authoring controls stay beside a draft, never above its daf. */
+.preview-wrap { min-width: 0; }
+/* Approved pages use the teaching view without the agent shell. */
+.approved-view body { grid-template-rows: minmax(0, 1fr); }
+.approved-view .builder-header, .approved-view .builder-panel { display: none; }
+.approved-view .builder-layout { grid-template-columns: minmax(0, 1fr); }
