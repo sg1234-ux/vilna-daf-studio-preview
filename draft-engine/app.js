@@ -1112,12 +1112,12 @@ function populateTractateSelector(){const select=$("tractateSelect"),tractates=[
 function populatePageSelector(preferredRef=""){const pages=PAGE_REGISTRY.filter(entry=>entry.tractate===$("tractateSelect").value),select=$("pageSelect");select.innerHTML=pages.map(entry=>`<option value="${entry.ref}">${entry.pageLabel} — ${entry.ref}</option>`).join("");if(pages.some(entry=>entry.ref===preferredRef))select.value=preferredRef;updateVerificationStatus(select.value);}
 function syncRegistrySelection(ref=state.ref){const entry=registryEntry(ref);if(entry){$("tractateSelect").value=entry.tractate;populatePageSelector(entry.ref);}updateVerificationStatus(ref);}
 function updateVerificationStatus(ref=state.ref){
-  const approved=knownReferenceProfile(ref)?.reviewStatus==="approved";
+  const approved=state.teacherApproved===true||knownReferenceProfile(ref)?.reviewStatus==="approved";
   $("buildBadge").textContent=`Build ${BUILD_VERSION} ${approved?"Studio":"Draft"}`;
   document.querySelector(".app-header h1").textContent=approved?ref:"New Amud Draft";
   document.querySelector(".control-panel .panel-section h2").textContent=approved?"Amud":"Agent draft";
   document.title=approved?`${ref} — Vilna Daf Studio`:`Vilna Daf Studio Agent Draft - Build ${BUILD_VERSION}`;
-if(/^Pesachim 100a$/i.test(ref)){const element=$("verificationStatus");element.classList.add("verified");element.textContent="Teacher-approved reference layout";return;}const mapped=Boolean(REFERENCE_PROFILES[String(ref||"").trim().toLowerCase()]),element=$("verificationStatus");element.classList.toggle("verified",mapped);element.textContent=mapped?"Verified against uploaded Vilna PDF":"Automatic composition — PDF line map not yet verified";}
+if(state.teacherApproved===true){const element=$("verificationStatus");element.classList.add("verified");element.textContent="Teacher-approved amud";return;}if(/^Pesachim 100a$/i.test(ref)){const element=$("verificationStatus");element.classList.add("verified");element.textContent="Teacher-approved reference layout";return;}const mapped=Boolean(REFERENCE_PROFILES[String(ref||"").trim().toLowerCase()]),element=$("verificationStatus");element.classList.toggle("verified",mapped);element.textContent=mapped?"Verified against uploaded Vilna PDF":"Automatic composition — PDF line map not yet verified";}
 async function applyScanGuidance(ref){
   if(state.agentSettingsRef&&state.agentSettingsRef.toLowerCase()!==ref.toLowerCase())state.agentSettings={};
   state.agentSettingsRef=ref;
@@ -1467,7 +1467,7 @@ window.addEventListener("message",async event=>{
   if(event.origin!==location.origin||event.source!==window.parent)return;
   const data=event.data||{};
   if(data.type==="vilna-agent-load"){
-    state.agentSettings=safeAgentSettings(data.settings);state.agentSettingsRef=String(data.ref||"").trim();state.rashbamHeadingMode=data.rashbamHeadingMode||"unresolved";state.rashbamAllowed=data.rashbamAllowed!==false;$("dafRef").value=String(data.ref||"").trim();await loadDaf();
+    state.teacherApproved=data.approved===true;state.agentSettings=safeAgentSettings(data.settings);state.agentSettingsRef=String(data.ref||"").trim();state.rashbamHeadingMode=data.rashbamHeadingMode||"unresolved";state.rashbamAllowed=data.rashbamAllowed!==false;$("dafRef").value=String(data.ref||"").trim();await loadDaf();
   }else if(data.type==="vilna-agent-adjust"){
     state.agentSettings={...state.agentSettings,...safeAgentSettings(data.settings)};await compose();
   }else if(data.type==="vilna-agent-set-rashbam-policy"){

@@ -4,7 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Build a New Amud — Vilna Daf Studio Build 60</title>
-  <link rel="stylesheet" href="styles.css?build=62.53">
+  <script>
+    // Choose the saved amud's viewing layout before the first paint.
+    try {
+      const id = new URLSearchParams(location.search).get("approved");
+      const pages = JSON.parse(localStorage.getItem("vilna-daf-agent-approved-v57") || "[]");
+      if (id && Array.isArray(pages) && pages.some(page => page.id === id)) {
+        document.documentElement.classList.add("approved-view");
+      }
+    } catch {}
+  </script>
+  <link rel="stylesheet" href="styles.css?ui=60.3&build=62.53">
 </head>
 <body>
   <header class="builder-header">
@@ -100,9 +110,9 @@
     </aside>
 
     <section class="preview-wrap" aria-label="New amud preview">
-      <iframe id="draftFrame" src="../draft-engine/index.html?builder=1&build=62.53" title="New amud draft" allow="microphone"></iframe>
+      <iframe id="draftFrame" src="../draft-engine/index.html?builder=1&ui=60.3&build=62.53" title="New amud draft" allow="microphone"></iframe>
     </section>
   </main>
-  <script src="app.js?build=62.53"></script>
+  <script src="app.js?ui=60.3&build=62.53"></script>
 </body>
 </html>

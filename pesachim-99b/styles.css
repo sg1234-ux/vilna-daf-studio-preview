@@ -377,11 +377,13 @@ input[type="color"] { width: 100%; height: 34px; padding: 2px; border: 1px solid
 .note-window-body textarea { padding: 8px; resize: vertical; }
 #selectedWordLabel { margin: 0 0 8px; font-family: var(--gemara-font); font-size: 19px; font-weight: 700; }
 
-@media (max-width: 1120px) {
-  .workspace { grid-template-columns: 1fr; }
-  .control-panel { border: 0; border-bottom: 1px solid var(--line); }
-  .stage { order: 3; }
-}
+/* Tools stay beside the daf; each pane scrolls independently. */
+body { height: 100vh; display: grid; grid-template-rows: auto minmax(0, 1fr); overflow: hidden; }
+.workspace { grid-template-columns: 260px minmax(0, 1fr); min-height: 0; }
+.control-panel { min-height: 0; overflow-y: auto; }
+.stage { min-width: 0; min-height: 0; }
+.sidebar-actions { display: grid; gap: 8px; margin-top: 14px; }
+[hidden] { display: none !important; }
 
 @media print {
   .app-header, .control-panel { display: none !important; }
