@@ -187,12 +187,12 @@ function teacherExpansionNeighbor(note, expandingStream) {
 }
 
 function teacherLineAnchor(rawNote, note, lineNumber) {
-  const requested = /\b(?:begins?|starts?)\s+with\b.{1,180}\bends?\s+with\b|(?:מתחיל|מתחילה).{1,180}(?:מסתיים|מסתיימת)/iu.test(note);
+  const requested = /\b(?:begins?|starts?)\b.{1,180}\bends?\b|(?:מתחיל|מתחילה).{1,180}(?:מסתיים|מסתיימת)/iu.test(note);
   if (!requested) return { requested: false };
   const quoted = [...rawNote.matchAll(/[“"]([^"”]+)[”"]/gu)].map(match => match[1].trim()).filter(Boolean);
   let startText = quoted[0] || "", endText = quoted[1] || "";
   if (!startText || !endText) {
-    const plain = rawNote.match(/(?:begins?|starts?)\s+with\s+(.+?)\s+(?:and\s+)?ends?\s+with\s+(.+?)(?:[.!]|$)/iu);
+    const plain = rawNote.match(/\b(?:begins?|starts?)\s+(?:with\s+)?(.+?)\s+(?:and\s+)?ends?\s+(?:with\s+)?(.+?)(?:[.!]|$)/iu);
     if (plain) { startText = plain[1].replace(/^[“"]|[”"]$/g, "").trim(); endText = plain[2].replace(/^[“"]|[”"]$/g, "").trim(); }
   }
   const firstLine = /\bfirst\s+(?:gemara\s+|rashi\s+|rashbam\s+|tosafos\s+|tosafot\s+)?line\b/u.test(note);
@@ -320,7 +320,7 @@ function localAgentReview(body) {
       reason = "Include the visual line number, or say “first line.”";
     } else if (!lineAnchor.startText || !lineAnchor.endText) {
       summary = `I understand that you are defining ${teacherStreamLabel(stream)} line ${lineAnchor.line}.`;
-      reason = "Put the opening and closing phrase in quotation marks so repeated words can be matched safely.";
+      reason = "Include both the opening and closing phrase, for example: line 1 in Gemara begins אמר רב and ends תיקו.";
     } else {
       const current = Array.isArray(diagnostics.settings?.lineAnchors) ? diagnostics.settings.lineAnchors : [];
       const next = current.filter(item => !(item.stream === stream && Number(item.line) === lineAnchor.line));
@@ -477,7 +477,7 @@ $("approveDraft").addEventListener("click", async () => {
     pages.push({ id, ref: approvedRef, settings: snapshot.settings || {}, headingMode: snapshot.headingMode || "none", approvedAt: new Date().toISOString(), snapshotVersion: 1 });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(pages));
     localStorage.setItem("vilna-daf-agent-approved-updated", String(Date.now()));
-    location.assign(`?approved=${encodeURIComponent(id)}&ui=60.9`);
+    location.assign(`?approved=${encodeURIComponent(id)}&ui=60.10`);
   } catch (error) {
     message(`Could not save the approved page: ${error.message}`, true);
     renderDiagnostics();
