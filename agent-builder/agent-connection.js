@@ -1,8 +1,11 @@
 window.VilnaAgentConnection = (() => {
   const key='vilna-agent-connection-v1';
+  const isLocal=typeof location!=='undefined'&&location.hostname==='127.0.0.1';
+  let model='';
   let history=[];
-  function configuration(){try{return JSON.parse(sessionStorage.getItem(key)||'{}');}catch{return {};}}
+  function configuration(){if(isLocal)return {base:location.origin,local:true};try{return JSON.parse(sessionStorage.getItem(key)||'{}');}catch{return {};}}
   function configure(url,password){
+    if(isLocal)throw new Error('Use Continue with ChatGPT in this local builder.');
     const parsed=new URL(url);
     if(parsed.protocol!=='https:'||parsed.username||parsed.password||parsed.search||parsed.hash)throw new Error('Use the HTTPS address of your agent host.');
     if(password.length<24)throw new Error('Use the agent access password configured on your host (at least 24 characters).');
@@ -10,15 +13,15 @@ window.VilnaAgentConnection = (() => {
   }
   async function request(route,body){
     const config=configuration();
-    if(!config.base||!config.token)throw new Error('Connect your agent host first.');
-    const response=await fetch(`${config.base}/api/agent/${route}`,{method:body?'POST':'GET',headers:{Authorization:`Bearer ${config.token}`,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(55000),credentials:'omit',redirect:'error'});
+    if(!config.base||(!isLocal&&!config.token))throw new Error('Connect your agent host first.');
+    const response=await fetch(`${config.base}/api/${isLocal?'local':'agent'}/${route}`,{method:body?'POST':'GET',headers:{...(!isLocal?{Authorization:`Bearer ${config.token}`} : {}),...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(55000),credentials:isLocal?'same-origin':'omit',redirect:'error'});
     const result=await response.json().catch(()=>({}));
     if(!response.ok)throw new Error(result.error||`Agent connection failed (${response.status}).`);
     return result;
   }
   function remember(item){history.push(item);history=history.slice(-8);}
   async function review(body){
-    const result=await request('review',{...body,history});
+    const result=await request('review',{...body,history,...(isLocal?{model}: {})});
     // Recheck the exact contract in the browser before allowing Apply.
     const review=VilnaAgentCapabilities.compile(result.review,body.diagnostics.settings||{});
     remember({instruction:body.feedback.note,proposal:review.summary,clarifications:review.clarifications,applied:false});
@@ -28,6 +31,6 @@ window.VilnaAgentConnection = (() => {
     const measured=d=>d?{settings:d.settings,failures:d.failures,unplacedCounts:d.unplacedCounts,wordCounts:d.wordCounts,textOverflow:d.textOverflow}:null;
     remember({result:restored?'Prior settings restored after worse checks.':'Adjustment composed and measured.',...measured(diagnostics),...(restored?{before:measured(comparison.before),attempted:measured(comparison.attempted)}:{})});
   }
-  return {configuration,configure,request,review,outcome,reset:()=>{history=[];},disconnect:()=>{sessionStorage.removeItem(key);history=[];}};
+  return {isLocal,configuration,configure,request,review,outcome,setModel:value=>{model=value;},signOut:async()=>{const result=await request('signout',{});history=[];model='';return result;},reset:()=>{history=[];},disconnect:()=>{sessionStorage.removeItem(key);history=[];}};
 })();
 

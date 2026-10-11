@@ -13,18 +13,42 @@ function validateBody(body){
   if(body.evidence?.ref!==body.ref)throw failure(400,'Rendered page evidence is missing or belongs to another amud.');
   return {ref:body.ref,feedback:body.feedback,diagnostics:body.diagnostics,evidence:body.evidence,history:Array.isArray(body.history)?body.history.slice(-8):[]};
 }
-async function review(body,env=process.env,fetchImpl=fetch){
+async function readCompletedStream(response){
+  if(!response.body)throw failure(502,'The model response stream is missing.');
+  let pending='',size=0,completed=null;const decoder=new TextDecoder();
+  function consume(final=false){
+    pending=pending.replace(/\r\n/g,'\n');
+    let boundary;
+    while((boundary=pending.indexOf('\n\n'))!==-1){
+      const event=pending.slice(0,boundary);pending=pending.slice(boundary+2);
+      const data=event.split('\n').filter(line=>line.startsWith('data:')).map(line=>line.slice(5).trimStart()).join('\n');
+      if(!data||data==='[DONE]')continue;
+      let item;try{item=JSON.parse(data);}catch{throw failure(502,'The model returned an unreadable response stream.');}
+      if(item.type==='response.failed'||item.type==='response.incomplete'||item.type==='error')throw failure(502,'The model did not finish a complete correction. No changes were proposed.');
+      if(item.type==='response.completed')completed=item.response;
+    }
+    if(final&&pending.trim())throw failure(502,'The model response stream ended unexpectedly.');
+  }
+  for await(const chunk of response.body){size+=chunk.length;if(size>3000000)throw failure(502,'The model response was too large.');pending+=decoder.decode(chunk,{stream:true});consume();}
+  pending+=decoder.decode();consume(true);
+  if(!completed)throw failure(502,'The model did not finish a complete correction. No changes were proposed.');
+  return completed;
+}
+async function review(body,env=process.env,fetchImpl=fetch,{stream=false,planUsage=false}={}){
   const context=validateBody(body);
   if(!env.OPENAI_API_KEY)throw failure(503,'The host needs its OpenAI API key configured.');
   const response=await fetchImpl('https://api.openai.com/v1/responses',{
     method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${env.OPENAI_API_KEY}`},signal:AbortSignal.timeout(45000),
-    body:JSON.stringify({model:env.OPENAI_MODEL||'gpt-6-astra',store:false,instructions:SYSTEM,
+    body:JSON.stringify({model:env.OPENAI_MODEL||'gpt-6-astra',store:false,...(stream?{stream:true}:{}),instructions:SYSTEM,
       input:JSON.stringify({capabilities:capabilities.descriptions,permittedRanges:capabilities.ranges,page:context}),max_output_tokens:4500,
       tools:[{type:'function',name:'propose_layout_correction',description:'Propose validated layout controls for teacher review, or request missing evidence. Does not execute or approve.',strict:true,parameters:capabilities.schema}],
       tool_choice:{type:'function',name:'propose_layout_correction'},parallel_tool_calls:false})
   });
-  if(!response.ok)throw failure(response.status===429?429:502,response.status===429?'The model is busy or the API usage limit was reached. Try again later.':'The model connection failed. Check the host’s API account and model configuration.');
-  const result=await response.json();
+  if(!response.ok){
+    if(planUsage)throw failure(response.status===429?429:502,response.status===429?'Your ChatGPT allowance is unavailable or the model is busy. Check ChatGPT Settings → Usage or wait for your limit to reset. No paid API fallback was used.':'ChatGPT could not complete this request. Reconnect or choose another available model. No paid API fallback was used.');
+    throw failure(response.status===429?429:502,response.status===429?'The model is busy or the API usage limit was reached. Try again later.':'The model connection failed. Check the host’s API account and model configuration.');
+  }
+  const result=stream?await readCompletedStream(response):await response.json();
   if(result.status!=='completed')throw failure(502,'The model did not finish a complete correction. No changes were proposed.');
   const calls=(result.output||[]).filter(x=>x.type==='function_call');
   if(calls.length!==1||calls[0].name!=='propose_layout_correction')throw failure(502,'The model did not return a supported correction.');
@@ -65,5 +89,5 @@ function createHandler(route,{env=process.env,fetchImpl=fetch}={}){
     }catch(error){res.writeHead(error.status||502);res.end(JSON.stringify({error:error.status?error.message:'The model request could not complete. No changes were made.'}));}
   };
 }
-module.exports={review,validateBody,createHandler,MAX_BODY};
+module.exports={review,validateBody,createHandler,MAX_BODY,readCompletedStream};
 

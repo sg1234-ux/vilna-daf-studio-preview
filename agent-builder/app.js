@@ -84,7 +84,10 @@ function renderDiagnostics() {
   $("approvalValue").textContent = diagnostics ? (failures.length ? "Blocked" : "Eligible for teacher approval") : "Not tested";
   $("approveDraft").disabled = !diagnostics || failures.length > 0;
   $("buildDraft").disabled = Boolean(pendingAdjustment) || reviewing;
-  $("askAgent").disabled = !diagnostics || Boolean(pendingAdjustment) || reviewing;
+  $("askAgent").disabled = !diagnostics || Boolean(pendingAdjustment) || reviewing || (VilnaAgentConnection.isLocal && !aiReady);
+  $("chatgptSignIn").disabled=reviewing||Boolean(pendingAdjustment);
+  $("chatgptAccount").disabled=reviewing||Boolean(pendingAdjustment);
+  if(VilnaAgentConnection.isLocal)$("chatgptModel").disabled=!aiReady||reviewing||Boolean(pendingAdjustment);
   $("autoRepair").disabled = !diagnostics || Boolean(pendingAdjustment) || reviewing || !approvalFailures().length;
   $("undoAgent").disabled = !lastAdjustment || Boolean(pendingAdjustment) || reviewing;
   $("approveDraft").disabled ||= Boolean(pendingAdjustment) || reviewing;
@@ -574,6 +577,15 @@ async function start() {
   $("agentRules").textContent=VilnaAgentBrain.rules.map((rule,index)=>`${index+1}. ${rule}`).join("\n");
   renderApproved(); renderDiagnostics();
   if (document.documentElement.classList.contains("approved-view")) return;
+  if (VilnaAgentConnection.isLocal) {
+    $("hostedAgentControls").hidden=true;$("localAgentControls").hidden=false;
+    $("agentConnectionPanel").open=true;
+    $("disconnectAgent").textContent='Sign out of ChatGPT';
+    await connectAgent();
+    const signinError=new URLSearchParams(location.search).get('signinError');
+    if(signinError){$("connectionResult").textContent=signinError;history.replaceState(null,'',location.pathname);}
+    renderDiagnostics();return;
+  }
   const config = VilnaAgentConnection.configuration();
   $("agentHost").value = config.base || '';
   if (config.base) await connectAgent();
@@ -589,9 +601,24 @@ async function connectAgent() {
   try {
     const status = await VilnaAgentConnection.request('status');
     aiReady = status.aiReady === true;
+    if (VilnaAgentConnection.isLocal) {
+      const accounts=$("chatgptAccount"),models=$("chatgptModel");
+      accounts.replaceChildren();
+      for(const account of status.accounts||[]){const option=document.createElement('option');option.value=account.id;option.textContent=account.label;option.selected=account.active;accounts.append(option);}
+      const add=document.createElement('option');add.value='';add.textContent='Add a ChatGPT account';accounts.append(add);
+      if(!(status.accounts||[]).some(account=>account.active))accounts.value='';
+      models.replaceChildren();
+      for(const model of status.models||[]){const option=document.createElement('option');option.value=model.id;option.textContent=model.name;models.append(option);}
+      models.value=status.model||'';models.disabled=!aiReady;
+      VilnaAgentConnection.setModel(models.value);
+      $("agentStatus").textContent=aiReady?`ChatGPT connected · ${status.email||'personal account'}`:'Continue with ChatGPT to connect the AI';
+      $("agentStatus").classList.toggle('ready',aiReady);
+      $("connectionResult").textContent=status.error||(aiReady?'Connected through your ChatGPT allowance. Your paid API key is not used.':'Choose Continue with ChatGPT. Availability depends on your account and workspace settings.');
+      return;
+    }
     $("agentStatus").textContent = aiReady ? `AI agent connected · ${status.model}` : "AI host connected · API key still needed";
     $("agentStatus").classList.toggle("ready", aiReady);
-    $("connectionResult").textContent = aiReady ? "Connected for this browser session. Describe corrections in your own words." : "Add the OpenAI API key to your host, then reconnect.";
+    $("connectionResult").textContent = aiReady ? "Connected for this browser session. Each AI review uses paid OpenAI API credits." : "Add the OpenAI API key to your host, then reconnect.";
   } catch(error) {
     $("agentStatus").textContent = "Local rule agent ready · AI connection failed";
     $("connectionResult").textContent = error.message;
@@ -602,8 +629,21 @@ $("connectAgent").addEventListener('click', async () => {
   try { VilnaAgentConnection.configure($("agentHost").value.trim(),$("agentPassword").value); $("agentPassword").value=''; await connectAgent(); }
   catch(error) { $("connectionResult").textContent=error.message; }
 });
-$("disconnectAgent").addEventListener('click', () => {
+$("chatgptSignIn").addEventListener('click',()=>{
+  if(!VilnaAgentConnection.isLocal||reviewing||pendingAdjustment)return;
+  const account=$("chatgptAccount").value;
+  location.assign(`/auth/chatgpt${account?`?account=${encodeURIComponent(account)}`:''}`);
+});
+$("chatgptModel").addEventListener('change',()=>{
+  VilnaAgentConnection.setModel($("chatgptModel").value);proposedReview=null;$("applyAgent").disabled=true;
+});
+$("disconnectAgent").addEventListener('click', async () => {
   if(reviewing || pendingAdjustment) return;
+  if(VilnaAgentConnection.isLocal){
+    try{const result=await VilnaAgentConnection.signOut();await connectAgent();$("connectionResult").textContent=result.message;renderDiagnostics();}
+    catch(error){$("connectionResult").textContent=error.message;}
+    return;
+  }
   VilnaAgentConnection.disconnect(); aiReady=false; proposedReview=null;
   $("applyAgent").disabled=true; $("agentPassword").value='';
   $("agentStatus").textContent="Local rule agent ready · AI host not connected";
