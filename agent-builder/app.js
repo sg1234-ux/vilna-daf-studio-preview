@@ -68,7 +68,20 @@ function approvalFailures() {
   return [...new Set(failures)];
 }
 
+function exactLinePlan(){
+  if(!diagnostics||reviewing||pendingAdjustment)return null;
+  try{
+    const body={diagnostics,feedback:{targetRegion:$("targetRegion").value,note:$("feedback").value},evidence:frame.contentWindow.captureAgentEvidence()};
+    const changes=VilnaAgentCapabilities.preserveInstructions({changes:{},clarifications:[]},body).changes;
+    return changes.targetLineCounts?.gemara&&changes.expansionLine&&changes.expansionIntoStream&&changes.lineAnchors?.some(anchor=>anchor.stream==="gemara"&&anchor.line===1)?changes:null;
+  }catch{return null;}
+}
+function updateExactLineButton(){
+  $("applyExactLines").disabled=!exactLinePlan();
+  $("applyExactLines").title="Apply the typed Gemara line counts and Hebrew endpoints locally. No AI request or API charge.";
+}
 function renderDiagnostics() {
+  updateExactLineButton();
   $("patternValue").textContent = diagnostics?.patternName || "—";
   const missing = diagnostics?.unplacedCounts || {};
   $("textValue").textContent = diagnostics ? `${diagnostics.wordCounts?.gemara || 0} Gemara${missing.gemara ? ` (${missing.gemara} unplaced)` : ""} · ${diagnostics.wordCounts?.inner || 0} inner${missing.inner ? ` (${missing.inner} unplaced)` : ""} · ${diagnostics.wordCounts?.tosafot || 0} Tosafos${missing.tosafot ? ` (${missing.tosafot} unplaced)` : ""}` : "—";
@@ -150,6 +163,14 @@ $("buildDraft").addEventListener("click", async () => {
   try { await build(ref); } catch (error) { message(error.message, true); }
 });
 
+$("feedback").addEventListener("input",updateExactLineButton);
+$("targetRegion").addEventListener("change",updateExactLineButton);
+$("applyExactLines").addEventListener("click",()=>{
+  const changes=exactLinePlan();if(!changes)return;
+  sendAdjustment(changes);
+  $("agentResult").textContent="Applying your typed line counts and Hebrew endpoints locally. No AI request was sent.";
+});
+
 $("askAgent").addEventListener("click", async () => {
   if (!diagnostics || reviewing || pendingAdjustment) return;
   reviewing = true;
@@ -162,13 +183,14 @@ $("askAgent").addEventListener("click", async () => {
   try {
     const body = { ref: diagnostics.ref, diagnostics, rules: VilnaAgentBrain.rules, feedback: { targetRegion: $("targetRegion").value, note: $("feedback").value.trim(), perekHint: $("perekHint").value.trim(), perekRashbamStatus: $("perekRashbamStatus").value } };
     const requestState = reviewStateKey();
+    body.evidence = frame.contentWindow.captureAgentEvidence();
     if (aiReady) {
-      body.evidence = frame.contentWindow.captureAgentEvidence();
       proposedReview = await VilnaAgentConnection.review(body);
     } else {
       proposedReview = VilnaAgentBrain.review(body,localAgentReview);
     }
     if (requestState !== reviewStateKey()) { proposedReview=null; throw new Error('The page changed during review. Ask the agent again for the current layout.'); }
+    proposedReview = VilnaAgentCapabilities.preserveInstructions(proposedReview,body);
     proposedReviewState = requestState;
     $("agentResult").textContent = `${aiReady ? 'AI proposal: ' : 'Local rule proposal: '}${proposedReview.summary}${proposedReview.reason ? ` — ${proposedReview.reason}` : ""}${proposedReview.clarifications?.length ? ` Clarification needed: ${proposedReview.clarifications.join(' ')}` : ''}`;
     $("applyAgent").disabled = !Object.keys(proposedReview.changes || {}).length;

@@ -58,17 +58,22 @@ const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json
     await page.evaluate(()=>build('Bava Metzia 22a'));
     await page.waitForFunction(()=>diagnostics?.ref==='Bava Metzia 22a'&&diagnostics.patternName!=='not composed',null,{timeout:60000});
     await page.evaluate(()=>{
-      proposedReview={changes:{targetLineCounts:{gemara:45},expansionStream:'gemara',expansionLine:37,expansionIntoStream:'inner',enforceGemaraGutterBox:true,enforceStreamContinuity:true,enforceCommentaryContinuity:true,enforceReleasedSpaceTiming:true,lineAnchors:[
-        {stream:'gemara',line:1,startText:'וכן',endText:'שנטל'},
-        {stream:'gemara',line:2,startText:'נטל',endText:'וירדן'},
-        {stream:'gemara',line:3,startText:'דקא חזי',endText:'קא חזי'},
-        {stream:'gemara',line:4,startText:'ליה',endText:'בלסטים'}
-      ]}};proposedReviewState=reviewStateKey();document.getElementById('applyAgent').disabled=false;
+      document.getElementById('feedback').value='45 lines 36 narrow 9 wide. line one ends with second שנטל, line 2 begins נטל ends וירדן line begins דקא ends קא חזי line 4 begins ליה ends בלסטים';
+      aiReady=true;window.testReviewCalls=0;
+      VilnaAgentConnection.review=async()=>{window.testReviewCalls++;return ({summary:'Offline model fixture',reason:'Exercise the real Ask and Apply path without an API request.',clarifications:[],changes:{targetLineCounts:{gemara:34},expansionStream:'gemara',expansionLine:25,expansionIntoStream:'inner',forceCascade:true,preferredSurvivor:'tosafot',completedStream:'inner',continuationLines:2,enforceGemaraGutterBox:true,enforceStreamContinuity:true,enforceCommentaryContinuity:true,enforceReleasedSpaceTiming:true,lineAnchors:[{stream:'gemara',line:2,startText:'נטל',endText:'ירדן'}]}});};renderDiagnostics();
     });
+    await page.locator('#askAgent').click();
+    await page.waitForFunction(()=>proposedReview&&!reviewing);
     await page.locator('#applyAgent').click();
     await page.waitForFunction(()=>!pendingAdjustment&&document.getElementById('agentResult').textContent.includes('passed measured checks'),null,{timeout:60000});
     const applied=await page.evaluate(()=>({failures:diagnostics.failures,settings:diagnostics.settings,counts:frame.contentWindow.currentRenderedLineCounts()}));
-    assert.deepEqual(applied.failures,[]);assert.equal(applied.settings.targetLineCounts.gemara,45);assert.equal(applied.counts.gemara,45);assert.equal(applied.settings.enforceGemaraGutterBox,true);
+    assert.deepEqual(applied.failures,[]);assert.equal(applied.settings.targetLineCounts.gemara,45);assert.equal(applied.counts.gemara,45);assert.equal(applied.settings.enforceGemaraGutterBox,true);assert.equal(applied.settings.expansionLine,37);assert.equal(applied.settings.lineAnchors.find(a=>a.line===2).endText,"וירדן");assert.equal(applied.settings.lineAnchors.length,4);
+    await page.locator('#undoAgent').click();
+    await page.waitForFunction(()=>!pendingAdjustment&&!diagnostics.settings.targetLineCounts?.gemara,null,{timeout:60000});
+    await page.locator('#applyExactLines').click();
+    await page.waitForFunction(()=>!pendingAdjustment&&diagnostics.settings.targetLineCounts?.gemara===45&&document.getElementById('agentResult').textContent.includes('passed measured checks'),null,{timeout:60000});
+    const local=await page.evaluate(()=>({calls:window.testReviewCalls,counts:frame.contentWindow.currentRenderedLineCounts(),failures:diagnostics.failures}));
+    assert.equal(local.calls,1,'Exact instructions never make a second model request');assert.equal(local.counts.gemara,45);assert.deepEqual(local.failures,[]);
     if(process.env.VILNA_TEST_SCREENSHOT){
       await page.frames().find(frame=>frame.url().includes('/draft-engine/')).evaluate(()=>{setPageZoom(1);document.body.style.height='auto';document.body.style.overflow='visible';document.querySelector('.stage').style.overflow='visible';});
       await page.frameLocator('#draftFrame').locator('#dafPage').screenshot({path:process.env.VILNA_TEST_SCREENSHOT});

@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.55";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.56";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -595,7 +595,7 @@ function applyStreamLineAnchors(tokens,stream){
       while(next<words.length&&!normalizedAnchorWord(words[next].text))next++;
       return phraseMatchesAt(words,nextOpening,next);
     });
-    if(!Number.isInteger(endStart)){state.agentAnchorFailures.push(`${stream} line ${anchor.line} closing anchor was not found${nextOpening?' directly before the next requested opening':' after its opening'}`);continue;}
+    if(!Number.isInteger(endStart)){state.agentAnchorFailures.push(`${stream} line ${anchor.line} closing anchor “${anchor.endText}” was not found${nextOpening?' directly before the next requested opening':' after its opening'}`);continue;}
     let end=phraseEndAt(words,endPhrase,endStart);while(end+1<words.length&&!normalizedAnchorWord(words[end+1].text))end++;complete=complete&&start===searchFrom;if(end<start){state.agentAnchorFailures.push(`${stream} line ${anchor.line} anchor order is invalid`);continue;}searchFrom=end+1;
     if(start>0)boundaries.add(start);if(end<words.length-1)boundaries.add(end+1);
   }
@@ -698,7 +698,7 @@ function auditCompletionEventPatterns(patterns){
   return failures;
 }
 function candidates(w,scale=1){
-  const three=ordered(STREAMS),top=primaryWidths(w),guided=state.agentSettings.forceCascade&&STREAMS.includes(state.agentSettings.preferredSurvivor);
+  const three=ordered(STREAMS),top=primaryWidths(w),guided=state.agentSettings.forceCascade&&STREAMS.includes(state.agentSettings.preferredSurvivor)&&!Number.isInteger(Number(state.agentSettings.expansionLine||state.agentSettings.gemaraExpansionLine));
   if(guided){const completed=STREAMS.includes(state.agentSettings.completedStream)?state.agentSettings.completedStream:"gemara",pair=ordered(STREAMS.filter(stream=>stream!==completed)),survivor=state.agentSettings.preferredSurvivor,lines=state.agentSettings.continuationLines||2,leading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--commentary-leading"))||12.05,pairWidth=releasedPairWidths(three,top,pair);if(!pair.includes(survivor))return[];return stepped(28,82,3).map(upper=>({name:`teacher-guided ${completed} completes; ${survivor} takeover (${lines} narrow lines)`,cascade:true,guided:true,bands:[{height:upper,streams:three,widths:top},{height:0,pixelHeight:lines*leading,streams:pair,widths:pairWidth},{height:100-upper,streams:[survivor],widths:[100]}]}));}
   const expansionLine=Number(state.agentSettings.expansionLine||state.agentSettings.gemaraExpansionLine),expansionStream=STREAMS.includes(state.agentSettings.expansionStream)?state.agentSettings.expansionStream:"gemara",expansionInto=STREAMS.includes(state.agentSettings.expansionIntoStream)&&state.agentSettings.expansionIntoStream!==expansionStream?state.agentSettings.expansionIntoStream:null;
   if(Number.isInteger(expansionLine)){

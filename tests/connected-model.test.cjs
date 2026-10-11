@@ -84,7 +84,7 @@ async function invoke(handler,{method='POST',origin='https://sg1234-ux.github.io
   const source=fs.readFileSync('agent-builder/app.js','utf8'),nodes={};let click;
   const ui={diagnostics:structuredClone(diagnostics),pendingAdjustment:null,reviewing:false,proposedReview:{changes:{pageHeight:1100}},proposedReviewState:null,aiReady:true,
     $:id=>nodes[id]||(nodes[id]={value:'',disabled:false,textContent:'',classList:{add(){},remove(){}},addEventListener(type,fn){if(id==='askAgent')click=fn;}}),
-    frame:{contentWindow:{captureAgentEvidence:()=>body.evidence}},VilnaAgentBrain:{rules:[]},VilnaAgentConnection:{review:async()=>{throw new Error('Provider unavailable.');}},renderDiagnostics(){}};
+    frame:{contentWindow:{captureAgentEvidence:()=>body.evidence}},VilnaAgentCapabilities:cap,VilnaAgentBrain:{rules:[]},VilnaAgentConnection:{review:async()=>{throw new Error('Provider unavailable.');}},renderDiagnostics(){}};
   vm.createContext(ui);
   vm.runInContext(source.slice(source.indexOf('function reviewStateKey'),source.indexOf('function requestApprovedSnapshot')),ui);
   vm.runInContext(source.slice(source.indexOf('$("askAgent").addEventListener'),source.indexOf('function teacherCommandStream')),ui);

@@ -82,6 +82,35 @@
     assert(!effective.completedStream||!effective.preferredSurvivor||effective.completedStream!==effective.preferredSurvivor,'A stream cannot both finish and survive.');
     return {summary:proposal.summary,reason:proposal.reason,targetRegion:proposal.targetRegion,clarifications:proposal.clarifications,operations:proposal.operations,changes:proposal.clarifications.length?{}:changes};
   }
-  return {schema,settings,descriptions,ranges,compile};
+  function preserveInstructions(review,body){
+    if(review.clarifications?.length)return review;
+    const note=String(body.feedback?.note||""),region=body.feedback?.targetRegion;
+    if(!['whole-page','gemara','transition'].includes(region))return review;
+    const named=/\b(?:rashi|rashbam|tosafos|tosafot)\s+lines?\b|\b(?:rashi|rashbam|tosafos|tosafot)\b.{0,25}\b\d{1,3}\s+lines?\b/i.test(note);if(named)return review;
+    const changes={...review.changes},numbers={one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10};
+    const markers=[...note.matchAll(/\bline\s*(?:(\d{1,3}|one|two|three|four|five|six|seven|eight|nine|ten)\b)?\s*(?=(?:begins?|starts?|ends?)\b)/gi)],anchors=[];
+    let previous=0;
+    const phrase=(clause,kind)=>clause.match(new RegExp('\\b'+kind+'(?:\\s+(?:with|at))?(?:\\s+(?:the\\s+)?(?:first|second|third|fourth))?\\s*["\']?\\s*([\\u0590-\\u05ff]+(?:\\s+[\\u0590-\\u05ff]+)*)','i'))?.[1]?.trim();
+    for(const [index,marker] of markers.entries()){
+      const line=marker[1]?(Number(marker[1])||numbers[marker[1].toLowerCase()]):previous+1;previous=line;
+      const clause=note.slice(marker.index,markers[index+1]?.index??note.length),endText=phrase(clause,'ends?');
+      let startText=phrase(clause,'(?:begins?|starts?)');
+      if(line===1&&!startText)startText=body.evidence?.streams?.gemara?.sourceText?.match(/[\u0590-\u05ff]+/)?.[0];
+      if(line>=1&&line<=200&&startText&&endText)anchors.push({stream:'gemara',line,startText,endText});
+    }
+    const total=note.match(/\b(\d{1,3})\s+(?:gemara\s+)?lines?\b/i),narrow=note.match(/\b(\d{1,3})\s+(?:lines?\s+)?narrow\b/i),wide=note.match(/\b(\d{1,3})\s+(?:lines?\s+)?wide\b/i);
+    if(total&&Number(total[1])>=1&&Number(total[1])<=200)changes.targetLineCounts={...body.diagnostics?.settings?.targetLineCounts,...changes.targetLineCounts,gemara:Number(total[1])};
+    if(total&&narrow&&wide&&Number(narrow[1])+Number(wide[1])===Number(total[1])&&Number(narrow[1])>=1&&Number(wide[1])>=1){
+      changes.expansionStream='gemara';changes.expansionLine=Number(narrow[1])+1;
+      const bands=body.diagnostics?.geometry?.bands||[],completed=bands[0]?.streams?.find(stream=>stream!=='gemara'&&!bands[1]?.streams?.includes(stream));
+      if(completed)changes.expansionIntoStream=completed;
+    }
+    if(anchors.length){
+      const merged=new Map((changes.lineAnchors||body.diagnostics?.settings?.lineAnchors||[]).map(anchor=>[`${anchor.stream}:${anchor.line}`,anchor]));
+      anchors.forEach(anchor=>merged.set(`gemara:${anchor.line}`,anchor));changes.lineAnchors=[...merged.values()];
+    }
+    return {...review,changes};
+  }
+  return {schema,settings,descriptions,ranges,compile,preserveInstructions};
 });
 
