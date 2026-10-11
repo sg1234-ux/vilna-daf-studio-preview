@@ -1,0 +1,476 @@
+{
+  "format": "vilna-physical-page-specification",
+  "version": 1,
+  "ref": "Pesachim 100b",
+  "status": "gemara-transcribed-commentary-pending",
+  "engineReady": false,
+  "scan": {
+    "url": "https://images.e-daf.com/DafImg.asp?ID=842&size=2",
+    "sha256": "81106e7adce3e071e526c6de6e10d2c537003ced05df875d15fac875b03649e1",
+    "width": 1028,
+    "height": 1640,
+    "contentBox": [
+      72,
+      103,
+      892,
+      1606
+    ]
+  },
+  "coordinateSystem": "Pixels in the cited reference image; boxes are [left,top,right,bottom]. Region boxes are measurements to the nearest few pixels; line ink boxes are threshold-derived and visually counted.",
+  "blocks": [
+    {
+      "id": "gemara-main",
+      "stream": "gemara",
+      "box": [
+        317,
+        208,
+        653,
+        548
+      ],
+      "rows": 14
+    },
+    {
+      "id": "gemara-preview",
+      "stream": "gemara",
+      "box": [
+        317,
+        548,
+        653,
+        569
+      ],
+      "rows": 1
+    }
+  ],
+  "commentaryColumns": {
+    "inner": [
+      72,
+      207,
+      290,
+      569
+    ],
+    "tosafot": [
+      674,
+      103,
+      892,
+      569
+    ]
+  },
+  "notes": [
+    "The final isolated אף previews the first word of Pesachim 101a.",
+    "The inner column contains Rashi first, an explicit רשב״ם title, then Rashbam.",
+    "Rashi’s print order differs from the exported comment order: כך, אין מביאין, ואם הביא, איקלע, ידי יין.",
+    "The Rashi ending previews ידי קידוש from the next amud.",
+    "After the short Gemara ends, Rashbam and Tosafos continue in two broad columns."
+  ],
+  "streams": {
+    "gemara": {
+      "status": "printed-lines-transcribed-source-alignment-pending",
+      "lines": [
+        {
+          "physicalRow": 1,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "כך",
+          "lastWord": "לאו",
+          "printedText": "כך מפסיקין להבדלה מאי מפסיקין לאו",
+          "inkBox": [
+            317,
+            218,
+            646,
+            239
+          ]
+        },
+        {
+          "physicalRow": 2,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "לעקירת",
+          "lastWord": "הונא",
+          "printedText": "לעקירת שולחן לא למפה רבה בר רב הונא",
+          "inkBox": [
+            318,
+            242,
+            646,
+            258
+          ]
+        },
+        {
+          "physicalRow": 3,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "איקלע",
+          "lastWord": "קמיה",
+          "printedText": "איקלע לבי ריש גלותא אייתו תכא קמיה",
+          "inkBox": [
+            317,
+            266,
+            646,
+            283
+          ]
+        },
+        {
+          "physicalRow": 4,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "פרס",
+          "lastWord": "ושוין",
+          "printedText": "פרס מפה וקידש תניא נמי הכי ושוין",
+          "inkBox": [
+            318,
+            290,
+            646,
+            309
+          ]
+        },
+        {
+          "physicalRow": 5,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "שאין",
+          "lastWord": "כן",
+          "printedText": "שאין מביאין את השולחן אלא אם כן",
+          "inkBox": [
+            319,
+            314,
+            645,
+            333
+          ]
+        },
+        {
+          "physicalRow": 6,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "קידש",
+          "lastWord": "תניא",
+          "printedText": "קידש ואם הביא פורס מפה ומקדש תניא",
+          "inkBox": [
+            317,
+            338,
+            645,
+            351
+          ]
+        },
+        {
+          "physicalRow": 7,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "חדא",
+          "lastWord": "שיין",
+          "printedText": "חדא שיין שאין מתחילין ותניא אידך שיין",
+          "inkBox": [
+            319,
+            362,
+            645,
+            381
+          ]
+        },
+        {
+          "physicalRow": 8,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "שמתחילין",
+          "lastWord": "שאין",
+          "printedText": "שמתחילין בשלמא הא דתניא שיין שאין",
+          "inkBox": [
+            317,
+            385,
+            645,
+            399
+          ]
+        },
+        {
+          "physicalRow": 9,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "מתחילין",
+          "lastWord": "אלא",
+          "printedText": "מתחילין משכחת לה בערב הפסח אלא",
+          "inkBox": [
+            317,
+            410,
+            643,
+            423
+          ]
+        },
+        {
+          "physicalRow": 10,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "הא",
+          "lastWord": "נימא",
+          "printedText": "הא דתניא שיין שמתחילין אימת אי נימא",
+          "inkBox": [
+            317,
+            434,
+            643,
+            447
+          ]
+        },
+        {
+          "physicalRow": 11,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "בערב",
+          "lastWord": "קשיא",
+          "printedText": "בערב שבת הא מיפלג פליגי לא קשיא",
+          "inkBox": [
+            317,
+            457,
+            643,
+            472
+          ]
+        },
+        {
+          "physicalRow": 12,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "כאן",
+          "lastWord": "אותם",
+          "printedText": "כאן קודם תשעה כאן לאחר תשעה אותם",
+          "inkBox": [
+            317,
+            482,
+            643,
+            499
+          ]
+        },
+        {
+          "physicalRow": 13,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "בני",
+          "lastWord": "רב",
+          "printedText": "בני אדם שקידשו בבית הכנסת אמר רב",
+          "inkBox": [
+            317,
+            506,
+            643,
+            519
+          ]
+        },
+        {
+          "physicalRow": 14,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "ידי",
+          "lastWord": "אמר",
+          "printedText": "ידי יין לא יצאו ידי קידוש יצאו ושמואל אמר",
+          "inkBox": [
+            317,
+            529,
+            644,
+            543
+          ]
+        },
+        {
+          "physicalRow": 15,
+          "block": "gemara-preview",
+          "role": "next-amud-preview",
+          "firstWord": "אף",
+          "lastWord": "אף",
+          "printedText": "אף",
+          "inkBox": [
+            362,
+            553,
+            381,
+            558
+          ]
+        }
+      ]
+    },
+    "inner": {
+      "status": "rashi-boundaries-transcribed-rashbam-pending",
+      "rashiLines": [
+        {
+          "line": 1,
+          "firstWord": "כך",
+          "lastWord": "מפסיקין",
+          "block": "opening",
+          "role": "text"
+        },
+        {
+          "line": 2,
+          "firstWord": "אכילתן",
+          "lastWord": "היום",
+          "block": "opening",
+          "role": "text"
+        },
+        {
+          "line": 3,
+          "firstWord": "ואם",
+          "lastWord": "השולחן",
+          "block": "opening",
+          "role": "text"
+        },
+        {
+          "line": 4,
+          "firstWord": "בערב",
+          "lastWord": "יוסי",
+          "block": "opening",
+          "role": "text"
+        },
+        {
+          "line": 5,
+          "firstWord": "מודה",
+          "lastWord": "לבי",
+          "block": "narrow-body",
+          "role": "text"
+        },
+        {
+          "line": 6,
+          "firstWord": "ריש",
+          "lastWord": "השולחן",
+          "block": "narrow-body",
+          "role": "text"
+        },
+        {
+          "line": 7,
+          "firstWord": "בערב",
+          "lastWord": "ופרס",
+          "block": "narrow-body",
+          "role": "text"
+        },
+        {
+          "line": 8,
+          "firstWord": "מפה",
+          "lastWord": "שאם",
+          "block": "narrow-body",
+          "role": "text"
+        },
+        {
+          "line": 9,
+          "firstWord": "יש",
+          "lastWord": "חייבין",
+          "block": "narrow-body",
+          "role": "text"
+        },
+        {
+          "line": 10,
+          "firstWord": "לברך",
+          "lastWord": "פטורין",
+          "block": "narrow-body",
+          "role": "text"
+        },
+        {
+          "line": 11,
+          "firstWord": "בברכת",
+          "lastWord": "בלא",
+          "block": "narrow-body",
+          "role": "text"
+        },
+        {
+          "line": 12,
+          "firstWord": "ברכה",
+          "lastWord": "ידי",
+          "block": "narrow-body",
+          "role": "text-with-preview-at-end"
+        },
+        {
+          "line": 13,
+          "firstWord": "קידוש",
+          "lastWord": "קידוש",
+          "block": "narrow-body",
+          "role": "next-amud-preview"
+        }
+      ],
+      "sourceReconciliation": {
+        "commentOrderInPrint": [
+          0,
+          2,
+          3,
+          1,
+          4
+        ],
+        "indicesReferTo": "Flattened Rashi leaves in this page’s pinned Hebrew source snapshot, zero based. Reorder whole comments only.",
+        "nextAmudPreview": {
+          "ref": "Rashi on Pesachim 101a",
+          "words": [
+            "ידי",
+            "קידוש"
+          ],
+          "beginsAtRashiLine": 12
+        }
+      }
+    },
+    "tosafot": {
+      "status": "line-boundaries-pending"
+    }
+  },
+  "gutterMeasurements": {
+    "leftOfNarrowGemaraPixels": 27,
+    "rightOfNarrowGemaraPixels": 21
+  },
+  "normalizedWidths": {
+    "gemara": 0.4097560975609756,
+    "leftCommentary": 0.2658536585365854,
+    "rightCommentary": 0.2658536585365854,
+    "leftGutter": 0.032926829268292684,
+    "rightGutter": 0.025609756097560974
+  },
+  "remainingPreparation": [
+    "Transcribe every inner-commentary and Tosafos line boundary.",
+    "Align printed line boundaries with the pinned source, documenting whole-comment reordering and next-page previews.",
+    "Check commentary opening widths, all transition boxes and end-line alignment against the scan.",
+    "Publish as engine-ready only after all three stream maps and source coverage are complete."
+  ],
+  "openingCommentaryBlocks": [
+    {
+      "stream": "inner",
+      "box": [
+        72,
+        103,
+        655,
+        191
+      ],
+      "rows": 4
+    },
+    {
+      "stream": "tosafot",
+      "box": [
+        674,
+        103,
+        892,
+        191
+      ],
+      "rows": 4
+    }
+  ],
+  "innerCommentaryTransitions": [
+    {
+      "commentator": "Rashi",
+      "openingRows": 4,
+      "narrowBodyRows": 9,
+      "lastInkBox": [
+        166,
+        337,
+        203,
+        349
+      ]
+    },
+    {
+      "role": "title",
+      "text": "רשב״ם",
+      "box": [
+        152,
+        379,
+        219,
+        400
+      ]
+    },
+    {
+      "commentator": "Rashbam",
+      "narrowBox": [
+        72,
+        404,
+        290,
+        565
+      ],
+      "wideBox": [
+        72,
+        574,
+        470,
+        1568
+      ]
+    }
+  ]
+}

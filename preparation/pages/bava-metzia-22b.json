@@ -1,0 +1,821 @@
+{
+  "format": "vilna-physical-page-specification",
+  "version": 1,
+  "ref": "Bava Metzia 22b",
+  "status": "gemara-transcribed-commentary-pending",
+  "engineReady": false,
+  "scan": {
+    "url": "https://images.e-daf.com/DafImg.asp?ID=3069&size=2",
+    "sha256": "687ec78d705f04303f0b16ea433875681b919d7105ce162f5db849d1eae07ce6",
+    "width": 1028,
+    "height": 1585,
+    "contentBox": [
+      90,
+      100,
+      892,
+      1566
+    ]
+  },
+  "coordinateSystem": "Pixels in the cited reference image; boxes are [left,top,right,bottom]. Region boxes are measurements to the nearest few pixels; line ink boxes are threshold-derived and visually counted.",
+  "blocks": [
+    {
+      "id": "gemara-main",
+      "stream": "gemara",
+      "box": [
+        329,
+        208,
+        657,
+        1415
+      ],
+      "rows": 51
+    },
+    {
+      "id": "gemara-preview",
+      "stream": "gemara",
+      "box": [
+        329,
+        1416,
+        657,
+        1439
+      ],
+      "rows": 1
+    }
+  ],
+  "commentaryColumns": {
+    "inner": [
+      90,
+      215,
+      306,
+      1439
+    ],
+    "tosafot": [
+      682,
+      101,
+      891,
+      1439
+    ]
+  },
+  "notes": [
+    "The final isolated דמדרסא previews the first word of Bava Metzia 23a.",
+    "Inner commentary is physically on the left on this amud; Tosafos is on the right.",
+    "Both commentaries continue beneath the Gemara in two broad columns."
+  ],
+  "streams": {
+    "gemara": {
+      "status": "printed-lines-transcribed-source-alignment-pending",
+      "lines": [
+        {
+          "physicalRow": 1,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "אינן",
+          "lastWord": "דלא",
+          "printedText": "אינן בכי יותן טעמא מאי לאו משום דלא",
+          "inkBox": [
+            335,
+            215,
+            654,
+            231
+          ]
+        },
+        {
+          "physicalRow": 2,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "אמרינן",
+          "lastWord": "ניחא",
+          "printedText": "אמרינן כיון דאיגלאי מילתא דהשתא ניחא",
+          "inkBox": [
+            335,
+            239,
+            653,
+            253
+          ]
+        },
+        {
+          "physicalRow": 3,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "ליה",
+          "lastWord": "התם",
+          "printedText": "ליה מעיקרא נמי ניחא ליה שאני התם",
+          "inkBox": [
+            335,
+            261,
+            656,
+            279
+          ]
+        },
+        {
+          "physicalRow": 4,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "דכתיב",
+          "lastWord": "רישא",
+          "printedText": "דכתיב כי יתן עד שיתן אי הכי רישא",
+          "inkBox": [
+            335,
+            286,
+            655,
+            303
+          ]
+        },
+        {
+          "physicalRow": 5,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "נמי",
+          "lastWord": "כתיב",
+          "printedText": "נמי התם כדרב פפא דרב פפא רמי כתיב",
+          "inkBox": [
+            335,
+            310,
+            655,
+            324
+          ]
+        },
+        {
+          "physicalRow": 6,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "כי",
+          "lastWord": "כי",
+          "printedText": "כי יתן וקרינן כי יותן הא כיצד בעינן כי",
+          "inkBox": [
+            335,
+            334,
+            654,
+            352
+          ]
+        },
+        {
+          "physicalRow": 7,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "יותן",
+          "lastWord": "כי",
+          "printedText": "יותן דומיא דכי יתן מה יתן לדעת אף כי",
+          "inkBox": [
+            336,
+            356,
+            655,
+            376
+          ]
+        },
+        {
+          "physicalRow": 8,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "יותן",
+          "lastWord": "משום",
+          "printedText": "יותן נמי לדעת ת״ש דא״ר יוחנן משום",
+          "inkBox": [
+            335,
+            379,
+            654,
+            397
+          ]
+        },
+        {
+          "physicalRow": 9,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "רבי",
+          "lastWord": "לאבידה",
+          "printedText": "רבי ישמעאל בן יהוצדק מנין לאבידה",
+          "inkBox": [
+            335,
+            402,
+            652,
+            422
+          ]
+        },
+        {
+          "physicalRow": 10,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "ששטפה",
+          "lastWord": "וכן",
+          "printedText": "ששטפה נהר שהיא מותרת דכתיב וכן",
+          "inkBox": [
+            329,
+            428,
+            653,
+            442
+          ]
+        },
+        {
+          "physicalRow": 11,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "תעשה",
+          "lastWord": "וכן",
+          "printedText": "תעשה לחמורו וכן תעשה לשמלתו וכן",
+          "inkBox": [
+            334,
+            452,
+            654,
+            471
+          ]
+        },
+        {
+          "physicalRow": 12,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "תעשה",
+          "lastWord": "ממנו",
+          "printedText": "תעשה לכל אבידת אחיך אשר תאבד ממנו",
+          "inkBox": [
+            335,
+            475,
+            654,
+            490
+          ]
+        },
+        {
+          "physicalRow": 13,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "ומצאתה",
+          "lastWord": "אצל",
+          "printedText": "ומצאתה מי שאבודה הימנו ומצויה אצל",
+          "inkBox": [
+            334,
+            499,
+            654,
+            513
+          ]
+        },
+        {
+          "physicalRow": 14,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "כל",
+          "lastWord": "ואינה",
+          "printedText": "כל אדם יצאתה זו שאבודה ממנו ואינה",
+          "inkBox": [
+            335,
+            523,
+            656,
+            537
+          ]
+        },
+        {
+          "physicalRow": 15,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "מצויה",
+          "lastWord": "דהיתירא",
+          "printedText": "מצויה אצל כל אדם ואיסורא דומיא דהיתירא",
+          "inkBox": [
+            336,
+            547,
+            656,
+            560
+          ]
+        },
+        {
+          "physicalRow": 16,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "מה",
+          "lastWord": "דלית",
+          "printedText": "מה היתירא בין דאית בה סימן ובין דלית",
+          "inkBox": [
+            335,
+            570,
+            656,
+            589
+          ]
+        },
+        {
+          "physicalRow": 17,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "בה",
+          "lastWord": "בה",
+          "printedText": "בה סימן שריא אף איסורא בין דאית בה",
+          "inkBox": [
+            334,
+            594,
+            654,
+            607
+          ]
+        },
+        {
+          "physicalRow": 18,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "סימן",
+          "lastWord": "תיובתא",
+          "printedText": "סימן ובין דלית בה סימן אסורה תיובתא",
+          "inkBox": [
+            335,
+            617,
+            655,
+            631
+          ]
+        },
+        {
+          "physicalRow": 19,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "דרבא",
+          "lastWord": "דאביי",
+          "printedText": "דרבא תיובתא והלכתא כוותיה דאביי",
+          "inkBox": [
+            334,
+            640,
+            654,
+            655
+          ]
+        },
+        {
+          "physicalRow": 20,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "ביע״ל",
+          "lastWord": "לרב",
+          "printedText": "ביע״ל קג״ם א״ל רב אחא בריה דרבא לרב",
+          "inkBox": [
+            334,
+            659,
+            654,
+            679
+          ]
+        },
+        {
+          "physicalRow": 21,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "אשי",
+          "lastWord": "תמרי",
+          "printedText": "אשי וכי מאחר דאיתותב רבא הני תמרי",
+          "inkBox": [
+            333,
+            688,
+            651,
+            702
+          ]
+        },
+        {
+          "physicalRow": 22,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "דזיקא",
+          "lastWord": "כיון",
+          "printedText": "דזיקא היכי אכלינן להו אמר ליה כיון",
+          "inkBox": [
+            333,
+            710,
+            652,
+            726
+          ]
+        },
+        {
+          "physicalRow": 23,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "דאיכא",
+          "lastWord": "להו",
+          "printedText": "דאיכא שקצים ורמשים דקא אכלי להו",
+          "inkBox": [
+            332,
+            734,
+            653,
+            749
+          ]
+        },
+        {
+          "physicalRow": 24,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "מעיקרא",
+          "lastWord": "דלאו",
+          "printedText": "מעיקרא יאושי מיאש מיניה יתמי דלאו",
+          "inkBox": [
+            332,
+            759,
+            653,
+            773
+          ]
+        },
+        {
+          "physicalRow": 25,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "בני",
+          "lastWord": "באגא",
+          "printedText": "בני מחילה נינהו מאי אמר ליה באגא",
+          "inkBox": [
+            331,
+            782,
+            651,
+            796
+          ]
+        },
+        {
+          "physicalRow": 26,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "בארעא",
+          "lastWord": "ועומד",
+          "printedText": "בארעא דיתמי לא מחזקינן מוחזק ועומד",
+          "inkBox": [
+            331,
+            806,
+            650,
+            822
+          ]
+        },
+        {
+          "physicalRow": 27,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "מאי",
+          "lastWord": "כריכות",
+          "printedText": "מאי כרכתא מאי אמר ליה אסירן כריכות",
+          "inkBox": [
+            332,
+            829,
+            651,
+            843
+          ]
+        },
+        {
+          "physicalRow": 28,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "ברה״ר",
+          "lastWord": "ואפילו",
+          "printedText": "ברה״ר הרי אלו שלו אמר רבה ואפילו",
+          "inkBox": [
+            332,
+            852,
+            651,
+            867
+          ]
+        },
+        {
+          "physicalRow": 29,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "בדבר",
+          "lastWord": "סימן",
+          "printedText": "בדבר שיש בו סימן אלמא קסבר רבה סימן",
+          "inkBox": [
+            333,
+            876,
+            651,
+            891
+          ]
+        },
+        {
+          "physicalRow": 30,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "העשוי",
+          "lastWord": "לא",
+          "printedText": "העשוי לידרס לא הוי סימן רבא אמר לא",
+          "inkBox": [
+            332,
+            899,
+            652,
+            914
+          ]
+        },
+        {
+          "physicalRow": 31,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "שנו",
+          "lastWord": "בדבר",
+          "printedText": "שנו אלא בדבר שאין בו סימן אבל בדבר",
+          "inkBox": [
+            333,
+            924,
+            652,
+            938
+          ]
+        },
+        {
+          "physicalRow": 32,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "שיש",
+          "lastWord": "קסבר",
+          "printedText": "שיש בו סימן חייב להכריז אלמא קסבר",
+          "inkBox": [
+            333,
+            947,
+            653,
+            961
+          ]
+        },
+        {
+          "physicalRow": 33,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "רבא",
+          "lastWord": "ואיכא",
+          "printedText": "רבא סימן העשוי לידרס הוי סימן ואיכא",
+          "inkBox": [
+            333,
+            972,
+            654,
+            987
+          ]
+        },
+        {
+          "physicalRow": 34,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "דמתני",
+          "lastWord": "סימן",
+          "printedText": "דמתני להא שמעתא באנפי נפשה סימן",
+          "inkBox": [
+            334,
+            995,
+            654,
+            1010
+          ]
+        },
+        {
+          "physicalRow": 35,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "העשוי",
+          "lastWord": "ורבא",
+          "printedText": "העשוי לידרס רבה אמר לא הוי סימן ורבא",
+          "inkBox": [
+            333,
+            1018,
+            653,
+            1033
+          ]
+        },
+        {
+          "physicalRow": 36,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "אמר",
+          "lastWord": "אלו",
+          "printedText": "אמר הוי סימן תנן כריכות ברה״ר הרי אלו",
+          "inkBox": [
+            333,
+            1042,
+            653,
+            1056
+          ]
+        },
+        {
+          "physicalRow": 37,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "שלו",
+          "lastWord": "דלית",
+          "printedText": "שלו ברה״י נוטל ומכריז ה״ד אי דלית",
+          "inkBox": [
+            333,
+            1065,
+            653,
+            1079
+          ]
+        },
+        {
+          "physicalRow": 38,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "בהו",
+          "lastWord": "לאו",
+          "printedText": "בהו סימן ברה״י מאי מכריז אלא לאו",
+          "inkBox": [
+            333,
+            1089,
+            652,
+            1103
+          ]
+        },
+        {
+          "physicalRow": 39,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "דאית",
+          "lastWord": "אלו",
+          "printedText": "דאית בהו סימן וקתני ברה״ר הרי אלו",
+          "inkBox": [
+            333,
+            1112,
+            652,
+            1127
+          ]
+        },
+        {
+          "physicalRow": 40,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "שלו",
+          "lastWord": "הוי",
+          "printedText": "שלו אלמא סימן העשוי לידרס לא הוי",
+          "inkBox": [
+            333,
+            1130,
+            653,
+            1152
+          ]
+        },
+        {
+          "physicalRow": 41,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "סימן",
+          "lastWord": "לעולם",
+          "printedText": "סימן תיובתא דרבא אמר לך רבא לעולם",
+          "inkBox": [
+            332,
+            1160,
+            652,
+            1177
+          ]
+        },
+        {
+          "physicalRow": 42,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "דלית",
+          "lastWord": "מאי",
+          "printedText": "דלית בהו סימן ודקא אמרת ברה״י מאי",
+          "inkBox": [
+            332,
+            1184,
+            651,
+            1198
+          ]
+        },
+        {
+          "physicalRow": 43,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "מכריז",
+          "lastWord": "לא",
+          "printedText": "מכריז מכריז מקום ורבה אמר מקום לא",
+          "inkBox": [
+            332,
+            1207,
+            651,
+            1222
+          ]
+        },
+        {
+          "physicalRow": 44,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "הוי",
+          "lastWord": "הוי",
+          "printedText": "הוי סימן דאיתמר מקום רבה אמר לא הוי",
+          "inkBox": [
+            331,
+            1231,
+            651,
+            1245
+          ]
+        },
+        {
+          "physicalRow": 45,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "סימן",
+          "lastWord": "כריכות",
+          "printedText": "סימן ורבא אמר הוי סימן ת״ש כריכות",
+          "inkBox": [
+            331,
+            1254,
+            651,
+            1269
+          ]
+        },
+        {
+          "physicalRow": 46,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "ברה״ר",
+          "lastWord": "ומכריז",
+          "printedText": "ברה״ר הרי אלו שלו ברה״י נוטל ומכריז",
+          "inkBox": [
+            331,
+            1277,
+            651,
+            1292
+          ]
+        },
+        {
+          "physicalRow": 47,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "והאלומות",
+          "lastWord": "ומכריז",
+          "printedText": "והאלומות בין ברה״ר ובין ברה״י נוטל ומכריז",
+          "inkBox": [
+            331,
+            1299,
+            651,
+            1316
+          ]
+        },
+        {
+          "physicalRow": 48,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "רבה",
+          "lastWord": "לה",
+          "printedText": "רבה היכי מתרץ לה ורבא היכי מתרץ לה",
+          "inkBox": [
+            331,
+            1325,
+            652,
+            1339
+          ]
+        },
+        {
+          "physicalRow": 49,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "רבה",
+          "lastWord": "מתרץ",
+          "printedText": "רבה מתרץ לטעמיה בסימן ורבא מתרץ",
+          "inkBox": [
+            331,
+            1349,
+            652,
+            1368
+          ]
+        },
+        {
+          "physicalRow": 50,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "לטעמיה",
+          "lastWord": "בסימן",
+          "printedText": "לטעמיה במקום רבה מתרץ לטעמיה בסימן",
+          "inkBox": [
+            331,
+            1372,
+            652,
+            1388
+          ]
+        },
+        {
+          "physicalRow": 51,
+          "block": "gemara-main",
+          "role": "text",
+          "firstWord": "כריכות",
+          "lastWord": "משום",
+          "printedText": "כריכות ברשות הרבים הרי אלו שלו משום",
+          "inkBox": [
+            330,
+            1396,
+            651,
+            1410
+          ]
+        },
+        {
+          "physicalRow": 52,
+          "block": "gemara-preview",
+          "role": "next-amud-preview",
+          "firstWord": "דמדרסא",
+          "lastWord": "דמדרסא",
+          "printedText": "דמדרסא",
+          "inkBox": [
+            377,
+            1421,
+            441,
+            1433
+          ]
+        }
+      ]
+    },
+    "inner": {
+      "status": "line-boundaries-pending"
+    },
+    "tosafot": {
+      "status": "line-boundaries-pending"
+    }
+  },
+  "gutterMeasurements": {
+    "leftOfNarrowGemaraPixels": 23,
+    "rightOfNarrowGemaraPixels": 25
+  },
+  "normalizedWidths": {
+    "gemara": 0.4089775561097257,
+    "leftCommentary": 0.26932668329177056,
+    "rightCommentary": 0.26059850374064836,
+    "leftGutter": 0.028678304239401497,
+    "rightGutter": 0.03117206982543641
+  },
+  "remainingPreparation": [
+    "Transcribe every inner-commentary and Tosafos line boundary.",
+    "Align printed line boundaries with the pinned source, documenting whole-comment reordering and next-page previews.",
+    "Check commentary opening widths, all transition boxes and end-line alignment against the scan.",
+    "Publish as engine-ready only after all three stream maps and source coverage are complete."
+  ]
+}

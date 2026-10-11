@@ -1,0 +1,871 @@
+{
+  "format": "vilna-physical-page-specification",
+  "version": 1,
+  "ref": "Berakhot 26a",
+  "status": "gemara-transcribed-commentary-pending",
+  "engineReady": false,
+  "scan": {
+    "url": "https://images.e-daf.com/DafImg.asp?ID=49&size=2",
+    "sha256": "a4912cee6bcdae65541f0519cae48ba29a23042d28e713ed18d399792d6dca09",
+    "width": 1028,
+    "height": 1609,
+    "contentBox": [
+      133,
+      103,
+      949,
+      1593
+    ]
+  },
+  "coordinateSystem": "Pixels in the cited reference image; boxes are [left,top,right,bottom]. Region boxes are measurements to the nearest few pixels; line ink boxes are threshold-derived and visually counted.",
+  "blocks": [
+    {
+      "id": "previous-perek-gemara",
+      "stream": "gemara",
+      "box": [
+        368,
+        210,
+        699,
+        1119
+      ],
+      "rows": 38
+    },
+    {
+      "id": "previous-perek-hadran",
+      "stream": "heading",
+      "box": [
+        365,
+        1130,
+        704,
+        1165
+      ],
+      "rows": 1
+    },
+    {
+      "id": "perek-4-opening",
+      "stream": "gemara",
+      "box": [
+        368,
+        1173,
+        701,
+        1244
+      ],
+      "rows": 3
+    },
+    {
+      "id": "perek-4-widen-left",
+      "stream": "gemara",
+      "box": [
+        138,
+        1245,
+        703,
+        1340
+      ],
+      "rows": 4
+    },
+    {
+      "id": "perek-4-full-width",
+      "stream": "gemara",
+      "box": [
+        138,
+        1340,
+        947,
+        1577
+      ],
+      "rows": 10
+    },
+    {
+      "id": "gemara-preview",
+      "stream": "gemara",
+      "box": [
+        368,
+        1577,
+        703,
+        1593
+      ],
+      "rows": 1
+    }
+  ],
+  "commentaryColumns": {
+    "inner": [
+      725,
+      103,
+      947,
+      1340
+    ],
+    "tosafot": [
+      133,
+      103,
+      348,
+      1220
+    ]
+  },
+  "notes": [
+    "The upper 38 Gemara lines belong to Mi Shemeso, followed by its Hadran.",
+    "Tefillas Hashachar begins at the large תפלת heading inside the page, not the page header.",
+    "The new perek starts with three narrow lines, then four lines widen into the completed Tosafos space, then ten lines use the full width.",
+    "The final תנו previews the beginning of Berakhot 26b.",
+    "Rashi has its own Hadran and new-perek transition."
+  ],
+  "streams": {
+    "gemara": {
+      "status": "printed-lines-transcribed-source-alignment-pending",
+      "lines": [
+        {
+          "physicalRow": 1,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "אקמטרא",
+          "lastWord": "רבי",
+          "printedText": "אקמטרא ככלי בתוך כלי דמי אמר רבי",
+          "inkBox": [
+            373,
+            222,
+            699,
+            238
+          ]
+        },
+        {
+          "physicalRow": 2,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "יהושע",
+          "lastWord": "מחיצה",
+          "printedText": "יהושע בן לוי ס״ת צריך לעשות לו מחיצה",
+          "inkBox": [
+            373,
+            246,
+            699,
+            262
+          ]
+        },
+        {
+          "physicalRow": 3,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "עשרה",
+          "lastWord": "אשי",
+          "printedText": "עשרה מר זוטרא איקלע לבי רב אשי",
+          "inkBox": [
+            374,
+            270,
+            698,
+            286
+          ]
+        },
+        {
+          "physicalRow": 4,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "חזייה",
+          "lastWord": "דמנח",
+          "printedText": "חזייה לדוכתיה דמר בר רב אשי דמנח",
+          "inkBox": [
+            374,
+            294,
+            699,
+            308
+          ]
+        },
+        {
+          "physicalRow": 5,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "ביה",
+          "lastWord": "עשרה",
+          "printedText": "ביה ספר תורה ועביד ליה מחיצה עשרה",
+          "inkBox": [
+            374,
+            317,
+            698,
+            333
+          ]
+        },
+        {
+          "physicalRow": 6,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "אמר",
+          "lastWord": "אימר",
+          "printedText": "אמר ליה כמאן כרבי יהושע בן לוי אימר",
+          "inkBox": [
+            374,
+            341,
+            699,
+            357
+          ]
+        },
+        {
+          "physicalRow": 7,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "דאמר",
+          "lastWord": "ביתא",
+          "printedText": "דאמר רבי יהושע בן לוי דלית ליה ביתא",
+          "inkBox": [
+            375,
+            365,
+            699,
+            380
+          ]
+        },
+        {
+          "physicalRow": 8,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "אחרינא",
+          "lastWord": "אחרינא",
+          "printedText": "אחרינא מר הא אית ליה ביתא אחרינא",
+          "inkBox": [
+            375,
+            389,
+            699,
+            404
+          ]
+        },
+        {
+          "physicalRow": 9,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "אמר",
+          "lastWord": "מהן",
+          "printedText": "אמר ליה לאו אדעתאי כמה ירחיק מהן",
+          "inkBox": [
+            374,
+            413,
+            699,
+            428
+          ]
+        },
+        {
+          "physicalRow": 10,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "ומן",
+          "lastWord": "אמר",
+          "printedText": "ומן הצואה ארבע אמות אמר רבא אמר",
+          "inkBox": [
+            374,
+            437,
+            699,
+            451
+          ]
+        },
+        {
+          "physicalRow": 11,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "רב",
+          "lastWord": "אלא",
+          "printedText": "רב סחורה אמר רב הונא לא שנו אלא",
+          "inkBox": [
+            375,
+            460,
+            699,
+            474
+          ]
+        },
+        {
+          "physicalRow": 12,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "לאחריו",
+          "lastWord": "וכן",
+          "printedText": "לאחריו אבל לפניו מרחיק מלא עיניו וכן",
+          "inkBox": [
+            376,
+            484,
+            699,
+            498
+          ]
+        },
+        {
+          "physicalRow": 13,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "לתפלה",
+          "lastWord": "אמר",
+          "printedText": "לתפלה איני והא אמר רפרם בר פפא אמר",
+          "inkBox": [
+            375,
+            508,
+            699,
+            522
+          ]
+        },
+        {
+          "physicalRow": 14,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "רב",
+          "lastWord": "הכסא",
+          "printedText": "רב חסדא עומד אדם כנגד בית הכסא",
+          "inkBox": [
+            375,
+            532,
+            699,
+            546
+          ]
+        },
+        {
+          "physicalRow": 15,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "ומתפלל",
+          "lastWord": "הכסא",
+          "printedText": "ומתפלל הכא במאי עסקינן בבית הכסא",
+          "inkBox": [
+            374,
+            556,
+            699,
+            570
+          ]
+        },
+        {
+          "physicalRow": 16,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "שאין",
+          "lastWord": "בר",
+          "printedText": "שאין בו צואה איני והאמר רב יוסף בר",
+          "inkBox": [
+            375,
+            580,
+            699,
+            593
+          ]
+        },
+        {
+          "physicalRow": 17,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "חנינא",
+          "lastWord": "בו",
+          "printedText": "חנינא בית הכסא שאמרו אע״פ שאין בו",
+          "inkBox": [
+            375,
+            603,
+            699,
+            617
+          ]
+        },
+        {
+          "physicalRow": 18,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "צואה",
+          "lastWord": "בו",
+          "printedText": "צואה ובית המרחץ שאמרו אע״פ שאין בו",
+          "inkBox": [
+            376,
+            626,
+            699,
+            640
+          ]
+        },
+        {
+          "physicalRow": 19,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "אדם",
+          "lastWord": "דהא",
+          "printedText": "אדם אלא הכא במאי עסקינן בחדתי דהא",
+          "inkBox": [
+            375,
+            650,
+            699,
+            664
+          ]
+        },
+        {
+          "physicalRow": 20,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "מיבעי",
+          "lastWord": "הכסא",
+          "printedText": "מיבעי ליה לרבינא הזמינו לבית הכסא",
+          "inkBox": [
+            375,
+            674,
+            699,
+            688
+          ]
+        },
+        {
+          "physicalRow": 21,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "מהו",
+          "lastWord": "מיבעי",
+          "printedText": "מהו יש זימון או אין זימון כי קא מיבעי",
+          "inkBox": [
+            375,
+            698,
+            699,
+            713
+          ]
+        },
+        {
+          "physicalRow": 22,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "ליה",
+          "lastWord": "בגויה",
+          "printedText": "ליה לרבינא למיקם עליה לצלויי בגויה",
+          "inkBox": [
+            375,
+            721,
+            699,
+            735
+          ]
+        },
+        {
+          "physicalRow": 23,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "אבל",
+          "lastWord": "כסאי",
+          "printedText": "אבל כנגדו לא אמר רבא הני בתי כסאי",
+          "inkBox": [
+            376,
+            745,
+            699,
+            759
+          ]
+        },
+        {
+          "physicalRow": 24,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "דפרסאי",
+          "lastWord": "כסתומין",
+          "printedText": "דפרסאי אע״ג דאית בהו צואה כסתומין",
+          "inkBox": [
+            377,
+            769,
+            699,
+            782
+          ]
+        },
+        {
+          "physicalRow": 25,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "דמו",
+          "lastWord": "שפלטה",
+          "printedText": "דמו מתני׳ זב שראה קרי ונדה שפלטה",
+          "inkBox": [
+            376,
+            791,
+            699,
+            809
+          ]
+        },
+        {
+          "physicalRow": 26,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "שכבת",
+          "lastWord": "נדה",
+          "printedText": "שכבת זרע והמשמשת שראתה נדה",
+          "inkBox": [
+            375,
+            816,
+            699,
+            830
+          ]
+        },
+        {
+          "physicalRow": 27,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "צריכין",
+          "lastWord": "פוטר",
+          "printedText": "צריכין טבילה ורבי יהודה פוטר",
+          "inkBox": [
+            376,
+            839,
+            699,
+            854
+          ]
+        },
+        {
+          "physicalRow": 28,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "גמ׳",
+          "lastWord": "זיבה",
+          "printedText": "גמ׳ איבעיא להו בעל קרי שראה זיבה",
+          "inkBox": [
+            375,
+            863,
+            699,
+            880
+          ]
+        },
+        {
+          "physicalRow": 29,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "לר׳",
+          "lastWord": "התם",
+          "printedText": "לר׳ יהודה מהו כי פטר רבי יהודה התם",
+          "inkBox": [
+            376,
+            887,
+            699,
+            901
+          ]
+        },
+        {
+          "physicalRow": 30,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "בזב",
+          "lastWord": "טבילה",
+          "printedText": "בזב שראה קרי דמעיקרא לאו בר טבילה",
+          "inkBox": [
+            376,
+            911,
+            699,
+            925
+          ]
+        },
+        {
+          "physicalRow": 31,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "הוא",
+          "lastWord": "דמעיקרא",
+          "printedText": "הוא אבל בעל קרי שראה זיבה דמעיקרא",
+          "inkBox": [
+            377,
+            935,
+            699,
+            948
+          ]
+        },
+        {
+          "physicalRow": 32,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "בר",
+          "lastWord": "שנא",
+          "printedText": "בר טבילה הוא מחייב או דלמא לא שנא",
+          "inkBox": [
+            378,
+            959,
+            699,
+            972
+          ]
+        },
+        {
+          "physicalRow": 33,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "תא",
+          "lastWord": "צריכה",
+          "printedText": "תא שמע והמשמשת שראתה נדה צריכה",
+          "inkBox": [
+            378,
+            982,
+            699,
+            995
+          ]
+        },
+        {
+          "physicalRow": 34,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "טבילה",
+          "lastWord": "משמשת",
+          "printedText": "טבילה ורבי יהודה פוטר והא משמשת",
+          "inkBox": [
+            377,
+            1006,
+            699,
+            1019
+          ]
+        },
+        {
+          "physicalRow": 35,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "וראתה",
+          "lastWord": "דמיא",
+          "printedText": "וראתה נדה בעל קרי שראה זיבה דמיא",
+          "inkBox": [
+            377,
+            1029,
+            699,
+            1042
+          ]
+        },
+        {
+          "physicalRow": 36,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "וקא",
+          "lastWord": "חייא",
+          "printedText": "וקא פטר רבי יהודה ש״מ תני רבי חייא",
+          "inkBox": [
+            377,
+            1053,
+            699,
+            1066
+          ]
+        },
+        {
+          "physicalRow": 37,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "בהדיא",
+          "lastWord": "טבילה",
+          "printedText": "בהדיא בעל קרי שראה זיבה צריך טבילה",
+          "inkBox": [
+            376,
+            1076,
+            699,
+            1090
+          ]
+        },
+        {
+          "physicalRow": 38,
+          "block": "previous-perek-gemara",
+          "role": "text",
+          "firstWord": "ורבי",
+          "lastWord": "פוטר",
+          "printedText": "ורבי יהודה פוטר",
+          "inkBox": [
+            465,
+            1100,
+            616,
+            1113
+          ]
+        },
+        {
+          "physicalRow": 39,
+          "block": "previous-perek-hadran",
+          "role": "heading",
+          "firstWord": "הדרן",
+          "lastWord": "שמתו",
+          "printedText": "הדרן עלך מי שמתו",
+          "inkBox": [
+            434,
+            1139,
+            644,
+            1159
+          ]
+        },
+        {
+          "physicalRow": 40,
+          "block": "perek-4-opening",
+          "role": "text",
+          "firstWord": "תפלת",
+          "lastWord": "אומר",
+          "printedText": "תפלת השחר עד חצות ר׳ יהודה אומר",
+          "inkBox": [
+            378,
+            1178,
+            701,
+            1196
+          ]
+        },
+        {
+          "physicalRow": 41,
+          "block": "perek-4-opening",
+          "role": "text",
+          "firstWord": "עד",
+          "lastWord": "עד",
+          "printedText": "עד ד׳ שעות תפלת המנחה עד",
+          "inkBox": [
+            379,
+            1203,
+            629,
+            1218
+          ]
+        },
+        {
+          "physicalRow": 42,
+          "block": "perek-4-opening",
+          "role": "text",
+          "firstWord": "הערב",
+          "lastWord": "המנחה",
+          "printedText": "הערב רבי יהודה אומר עד פלג המנחה",
+          "inkBox": [
+            380,
+            1228,
+            701,
+            1242
+          ]
+        },
+        {
+          "physicalRow": 43,
+          "block": "perek-4-widen-left",
+          "role": "text",
+          "firstWord": "תפלת",
+          "lastWord": "עד",
+          "printedText": "תפלת הערב אין לה קבע ושל מוספים כל היום ר׳ יהודה אומר עד",
+          "inkBox": [
+            141,
+            1250,
+            703,
+            1267
+          ]
+        },
+        {
+          "physicalRow": 44,
+          "block": "perek-4-widen-left",
+          "role": "text",
+          "firstWord": "ז׳",
+          "lastWord": "גאולה",
+          "printedText": "ז׳ שעות גמ׳ ורמינהו מצותה עם הנץ החמה כדי שיסמוך גאולה",
+          "inkBox": [
+            141,
+            1273,
+            703,
+            1291
+          ]
+        },
+        {
+          "physicalRow": 45,
+          "block": "perek-4-widen-left",
+          "role": "text",
+          "firstWord": "לתפלה",
+          "lastWord": "היו",
+          "printedText": "לתפלה ונמצא מתפלל ביום כי תניא ההיא לותיקין דא״ר יוחנן ותיקין היו",
+          "inkBox": [
+            141,
+            1297,
+            703,
+            1312
+          ]
+        },
+        {
+          "physicalRow": 46,
+          "block": "perek-4-widen-left",
+          "role": "text",
+          "firstWord": "גומרים",
+          "lastWord": "דרב",
+          "printedText": "גומרים אותה עם הנץ החמה כ״ע עד חצות ותו לא והאמר רב מרי בריה דרב",
+          "inkBox": [
+            141,
+            1322,
+            703,
+            1336
+          ]
+        },
+        {
+          "physicalRow": 47,
+          "block": "perek-4-full-width",
+          "role": "text",
+          "firstWord": "הונא",
+          "lastWord": "שחרית",
+          "printedText": "הונא בריה דר׳ ירמיה בר אבא אמר רבי יוחנן טעה ולא התפלל ערבית מתפלל בשחרית שתים שחרית"
+        },
+        {
+          "physicalRow": 48,
+          "block": "perek-4-full-width",
+          "role": "text",
+          "firstWord": "מתפלל",
+          "lastWord": "שכר",
+          "printedText": "מתפלל במנחה שתים כולי יומא מצלי ואזיל עד חצות יהבי ליה שכר תפלה בזמנה מכאן ואילך שכר"
+        },
+        {
+          "physicalRow": 49,
+          "block": "perek-4-full-width",
+          "role": "text",
+          "firstWord": "תפלה",
+          "lastWord": "שיתפלל",
+          "printedText": "תפלה יהבי ליה שכר תפלה בזמנה לא יהבי ליה איבעיא להו טעה ולא התפלל מנחה מהו שיתפלל"
+        },
+        {
+          "physicalRow": 50,
+          "block": "perek-4-full-width",
+          "role": "text",
+          "firstWord": "ערבית",
+          "lastWord": "ערב",
+          "printedText": "ערבית ב׳ את״ל טעה ולא התפלל ערבית מתפלל שחרית ב׳ משום דחד יומא הוא דכתיב ויהי ערב"
+        },
+        {
+          "physicalRow": 51,
+          "block": "perek-4-full-width",
+          "role": "text",
+          "firstWord": "ויהי",
+          "lastWord": "דצלותא",
+          "printedText": "ויהי בקר יום אחד אבל הכא תפלה במקום קרבן היא וכיון דעבר יומו בטל קרבנו או דלמא כיון דצלותא"
+        },
+        {
+          "physicalRow": 52,
+          "block": "perek-4-full-width",
+          "role": "text",
+          "firstWord": "רחמי",
+          "lastWord": "ולא",
+          "printedText": "רחמי היא כל אימת דבעי מצלי ואזיל ת״ש דאמר רב הונא בר יהודה א״ר יצחק א״ר יוחנן טעה ולא"
+        },
+        {
+          "physicalRow": 53,
+          "block": "perek-4-full-width",
+          "role": "text",
+          "firstWord": "התפלל",
+          "lastWord": "לתקון",
+          "printedText": "התפלל מנחה מתפלל ערבית ב׳ ואין בזה משום דעבר יומו בטל קרבנו מיתיבי מעות לא יוכל לתקון"
+        },
+        {
+          "physicalRow": 54,
+          "block": "perek-4-full-width",
+          "role": "text",
+          "firstWord": "וחסרון",
+          "lastWord": "של",
+          "printedText": "וחסרון לא יוכל להמנות מעות לא יוכל לתקון זה שבטל ק״ש של ערבית וק״ש של שחרית או תפלה של"
+        },
+        {
+          "physicalRow": 55,
+          "block": "perek-4-full-width",
+          "role": "text",
+          "firstWord": "ערבית",
+          "lastWord": "א״ר",
+          "printedText": "ערבית או תפלה של שחרית וחסרון לא יוכל להמנות זה שנמנו חביריו לדבר מצוה ולא נמנה עמהם א״ר"
+        },
+        {
+          "physicalRow": 56,
+          "block": "perek-4-full-width",
+          "role": "text",
+          "firstWord": "יצחק",
+          "lastWord": "ש״מ",
+          "printedText": "יצחק א״ר יוחנן הכא במאי עסקינן שבטל במזיד אמר רב אשי דיקא נמי דקתני בטל ולא קתני טעה ש״מ"
+        },
+        {
+          "physicalRow": 57,
+          "block": "gemara-preview",
+          "role": "next-amud-preview",
+          "firstWord": "תנו",
+          "lastWord": "תנו",
+          "printedText": "תנו"
+        }
+      ]
+    },
+    "inner": {
+      "status": "line-boundaries-pending"
+    },
+    "tosafot": {
+      "status": "line-boundaries-pending"
+    }
+  },
+  "gutterMeasurements": {
+    "leftOfNarrowGemaraPixels": 20,
+    "rightOfNarrowGemaraPixels": 26
+  },
+  "normalizedWidths": {
+    "gemara": 0.4056372549019608,
+    "leftCommentary": 0.26348039215686275,
+    "rightCommentary": 0.27205882352941174,
+    "leftGutter": 0.024509803921568627,
+    "rightGutter": 0.031862745098039214
+  },
+  "remainingPreparation": [
+    "Transcribe every inner-commentary and Tosafos line boundary.",
+    "Align printed line boundaries with the pinned source, documenting whole-comment reordering and next-page previews.",
+    "Check commentary opening widths, all transition boxes and end-line alignment against the scan.",
+    "Publish as engine-ready only after all three stream maps and source coverage are complete."
+  ]
+}

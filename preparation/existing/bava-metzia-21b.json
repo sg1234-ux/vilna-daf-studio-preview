@@ -1,0 +1,1164 @@
+{
+  "ref": "Bava Metzia 21b",
+  "source": "https://images.e-daf.com/DafImg.asp?ID=3067&size=2",
+  "status": "Scan-derived Gemara boundaries; rendered layout requires validation. Sefaria expansions and variants are retained.",
+  "settings": {
+    "targetLineCounts": {
+      "gemara": 54,
+      "tosafot": 70,
+      "inner": 63
+    },
+    "expansionLine": 54,
+    "gemaraExpansionLine": 54,
+    "expansionStream": "gemara",
+    "expansionIntoStream": "inner",
+    "innerSide": "left",
+    "stripGemaraDashes": true,
+    "enforceStreamContinuity": true,
+    "lineAnchors": [
+      {
+        "stream": "gemara",
+        "line": 1,
+        "startText": "יֵאוּשׁ שֶׁלֹּא",
+        "endText": "הָוֵי יֵאוּשׁ."
+      },
+      {
+        "stream": "gemara",
+        "line": 2,
+        "startText": "וְרָבָא אָמַר:",
+        "endText": "בּוֹ סִימָן"
+      },
+      {
+        "stream": "gemara",
+        "line": 3,
+        "startText": "כּוּלֵּי עָלְמָא",
+        "endText": "יֵאוּשׁ. וְאַף"
+      },
+      {
+        "stream": "gemara",
+        "line": 4,
+        "startText": "עַל גַּב",
+        "endText": "לָא הָוֵי"
+      },
+      {
+        "stream": "gemara",
+        "line": 5,
+        "startText": "יֵאוּשׁ, דְּכִי",
+        "endText": "הוּא דַּאֲתָא"
+      },
+      {
+        "stream": "gemara",
+        "line": 6,
+        "startText": "לִידֵיהּ, דִּלְכִי",
+        "endText": "לָא מִיָּאַשׁ,"
+      },
+      {
+        "stream": "gemara",
+        "line": 7,
+        "startText": "מֵימָר אָמַר:",
+        "endText": "בְּגַוֵּיהּ, יָהֵבְנָא"
+      },
+      {
+        "stream": "gemara",
+        "line": 8,
+        "startText": "סִימָנָא וְשָׁקֵילְנָא",
+        "endText": "יָם וּבִשְׁלוּלִיתוֹ"
+      },
+      {
+        "stream": "gemara",
+        "line": 9,
+        "startText": "שֶׁל נָהָר,",
+        "endText": "רַחֲמָנָא שַׁרְיֵיהּ,"
+      },
+      {
+        "stream": "gemara",
+        "line": 10,
+        "startText": "כִּדְבָעֵינַן לְמֵימַר",
+        "endText": "בְּדָבָר שֶׁאֵין"
+      },
+      {
+        "stream": "gemara",
+        "line": 11,
+        "startText": "בּוֹ סִימָן.",
+        "endText": "דְּהָא לָא"
+      },
+      {
+        "stream": "gemara",
+        "line": 12,
+        "startText": "יָדַע דִּנְפַל",
+        "endText": "יֵאוּשׁ, דִּלְכִי"
+      },
+      {
+        "stream": "gemara",
+        "line": 13,
+        "startText": "יָדַע דִּנְפַל",
+        "endText": "אָמַר: סִימָנָא"
+      },
+      {
+        "stream": "gemara",
+        "line": 14,
+        "startText": "לֵית לִי",
+        "endText": "דְּמִיָּאַשׁ. (סִימַן"
+      },
+      {
+        "stream": "gemara",
+        "line": 15,
+        "startText": "פמג״ש ממקגט״י",
+        "endText": "שְׁמַע: פֵּירוֹת"
+      },
+      {
+        "stream": "gemara",
+        "line": 16,
+        "startText": "מְפוּזָּרִין, הָא",
+        "endText": "הָא אָמַר"
+      },
+      {
+        "stream": "gemara",
+        "line": 17,
+        "startText": "רַב עוּקְבָא",
+        "endText": "[דְּבֵי דָרֵי]"
+      },
+      {
+        "stream": "gemara",
+        "line": 18,
+        "startText": "עָסְקִינַן, דַּאֲבֵידָה",
+        "endText": "שְׁמַע: מָעוֹת"
+      },
+      {
+        "stream": "gemara",
+        "line": 19,
+        "startText": "מְפוּזָּרוֹת הֲרֵי",
+        "endText": "לָא יָדַע"
+      },
+      {
+        "stream": "gemara",
+        "line": 20,
+        "startText": "דִּנְפַל מִינֵּיהּ!",
+        "endText": "יִצְחָק דְּאָמַר:"
+      },
+      {
+        "stream": "gemara",
+        "line": 21,
+        "startText": "אָדָם עָשׂוּי",
+        "endText": "בְּכׇל שָׁעָה"
+      },
+      {
+        "stream": "gemara",
+        "line": 22,
+        "startText": "וְשָׁעָה. הָכָא",
+        "endText": "לְמַשְׁמֵשׁ בְּכִיסוֹ"
+      },
+      {
+        "stream": "gemara",
+        "line": 23,
+        "startText": "בְּכׇל שָׁעָה",
+        "endText": "דְבֵילָה וְכִכָּרוֹת"
+      },
+      {
+        "stream": "gemara",
+        "line": 24,
+        "startText": "שֶׁל נַחְתּוֹם",
+        "endText": "לָא יָדַע"
+      },
+      {
+        "stream": "gemara",
+        "line": 25,
+        "startText": "דִּנְפַל מִינֵּיהּ?",
+        "endText": "דְּיַקִּירֵי מִידָּע"
+      },
+      {
+        "stream": "gemara",
+        "line": 26,
+        "startText": "יָדַע בְּהוּ.",
+        "endText": "הֲרֵי אֵלּוּ"
+      },
+      {
+        "stream": "gemara",
+        "line": 27,
+        "startText": "שֶׁלּוֹ. וְאַמַּאי?",
+        "endText": "מִינֵּיהּ! הָתָם"
+      },
+      {
+        "stream": "gemara",
+        "line": 28,
+        "startText": "נָמֵי, אַגַּב",
+        "endText": "מְמַשְׁמֵשׁ בְּהוּ,"
+      },
+      {
+        "stream": "gemara",
+        "line": 29,
+        "startText": "וְכִדְרַבִּי יִצְחָק.",
+        "endText": "מָעוֹת בְּבָתֵּי"
+      },
+      {
+        "stream": "gemara",
+        "line": 30,
+        "startText": "כְנֵסִיּוֹת וּבְבָתֵּי",
+        "endText": "מָקוֹם שֶׁהָרַבִּים"
+      },
+      {
+        "stream": "gemara",
+        "line": 31,
+        "startText": "מְצוּיִין שָׁם",
+        "endText": "מִפְּנֵי שֶׁהַבְּעָלִים"
+      },
+      {
+        "stream": "gemara",
+        "line": 32,
+        "startText": "מִתְיָאֲשִׁין מֵהֶן.",
+        "endText": "מִינֵּיהּ? אָמַר"
+      },
+      {
+        "stream": "gemara",
+        "line": 33,
+        "startText": "רַבִּי יִצְחָק:",
+        "endText": "בְּכִיסוֹ בְּכׇל"
+      },
+      {
+        "stream": "gemara",
+        "line": 34,
+        "startText": "שָׁעָה. תָּא",
+        "endText": "אָדָם מוּתָּרִים"
+      },
+      {
+        "stream": "gemara",
+        "line": 35,
+        "startText": "בַּלֶּקֶט? מִשֶּׁיֵּלְכוּ",
+        "endText": "וְאָמְרִינַן: מַאי"
+      },
+      {
+        "stream": "gemara",
+        "line": 36,
+        "startText": "נָמוֹשׁוֹת? וְאָמַר",
+        "endText": "דְּאָזְלִי אַתִּיגְרָא."
+      },
+      {
+        "stream": "gemara",
+        "line": 37,
+        "startText": "רֵישׁ לָקִישׁ",
+        "endText": "לָקוֹטֵי. וְאַמַּאי?"
+      },
+      {
+        "stream": "gemara",
+        "line": 38,
+        "startText": "נְהִי דַּעֲנִיִּים",
+        "endText": "אִיכָּא עֲנִיִּים"
+      },
+      {
+        "stream": "gemara",
+        "line": 39,
+        "startText": "בְּדוּכְתָּא אַחְרִיתָא",
+        "endText": "אָמְרִי: כֵּיוָן"
+      },
+      {
+        "stream": "gemara",
+        "line": 40,
+        "startText": "דְּאִיכָּא עֲנִיִּים",
+        "endText": "מֵעִיקָּרָא אִיָּאוֹשֵׁי"
+      },
+      {
+        "stream": "gemara",
+        "line": 41,
+        "startText": "מִיָּאַשׁ, וְאָמְרִי:",
+        "endText": "תָּא שְׁמַע:"
+      },
+      {
+        "stream": "gemara",
+        "line": 42,
+        "startText": "קְצִיעוֹת בַּדֶּרֶךְ,",
+        "endText": "שְׂדֵה קְצִיעוֹת,"
+      },
+      {
+        "stream": "gemara",
+        "line": 43,
+        "startText": "וְכֵן תְּאֵנָה",
+        "endText": "וּמָצָא תְּאֵנִים"
+      },
+      {
+        "stream": "gemara",
+        "line": 44,
+        "startText": "תַּחְתֶּיהָ מוּתָּרוֹת",
+        "endText": "וּפְטוּרוֹת מִן"
+      },
+      {
+        "stream": "gemara",
+        "line": 45,
+        "startText": "הַמַּעֲשֵׂר. בְּזֵיתִים",
+        "endText": "אָסוּר. בִּשְׁלָמָא"
+      },
+      {
+        "stream": "gemara",
+        "line": 46,
+        "startText": "רֵישָׁא לְאַבָּיֵי",
+        "endText": "אַגַּב דַּחֲשִׁיבִי"
+      },
+      {
+        "stream": "gemara",
+        "line": 47,
+        "startText": "מְמַשְׁמֵשׁ בְּהוּ.",
+        "endText": "יְדִיעַ דְּנָתְרָא."
+      },
+      {
+        "stream": "gemara",
+        "line": 48,
+        "startText": "אֶלָּא סֵיפָא",
+        "endText": "דְּקָתָנֵי ״בְּזֵיתִים"
+      },
+      {
+        "stream": "gemara",
+        "line": 49,
+        "startText": "וּבְחָרוּבִים אָסוּר״,",
+        "endText": "שָׁאנֵי זַיִת,"
+      },
+      {
+        "stream": "gemara",
+        "line": 50,
+        "startText": "הוֹאִיל וְחָזוּתוֹ",
+        "endText": "גַּב דְּנָתְרִין"
+      },
+      {
+        "stream": "gemara",
+        "line": 51,
+        "startText": "זֵיתֵי מִידָּע",
+        "endText": "דְּאִינִישׁ אִינִישׁ"
+      },
+      {
+        "stream": "gemara",
+        "line": 52,
+        "startText": "הוּא. אִי",
+        "endText": "אָמַר רַב"
+      },
+      {
+        "stream": "gemara",
+        "line": 53,
+        "startText": "פָּפָּא: תְּאֵנָה",
+        "endText": "נִמְאֶסֶת. תָּא"
+      },
+      {
+        "stream": "gemara",
+        "line": 54,
+        "startText": "שְׁמַע: הַגַּנָּב",
+        "endText": "גזלן שנטל מזה ונתן לזה"
+      },
+      {
+        "stream": "tosafot",
+        "line": 1,
+        "startText": "דלכי נפל",
+        "endText": "מיאש אקראי בעלמא"
+      },
+      {
+        "stream": "tosafot",
+        "line": 2,
+        "startText": "הוא ומתחילה",
+        "endText": "ת\"ש המוצא מעות"
+      },
+      {
+        "stream": "tosafot",
+        "line": 3,
+        "startText": "כו' -",
+        "endText": "מפוזרות אמאי פריך"
+      },
+      {
+        "stream": "tosafot",
+        "line": 4,
+        "startText": "תו מהך",
+        "endText": "למלתיה אמתני' וי\"ל"
+      },
+      {
+        "stream": "tosafot",
+        "line": 5,
+        "startText": "דברייתא אלימא",
+        "endText": "ליה לאקשויי דמשמע"
+      },
+      {
+        "stream": "tosafot",
+        "line": 6,
+        "startText": "דבכל ענין",
+        "endText": "שלו אע\"ג דאיכא"
+      },
+      {
+        "stream": "tosafot",
+        "line": 7,
+        "startText": "סימן מדמוקי",
+        "endText": "טעמא שהרבים מצויין"
+      },
+      {
+        "stream": "tosafot",
+        "line": 8,
+        "startText": "שם ומשמע",
+        "endText": "אע\"ג דכשזה הגביה"
+      },
+      {
+        "stream": "tosafot",
+        "line": 9,
+        "startText": "עדיין היה",
+        "endText": "אבידה בבית המדרש"
+      },
+      {
+        "stream": "tosafot",
+        "line": 10,
+        "startText": "ולא ידע",
+        "endText": "ידע שנפל מיניה:"
+      },
+      {
+        "stream": "tosafot",
+        "line": 11,
+        "startText": "ופטורות ממעשר",
+        "endText": "- במס' פאה"
+      },
+      {
+        "stream": "tosafot",
+        "line": 12,
+        "startText": "(פ\"א מ\"ו)",
+        "endText": "מ\"ו) מוכח דוקא"
+      },
+      {
+        "stream": "tosafot",
+        "line": 13,
+        "startText": "בהפקיר קודם",
+        "endText": "גמר מלאכה פטור"
+      },
+      {
+        "stream": "tosafot",
+        "line": 14,
+        "startText": "מן המעשר",
+        "endText": "אם הפקיר לאחר"
+      },
+      {
+        "stream": "tosafot",
+        "line": 15,
+        "startText": "גמר מלאכה",
+        "endText": "שנתחייב כבר במעשר"
+      },
+      {
+        "stream": "tosafot",
+        "line": 16,
+        "startText": "אין בכך",
+        "endText": "מיירי קודם גמר"
+      },
+      {
+        "stream": "tosafot",
+        "line": 17,
+        "startText": "מלאכה שלא",
+        "endText": "נתייבשו עדיין כדמוכח"
+      },
+      {
+        "stream": "tosafot",
+        "line": 18,
+        "startText": "בביצה פרק",
+        "endText": "(דף לד:) דתאנים"
+      },
+      {
+        "stream": "tosafot",
+        "line": 19,
+        "startText": "העומדין לשוטחן",
+        "endText": "בשדה ולעשות מהן"
+      },
+      {
+        "stream": "tosafot",
+        "line": 20,
+        "startText": "קציעות לא",
+        "endText": "נגמר מלאכתן למעשר"
+      },
+      {
+        "stream": "tosafot",
+        "line": 21,
+        "startText": "עד שיתייבשו",
+        "endText": "זכה בהן המוצא"
+      },
+      {
+        "stream": "tosafot",
+        "line": 22,
+        "startText": "קודם שיתייבשו",
+        "endText": "פטורות מן המעשר"
+      },
+      {
+        "stream": "tosafot",
+        "line": 23,
+        "startText": "כדאמרינן בב\"ק",
+        "endText": "(דף כח.) המפקיר"
+      },
+      {
+        "stream": "tosafot",
+        "line": 24,
+        "startText": "כרמו והשכים",
+        "endText": "בבקר ובצרו פטור"
+      },
+      {
+        "stream": "tosafot",
+        "line": 25,
+        "startText": "מן המעשר",
+        "endText": "אינו כן שאם"
+      },
+      {
+        "stream": "tosafot",
+        "line": 26,
+        "startText": "הקדיש קודם",
+        "endText": "גמר מלאכה ונפדה"
+      },
+      {
+        "stream": "tosafot",
+        "line": 27,
+        "startText": "קודם גמר",
+        "endText": "מלאכה חייב במעשר"
+      },
+      {
+        "stream": "tosafot",
+        "line": 28,
+        "startText": "כדמוכח קצת",
+        "endText": "בפרק האומר (סב:):"
+      },
+      {
+        "stream": "tosafot",
+        "line": 29,
+        "startText": "תאנה נמי",
+        "endText": "מידע ידיע דנתרא"
+      },
+      {
+        "stream": "tosafot",
+        "line": 30,
+        "startText": "- פירוש",
+        "endText": "פירוש בשלמא לאביי"
+      },
+      {
+        "stream": "tosafot",
+        "line": 31,
+        "startText": "תאנה מותרת",
+        "endText": "כיון דרגילות היא"
+      },
+      {
+        "stream": "tosafot",
+        "line": 32,
+        "startText": "דנתרא מעיקרא",
+        "endText": "מתיאש לפי שסבור"
+      },
+      {
+        "stream": "tosafot",
+        "line": 33,
+        "startText": "שהמוצא יקחנה",
+        "endText": "הוא לא ידע"
+      },
+      {
+        "stream": "tosafot",
+        "line": 34,
+        "startText": "שנפלה מן",
+        "endText": "אלא סבור הוא"
+      },
+      {
+        "stream": "tosafot",
+        "line": 35,
+        "startText": "מעוברי דרכים",
+        "endText": "נפלה ובזיתים ובחרובין"
+      },
+      {
+        "stream": "tosafot",
+        "line": 36,
+        "startText": "אסור דלא",
+        "endText": "דנתרי אע\"ג דאם"
+      },
+      {
+        "stream": "tosafot",
+        "line": 37,
+        "startText": "היה יודע",
+        "endText": "היה מתיאש לפי"
+      },
+      {
+        "stream": "tosafot",
+        "line": 38,
+        "startText": "שעוברי דרכים",
+        "endText": "כי יתלו דנפל"
+      },
+      {
+        "stream": "tosafot",
+        "line": 39,
+        "startText": "מעוברי דרכים",
+        "endText": "דלא ידע סבור"
+      },
+      {
+        "stream": "tosafot",
+        "line": 40,
+        "startText": "שלא נפלו",
+        "endText": "דהוה ליה יאוש"
+      },
+      {
+        "stream": "tosafot",
+        "line": 41,
+        "startText": "שלא מדעת",
+        "endText": "לרבא דהוי יאוש"
+      },
+      {
+        "stream": "tosafot",
+        "line": 42,
+        "startText": "אמאי אסור",
+        "endText": "דין הוא לתלות"
+      },
+      {
+        "stream": "tosafot",
+        "line": 43,
+        "startText": "בעוברי דרכים",
+        "endText": "ולא באילן שאצלו"
+      },
+      {
+        "stream": "tosafot",
+        "line": 44,
+        "startText": "אמאי אסור",
+        "endText": "בזיתים ובחרובין וי\"ל"
+      },
+      {
+        "stream": "tosafot",
+        "line": 45,
+        "startText": "דבדין ודאי",
+        "endText": "לתלות בעוברי דרכים"
+      },
+      {
+        "stream": "tosafot",
+        "line": 46,
+        "startText": "אלא באילן",
+        "endText": "אלא שהבעלים מתיאשים"
+      },
+      {
+        "stream": "tosafot",
+        "line": 47,
+        "startText": "לפי שסבורין",
+        "endText": "שעוברי דרכים דלא"
+      },
+      {
+        "stream": "tosafot",
+        "line": 48,
+        "startText": "מעלי יורו",
+        "endText": "היתירא בפירות שמוצאים"
+      },
+      {
+        "stream": "tosafot",
+        "line": 49,
+        "startText": "ויתלום בעוברי",
+        "endText": "וא\"ת אם כן"
+      },
+      {
+        "stream": "tosafot",
+        "line": 50,
+        "startText": "מאי פריך",
+        "endText": "נימא דזיתים וחרובין"
+      },
+      {
+        "stream": "tosafot",
+        "line": 51,
+        "startText": "אסירי משום",
+        "endText": "דאף לאחר שידעו"
+      },
+      {
+        "stream": "tosafot",
+        "line": 52,
+        "startText": "הבעלים שנפלו",
+        "endText": "לא נתיאשו לפי"
+      },
+      {
+        "stream": "tosafot",
+        "line": 53,
+        "startText": "שיודעין שהמוצא",
+        "endText": "לא יקחם שיתלה"
+      },
+      {
+        "stream": "tosafot",
+        "line": 54,
+        "startText": "שנפלו מן",
+        "endText": "כאשר הוא האמת"
+      },
+      {
+        "stream": "tosafot",
+        "line": 55,
+        "startText": "שאין לתלות",
+        "endText": "בעוברי דרכים וי\"ל"
+      },
+      {
+        "stream": "tosafot",
+        "line": 56,
+        "startText": "דאם אינן",
+        "endText": "מתיאשים בתאנה אמאי"
+      },
+      {
+        "stream": "tosafot",
+        "line": 57,
+        "startText": "מותרים מיהו",
+        "endText": "אית ספרים דגרסינן"
+      },
+      {
+        "stream": "tosafot",
+        "line": 58,
+        "startText": "שאני זית",
+        "endText": "וזיתו מוכיח עליו"
+      },
+      {
+        "stream": "tosafot",
+        "line": 59,
+        "startText": "דבזה מתורץ",
+        "endText": "שהקשינו כלומר לפי"
+      },
+      {
+        "stream": "tosafot",
+        "line": 60,
+        "startText": "שהם תחת",
+        "endText": "הזית יחשבו הבעלים"
+      },
+      {
+        "stream": "tosafot",
+        "line": 61,
+        "startText": "שהמוצא לא",
+        "endText": "יקחם לתלות בעוברי"
+      },
+      {
+        "stream": "tosafot",
+        "line": 62,
+        "startText": "דרכים אבל",
+        "endText": "תאנה עם נפילתה"
+      },
+      {
+        "stream": "tosafot",
+        "line": 63,
+        "startText": "נמאסת פירוש",
+        "endText": "פירוש מתלכלכת ונמאסת"
+      },
+      {
+        "stream": "tosafot",
+        "line": 64,
+        "startText": "בעיניו ומפקירה",
+        "endText": "אבל ברוב ספרים"
+      },
+      {
+        "stream": "tosafot",
+        "line": 65,
+        "startText": "גרסינן הואיל",
+        "endText": "וחזותו מוכיח עליו"
+      },
+      {
+        "stream": "tosafot",
+        "line": 66,
+        "startText": "ואע\"ג דמנתרא",
+        "endText": "מידע ידעי דוכתא"
+      },
+      {
+        "stream": "tosafot",
+        "line": 67,
+        "startText": "דאיניש איניש",
+        "endText": "זיתים שנפלו דומין"
+      },
+      {
+        "stream": "tosafot",
+        "line": 68,
+        "startText": "לזיתים שעומדין",
+        "endText": "באילן ולפיכך אף"
+      },
+      {
+        "stream": "tosafot",
+        "line": 69,
+        "startText": "כשידעו הבעלים",
+        "endText": "נמסת בלא אל\"ף"
+      },
+      {
+        "stream": "tosafot",
+        "line": 70,
+        "startText": "ואין דומין",
+        "endText": "דומה לתאנה שבאילן:"
+      },
+      {
+        "stream": "inner",
+        "line": 1,
+        "startText": "יאוש שלא",
+        "endText": "שנפל ממנו וכשמצאו"
+      },
+      {
+        "stream": "inner",
+        "line": 2,
+        "startText": "עדיין לא",
+        "endText": "יאוש לקמיה מפרש"
+      },
+      {
+        "stream": "inner",
+        "line": 3,
+        "startText": "פלוגתייהו: דמיאש",
+        "endText": "וכללא דיאוש כגון"
+      },
+      {
+        "stream": "inner",
+        "line": 4,
+        "startText": "דאמר ווי",
+        "endText": "מהן: באיסורא אתא"
+      },
+      {
+        "stream": "inner",
+        "line": 5,
+        "startText": "לידיה דדבר",
+        "endText": "שאינו עשוי להתיאש"
+      },
+      {
+        "stream": "inner",
+        "line": 6,
+        "startText": "הוא: זוטו",
+        "endText": "ים מקומות בשפת"
+      },
+      {
+        "stream": "inner",
+        "line": 7,
+        "startText": "הים שדרך",
+        "endText": "לחזור לאחוריו י'"
+      },
+      {
+        "stream": "inner",
+        "line": 8,
+        "startText": "פרסאות או",
+        "endText": "חמשה עשר פרסאות"
+      },
+      {
+        "stream": "inner",
+        "line": 9,
+        "startText": "פעמיים ביום",
+        "endText": "מה שמוצא שם"
+      },
+      {
+        "stream": "inner",
+        "line": 10,
+        "startText": "והולך זוטו",
+        "endText": "גודל ושירוע בלשון"
+      },
+      {
+        "stream": "inner",
+        "line": 11,
+        "startText": "יווני כמו",
+        "endText": "שכתבו הזקנים לתלמי"
+      },
+      {
+        "stream": "inner",
+        "line": 12,
+        "startText": "המלך ואל",
+        "endText": "ואל זאטוטי (מגילה"
+      },
+      {
+        "stream": "inner",
+        "line": 13,
+        "startText": "דף ט.):",
+        "endText": "של נהר כשהוא"
+      },
+      {
+        "stream": "inner",
+        "line": 14,
+        "startText": "גדל ויוצא",
+        "endText": "לגדותיו ושולל שלל"
+      },
+      {
+        "stream": "inner",
+        "line": 15,
+        "startText": "ושוטף הנמצא:",
+        "endText": "רחמנא שרייה ואפי'"
+      },
+      {
+        "stream": "inner",
+        "line": 16,
+        "startText": "באת ליד",
+        "endText": "לפני יאוש: לקמן"
+      },
+      {
+        "stream": "inner",
+        "line": 17,
+        "startText": "בשמעתין מנין",
+        "endText": "מנין לאבידה ששטפה"
+      },
+      {
+        "stream": "inner",
+        "line": 18,
+        "startText": "נהר כו':",
+        "endText": "הוי יאוש שהרי"
+      },
+      {
+        "stream": "inner",
+        "line": 19,
+        "startText": "נפל וכשיודע",
+        "endText": "אין דעתו עליו:"
+      },
+      {
+        "stream": "inner",
+        "line": 20,
+        "startText": "דאבידה מדעת",
+        "endText": "היא שלא נפלו"
+      },
+      {
+        "stream": "inner",
+        "line": 21,
+        "startText": "ממנו ומדעת",
+        "endText": "הניחם הפקר: עשוי"
+      },
+      {
+        "stream": "inner",
+        "line": 22,
+        "startText": "למשמש וקודם",
+        "endText": "שמצאו זה נודע"
+      },
+      {
+        "stream": "inner",
+        "line": 23,
+        "startText": "לבעלים שנפלו",
+        "endText": "שנפלו ונואשו: דיקירי"
+      },
+      {
+        "stream": "inner",
+        "line": 24,
+        "startText": "כבד משא:",
+        "endText": "סבי דאזלי אתיגרא"
+      },
+      {
+        "stream": "inner",
+        "line": 25,
+        "startText": "זקנים עניים",
+        "endText": "הולכים על משענתם"
+      },
+      {
+        "stream": "inner",
+        "line": 26,
+        "startText": "בנחת ורואין",
+        "endText": "כל שבולת ושבולת"
+      },
+      {
+        "stream": "inner",
+        "line": 27,
+        "startText": "ולשון נמושות",
+        "endText": "לא ימושו (ישעיהו"
+      },
+      {
+        "stream": "inner",
+        "line": 28,
+        "startText": "נט) שממשמשין",
+        "endText": "והולכים: לקוטי בתר"
+      },
+      {
+        "stream": "inner",
+        "line": 29,
+        "startText": "לקוטי לשון",
+        "endText": "כמו לא ימיש"
+      },
+      {
+        "stream": "inner",
+        "line": 30,
+        "startText": "(שמות יג)",
+        "endText": "שנוטלין ומשין הכל"
+      },
+      {
+        "stream": "inner",
+        "line": 31,
+        "startText": "מלפניהם: ואמאי",
+        "endText": "אי יאוש שלא"
+      },
+      {
+        "stream": "inner",
+        "line": 32,
+        "startText": "מדעת לאו",
+        "endText": "הוא: נהי דלגבי"
+      },
+      {
+        "stream": "inner",
+        "line": 33,
+        "startText": "עניים דהכא",
+        "endText": "יאוש מדעת שראו"
+      },
+      {
+        "stream": "inner",
+        "line": 34,
+        "startText": "שהלכו בה",
+        "endText": "הנמושות ונתיאשו אלא"
+      },
+      {
+        "stream": "inner",
+        "line": 35,
+        "startText": "עניים דעיר",
+        "endText": "עדיין לא ידעי"
+      },
+      {
+        "stream": "inner",
+        "line": 36,
+        "startText": "והיאך מותרין",
+        "endText": "אלא משום כיון"
+      },
+      {
+        "stream": "inner",
+        "line": 37,
+        "startText": "דלכי ידעי",
+        "endText": "הוי יאוש משעה"
+      },
+      {
+        "stream": "inner",
+        "line": 38,
+        "startText": "שהלכו בו",
+        "endText": "באו ליד זה:"
+      },
+      {
+        "stream": "inner",
+        "line": 39,
+        "startText": "קציעות תאנים",
+        "endText": "תאנים שקוצצין אותם"
+      },
+      {
+        "stream": "inner",
+        "line": 40,
+        "startText": "באיזמל ומוהל",
+        "endText": "זב ושוטחן בשדה"
+      },
+      {
+        "stream": "inner",
+        "line": 41,
+        "startText": "ליבש: ואפי'",
+        "endText": "שדה קציעות שדה"
+      },
+      {
+        "stream": "inner",
+        "line": 42,
+        "startText": "ששוטחים בה",
+        "endText": "קציעות דידע דמהנהו"
+      },
+      {
+        "stream": "inner",
+        "line": 43,
+        "startText": "אתו: מותרות",
+        "endText": "משום גזל אע\"ג"
+      },
+      {
+        "stream": "inner",
+        "line": 44,
+        "startText": "דכי נפל",
+        "endText": "דלכי ידע מיאש"
+      },
+      {
+        "stream": "inner",
+        "line": 45,
+        "startText": "מהשתא הוי",
+        "endText": "יאוש כרבא: ופטורות"
+      },
+      {
+        "stream": "inner",
+        "line": 46,
+        "startText": "מן המעשר",
+        "endText": "כדין הפקר דהפקר"
+      },
+      {
+        "stream": "inner",
+        "line": 47,
+        "startText": "פטור מן",
+        "endText": "המעשר: בזיתים ובחרובים"
+      },
+      {
+        "stream": "inner",
+        "line": 48,
+        "startText": "אסור כאביי:",
+        "endText": "בשלמא רישא לאביי"
+      },
+      {
+        "stream": "inner",
+        "line": 49,
+        "startText": "מצי לתרוצי",
+        "endText": "דמעיקרא ידע ואיאש"
+      },
+      {
+        "stream": "inner",
+        "line": 50,
+        "startText": "כדמפרש ואזיל:",
+        "endText": "ואזיל: דקתני בזיתים"
+      },
+      {
+        "stream": "inner",
+        "line": 51,
+        "startText": "ובחרובין אסור",
+        "endText": "וסלקא דעתך משום"
+      },
+      {
+        "stream": "inner",
+        "line": 52,
+        "startText": "דלא עבידי",
+        "endText": "וליכא למימר ידע"
+      },
+      {
+        "stream": "inner",
+        "line": 53,
+        "startText": "דאיאש ואע\"ג",
+        "endText": "ידע מיאש לא"
+      },
+      {
+        "stream": "inner",
+        "line": 54,
+        "startText": "הוי יאוש",
+        "endText": "מהשתא: חזותו מוכיח"
+      },
+      {
+        "stream": "inner",
+        "line": 55,
+        "startText": "עליו מראיתו",
+        "endText": "של מי הוא"
+      },
+      {
+        "stream": "inner",
+        "line": 56,
+        "startText": "הלכך מריה",
+        "endText": "דנפיל לא מיאש"
+      },
+      {
+        "stream": "inner",
+        "line": 57,
+        "startText": "דמימר אמר",
+        "endText": "עלמא ידעי דדידי"
+      },
+      {
+        "stream": "inner",
+        "line": 58,
+        "startText": "נינהו ולא",
+        "endText": "ולא שקלי להו:"
+      },
+      {
+        "stream": "inner",
+        "line": 59,
+        "startText": "עם נפילתה",
+        "endText": "נמאסת הלכך כיון"
+      },
+      {
+        "stream": "inner",
+        "line": 60,
+        "startText": "דידיע דנתרא",
+        "endText": "מעיקרא מיאש משום"
+      },
+      {
+        "stream": "inner",
+        "line": 61,
+        "startText": "מאיסותא דמכי",
+        "endText": "נפלה לא חשיבא"
+      },
+      {
+        "stream": "inner",
+        "line": 62,
+        "startText": "עליה ומפקר",
+        "endText": "לא ידיע לא"
+      },
+      {
+        "stream": "inner",
+        "line": 63,
+        "startText": "גרסינן ופירוש",
+        "endText": "היה משובש בספרים:"
+      }
+    ],
+    "openingLines": 4,
+    "continuousCommentaryStreams": [
+      "tosafot"
+    ],
+    "finalGemaraGutterLines": 2,
+    "pageHeight": 1090
+  },
+  "textSource": "https://www.sefaria.org/Bava_Metzia.21b",
+  "textVersion": "William Davidson Edition - Vocalized Aramaic",
+  "textLicense": "CC-BY-NC",
+  "commentaryEvidence": {
+    "rashi": {
+      "side": "left",
+      "opening": "יאוש שלא מדעת",
+      "lineMapEvidence": "63 printed lines: 5 wide opening and 58 narrow; manually checked against the Vilna scan. Catchword ירדן is excluded; Sefaria expansions and spelling variants are retained."
+    },
+    "tosafot": {
+      "side": "right",
+      "opening": "דלכי נפל מיניה לא מיאש",
+      "lineMapEvidence": "70 printed lines: 5 wide opening, 63 narrow, 2 full-width ending; manually checked against the e-daf Vilna scan. Sefaria spelling variants are retained."
+    }
+  }
+}
