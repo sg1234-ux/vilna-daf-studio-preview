@@ -43,17 +43,36 @@ const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json
       // Apply immediately, while the previous composition's animation frame is pending.
       await updateAgentSettings(settings);await nextPaint();await nextPaint();const first=summarize();
       // Recompose from the fitted font sizes; calibration must still use the base type.
-      await compose();await nextPaint();await nextPaint();return {baselineFailures,first,repeated:summarize()};
+      await compose();await nextPaint();await nextPaint();const repeated=summarize();
+      await updateAgentSettings({enforceGemaraGutterBox:true,enforceStreamContinuity:true,enforceCommentaryContinuity:true,enforceReleasedSpaceTiming:true});await nextPaint();await nextPaint();return {baselineFailures,first,repeated,gutter:summarize(),gutterFailure:state.composition.failures.includes("Gemara top/bottom gutter")};
     });
-    assert.deepEqual(errors,[]);assert.deepEqual(result.baselineFailures,[]);
-    for(const [name,layout] of Object.entries({first:result.first,repeated:result.repeated})){
+    assert.deepEqual(errors,[]);assert.deepEqual(result.baselineFailures,[]);assert.equal(result.gutterFailure,false);
+    for(const [name,layout] of Object.entries({first:result.first,repeated:result.repeated,gutter:result.gutter})){
       assert.deepEqual(layout.failures,[],name);assert.deepEqual(layout.anchors,[],name);assert.deepEqual(layout.sourceFailures,[],name);
       assert.equal(layout.overflow,0,name);assert.equal(layout.counts.gemara,45,name);assert.equal(layout.narrow,36,name);assert.equal(layout.wide,9,name);assert.equal(layout.wider,true,name);assert.deepEqual(layout.opening,[4,4],name);assert(layout.gap<=1.15,name);
     }
+    // Exercise the actual builder's Apply button and rollback guard, with a
+    // deterministic proposal; no model request or account is involved.
+    await page.goto(`http://127.0.0.1:${server.address().port}/agent-builder/index.html`,{waitUntil:'networkidle'});
+    await page.waitForFunction(()=>frameReady);
+    await page.evaluate(()=>build('Bava Metzia 22a'));
+    await page.waitForFunction(()=>diagnostics?.ref==='Bava Metzia 22a'&&diagnostics.patternName!=='not composed',null,{timeout:60000});
+    await page.evaluate(()=>{
+      proposedReview={changes:{targetLineCounts:{gemara:45},expansionStream:'gemara',expansionLine:37,expansionIntoStream:'inner',enforceGemaraGutterBox:true,enforceStreamContinuity:true,enforceCommentaryContinuity:true,enforceReleasedSpaceTiming:true,lineAnchors:[
+        {stream:'gemara',line:1,startText:'וכן',endText:'שנטל'},
+        {stream:'gemara',line:2,startText:'נטל',endText:'וירדן'},
+        {stream:'gemara',line:3,startText:'דקא חזי',endText:'קא חזי'},
+        {stream:'gemara',line:4,startText:'ליה',endText:'בלסטים'}
+      ]}};proposedReviewState=reviewStateKey();document.getElementById('applyAgent').disabled=false;
+    });
+    await page.locator('#applyAgent').click();
+    await page.waitForFunction(()=>!pendingAdjustment&&document.getElementById('agentResult').textContent.includes('passed measured checks'),null,{timeout:60000});
+    const applied=await page.evaluate(()=>({failures:diagnostics.failures,settings:diagnostics.settings,counts:frame.contentWindow.currentRenderedLineCounts()}));
+    assert.deepEqual(applied.failures,[]);assert.equal(applied.settings.targetLineCounts.gemara,45);assert.equal(applied.counts.gemara,45);assert.equal(applied.settings.enforceGemaraGutterBox,true);
     if(process.env.VILNA_TEST_SCREENSHOT){
-      await page.evaluate(()=>{setPageZoom(1);document.body.style.height='auto';document.body.style.overflow='visible';document.querySelector('.stage').style.overflow='visible';});
-      await page.locator('#dafPage').screenshot({path:process.env.VILNA_TEST_SCREENSHOT});
+      await page.frames().find(frame=>frame.url().includes('/draft-engine/')).evaluate(()=>{setPageZoom(1);document.body.style.height='auto';document.body.style.overflow='visible';document.querySelector('.stage').style.overflow='visible';});
+      await page.frameLocator('#draftFrame').locator('#dafPage').screenshot({path:process.env.VILNA_TEST_SCREENSHOT});
     }
-    console.log('PASS BM 22a: baseline, immediate correction, repeat composition, 36 narrow + 9 wide lines, opening anchors, source preservation, and measured layout checks.');
+    console.log('PASS BM 22a: baseline, immediate correction, repeat composition, 36 narrow + 9 wide lines, opening anchors, source preservation, full Gemara gutter, and measured layout checks.');
   }finally{if(browser)await browser.close();await new Promise(resolve=>server.close(resolve));}
 })().catch(error=>{console.error(error);process.exitCode=1;});

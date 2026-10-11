@@ -54,6 +54,7 @@ vm.createContext(repairContext);vm.runInContext(source.slice(source.indexOf('fun
 repairContext.sendAdjustment({openingLines:4});repairContext.finishAdjustment({...d,failures:['new failure']});assert.equal(sent.at(-1).type,'vilna-agent-replace-settings');assert.equal(repairContext.pendingAdjustment.restoring,true);
 renderedAttempt.streams.gemara.lines[0].text='restored line ending';
 repairContext.finishAdjustment(d);assert.equal(repairContext.pendingAdjustment,null);
+assert(nodes.agentResult.textContent.includes('new failure'),'Show the rejected attempt failures after restoring the successful baseline');
 assert.equal(outcomes.at(-1)[2].attemptedEvidence.streams.gemara.lines[0].text,'failed line ending','Failed rendering is cloned before rollback replaces the page.');
 repairContext.diagnostics={...d,failures:['text overflow'],textOverflow:true,settings:{pageHeight:1030}};
 repairContext.sendAdjustment({pageHeight:1078},{repair:true});
