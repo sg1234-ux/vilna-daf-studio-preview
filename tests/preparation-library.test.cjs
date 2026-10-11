@@ -17,9 +17,10 @@ for(const [stream,lines] of [['rashbam',pes.streams.inner.rashbamLines],['tosafo
  assert(lines.every((l,i)=>l.line===i+1&&l.firstWord&&l.lastWord));
  assert.equal(lines.at(-1).role,'next-amud-preview');assert.equal(lines.at(-1).firstWord,'אף');
  const next=JSON.parse(fs.readFileSync(path.join(root,'sources/pesachim-101a.json')));assert(strip(next.streams[stream].he.flat(Infinity)[0]).startsWith(strip('אף')));
- const review=stream==='rashbam'?pes.streams.inner.rashbamAlignmentReview:pes.streams.tosafot.tosafotAlignmentReview;assert.equal(review.complete,false);assert(review.unresolved.length);
+ const review=stream==='rashbam'?pes.streams.inner.rashbamAlignmentReview:pes.streams.tosafot.tosafotAlignmentReview;assert.equal(review.complete,true);assert.deepEqual(review.unresolved,[]);
 }
-for(const block of pes.commentaryBlocks){const lines=block.stream==='rashbam'?pes.streams.inner.rashbamLines:pes.streams.tosafot.lines;assert.equal(lines.filter(l=>l.block===block.id).length,block.rows);}
+for(const block of pes.commentaryBlocks){const lines=block.stream==='rashbam'?pes.streams.inner.rashbamLines:pes.streams.tosafot.lines;assert.equal(lines.filter(l=>l.block===block.id).length,block.lineCount);}
 const footer=pes.commentaryBlocks.find(b=>b.id==='tosafot-footer');assert.equal(footer.box[0],pes.scan.contentBox[0]);assert.equal(footer.box[2],pes.scan.contentBox[2]);
 assert.equal(pes.openingCommentaryBlocks[0].box[2],470);assert.equal(pes.openingCommentaryBlocks[1].box[0],486);
-console.log('PASS Pesachim 100b checkpoint: commentary row allocation, broad opening columns, full-width footer, next-amud previews, and unresolved source alignment remains gated.');
+require('../scripts/check-prepared-page.cjs').validate(path.join(root,'pages/pesachim-100b.json'));
+console.log('PASS complete Pesachim 100b preparation: all source words once, all commentary maps, broad openings, full-width footer, source-backed previews, explicit edition variant, renderer integration gate.');
