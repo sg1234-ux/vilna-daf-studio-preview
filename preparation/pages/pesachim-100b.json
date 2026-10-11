@@ -2,7 +2,7 @@
   "format": "vilna-physical-page-specification",
   "version": 1,
   "ref": "Pesachim 100b",
-  "status": "gemara-transcribed-commentary-pending",
+  "status": "all-printed-line-boundaries-transcribed-source-alignment-pending",
   "engineReady": false,
   "scan": {
     "url": "https://images.e-daf.com/DafImg.asp?ID=842&size=2",
@@ -13,7 +13,7 @@
       72,
       103,
       892,
-      1606
+      1624
     ]
   },
   "coordinateSystem": "Pixels in the cited reference image; boxes are [left,top,right,bottom]. Region boxes are measurements to the nearest few pixels; line ink boxes are threshold-derived and visually counted.",
@@ -60,7 +60,8 @@
     "The inner column contains Rashi first, an explicit רשב״ם title, then Rashbam.",
     "Rashi’s print order differs from the exported comment order: כך, אין מביאין, ואם הביא, איקלע, ידי יין.",
     "The Rashi ending previews ידי קידוש from the next amud.",
-    "After the short Gemara ends, Rashbam and Tosafos continue in two broad columns."
+    "The final Tosafos line spans the full core width below both columns; the isolated אף below it previews Tosafos 101a. Rashbam ends with isolated אף, previewing Rashbam 101a.",
+    "Both opening commentary columns are broad, separated near the page center. They narrow after four lines alongside Gemara, and widen again below Gemara."
   ],
   "streams": {
     "gemara": {
@@ -155,8 +156,8 @@
           "block": "gemara-main",
           "role": "text",
           "firstWord": "חדא",
-          "lastWord": "שיין",
-          "printedText": "חדא שיין שאין מתחילין ותניא אידך שיין",
+          "lastWord": "שוין",
+          "printedText": "חדא שוין שאין מתחילין ותניא אידך שוין",
           "inkBox": [
             319,
             362,
@@ -170,7 +171,7 @@
           "role": "text",
           "firstWord": "שמתחילין",
           "lastWord": "שאין",
-          "printedText": "שמתחילין בשלמא הא דתניא שיין שאין",
+          "printedText": "שמתחילין בשלמא הא דתניא שוין שאין",
           "inkBox": [
             317,
             385,
@@ -198,7 +199,7 @@
           "role": "text",
           "firstWord": "הא",
           "lastWord": "נימא",
-          "printedText": "הא דתניא שיין שמתחילין אימת אי נימא",
+          "printedText": "הא דתניא שוין שמתחילין אימת אי נימא",
           "inkBox": [
             317,
             434,
@@ -279,7 +280,7 @@
       ]
     },
     "inner": {
-      "status": "rashi-boundaries-transcribed-rashbam-pending",
+      "status": "printed-line-boundaries-transcribed-source-alignment-pending",
       "rashiLines": [
         {
           "line": 1,
@@ -390,10 +391,957 @@
           ],
           "beginsAtRashiLine": 12
         }
+      },
+      "rashbamLines": [
+        {
+          "line": 1,
+          "firstWord": "כך",
+          "lastWord": "מסובין",
+          "block": "rashbam-narrow",
+          "role": "text"
+        },
+        {
+          "line": 2,
+          "firstWord": "בשבת",
+          "lastWord": "אכילתן",
+          "block": "rashbam-narrow",
+          "role": "text"
+        },
+        {
+          "line": 3,
+          "firstWord": "ומבדילין",
+          "lastWord": "שולחן",
+          "block": "rashbam-narrow",
+          "role": "text"
+        },
+        {
+          "line": 4,
+          "firstWord": "ומדקאמר",
+          "lastWord": "דלא",
+          "block": "rashbam-narrow",
+          "role": "text"
+        },
+        {
+          "line": 5,
+          "firstWord": "סגי",
+          "lastWord": "חנה",
+          "block": "rashbam-narrow",
+          "role": "text"
+        },
+        {
+          "line": 6,
+          "firstWord": "איקלע",
+          "lastWord": "תכא",
+          "block": "rashbam-narrow",
+          "role": "text"
+        },
+        {
+          "line": 7,
+          "firstWord": "לקמיה",
+          "lastWord": "נמי",
+          "block": "rashbam-narrow",
+          "role": "text"
+        },
+        {
+          "line": 8,
+          "firstWord": "הכי",
+          "lastWord": "אין",
+          "block": "rashbam-narrow",
+          "role": "text"
+        },
+        {
+          "line": 9,
+          "firstWord": "מביאין",
+          "lastWord": "גלותא",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 10,
+          "firstWord": "ולא",
+          "lastWord": "החשיך",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 11,
+          "firstWord": "אייתו",
+          "lastWord": "קודם",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 12,
+          "firstWord": "קידוש",
+          "lastWord": "מביאין",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 13,
+          "firstWord": "את",
+          "lastWord": "מפה",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 14,
+          "firstWord": "על",
+          "lastWord": "לדבר",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 15,
+          "firstWord": "שכן",
+          "lastWord": "ואח״כ",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 16,
+          "firstWord": "הביאו",
+          "lastWord": "אייתי",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 17,
+          "firstWord": "וטעמא",
+          "lastWord": "וכתוב",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 18,
+          "firstWord": "בהו",
+          "lastWord": "מקרבינן",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 19,
+          "firstWord": "מ״ט",
+          "lastWord": "מסלקינן",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 20,
+          "firstWord": "ליה",
+          "lastWord": "השולחן",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 21,
+          "firstWord": "אא״כ",
+          "lastWord": "דאתחיל",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 22,
+          "firstWord": "סעודתא",
+          "lastWord": "ומקדש",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 23,
+          "firstWord": "ומטעם",
+          "lastWord": "ויו״ט",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 24,
+          "firstWord": "ויש",
+          "lastWord": "בע״ש",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 25,
+          "firstWord": "וקדיש",
+          "lastWord": "דלקמיה",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 26,
+          "firstWord": "דמסייעין",
+          "lastWord": "לילי",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 27,
+          "firstWord": "שבת",
+          "lastWord": "יוסי",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 28,
+          "firstWord": "ור׳",
+          "lastWord": "אין",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 29,
+          "firstWord": "מביאין",
+          "lastWord": "דמפרשי",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 30,
+          "firstWord": "ושוין",
+          "lastWord": "נוטלין",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 31,
+          "firstWord": "לידים",
+          "lastWord": "אפ״ה",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 32,
+          "firstWord": "היכא",
+          "lastWord": "אלא",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 33,
+          "firstWord": "א״כ",
+          "lastWord": "דאמרינן",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 34,
+          "firstWord": "לקמיה",
+          "lastWord": "הספרים",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 35,
+          "firstWord": "וכתבו",
+          "lastWord": "ליה",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 36,
+          "firstWord": "תני",
+          "lastWord": "שבת",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 37,
+          "firstWord": "מן",
+          "lastWord": "מתחילין",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 38,
+          "firstWord": "ולמעלה",
+          "lastWord": "מודי",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 39,
+          "firstWord": "בערב",
+          "lastWord": "ומשהתחילו",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 40,
+          "firstWord": "בהיתר",
+          "lastWord": "הוא",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 41,
+          "firstWord": "דפליגי",
+          "lastWord": "אדם",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 42,
+          "firstWord": "בערבי",
+          "lastWord": "יוסי",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 43,
+          "firstWord": "אומר",
+          "lastWord": "בעלי",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 44,
+          "firstWord": "בתים",
+          "lastWord": "דקי״ל",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 45,
+          "firstWord": "דאורייתא",
+          "lastWord": "חובתן",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 46,
+          "firstWord": "כדמוכח",
+          "lastWord": "לברך",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 47,
+          "firstWord": "שיטעמו",
+          "lastWord": "קידוש",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 48,
+          "firstWord": "במקום",
+          "lastWord": "לא",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 49,
+          "firstWord": "יצאו",
+          "lastWord": "שהיין",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 50,
+          "firstWord": "פטורין",
+          "lastWord": "שעקרו",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 51,
+          "firstWord": "ממקומן",
+          "lastWord": "על",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 52,
+          "firstWord": "שולחנו",
+          "lastWord": "יין",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 53,
+          "firstWord": "שלפניו",
+          "lastWord": "כיון",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 54,
+          "firstWord": "שלפני",
+          "lastWord": "בשבתות",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 55,
+          "firstWord": "ובימים",
+          "lastWord": "היין",
+          "block": "rashbam-wide",
+          "role": "text"
+        },
+        {
+          "line": 56,
+          "firstWord": "אף",
+          "lastWord": "אף",
+          "block": "rashbam-preview",
+          "role": "next-amud-preview"
+        }
+      ],
+      "rashbamAlignmentReview": {
+        "wordIndexConvention": "Zero based lexical tokens from pinned Hebrew snapshot, excluding standalone punctuation.",
+        "sourceWordCount": 559,
+        "complete": false,
+        "matchedLines": [],
+        "unresolved": [
+          {
+            "line": 38,
+            "reason": "Printed/source boundaries need manual reconciliation.",
+            "sourceAtMismatch": "לאכול",
+            "printedFirst": "ולמעלה"
+          }
+        ],
+        "endpointVariants": []
+      },
+      "rashbamPreview": {
+        "ref": "Rashbam on Pesachim 101a",
+        "words": [
+          "אף"
+        ]
       }
     },
     "tosafot": {
-      "status": "line-boundaries-pending"
+      "status": "printed-line-boundaries-transcribed-source-alignment-pending",
+      "lines": [
+        {
+          "line": 1,
+          "firstWord": "כך",
+          "lastWord": "קובעת",
+          "block": "tosafot-opening",
+          "role": "text"
+        },
+        {
+          "line": 2,
+          "firstWord": "ואם",
+          "lastWord": "אשמואל",
+          "block": "tosafot-opening",
+          "role": "text"
+        },
+        {
+          "line": 3,
+          "firstWord": "לאו",
+          "lastWord": "שהיו",
+          "block": "tosafot-opening",
+          "role": "text"
+        },
+        {
+          "line": 4,
+          "firstWord": "רגילין",
+          "lastWord": "על",
+          "block": "tosafot-opening",
+          "role": "text"
+        },
+        {
+          "line": 5,
+          "firstWord": "שולחנו",
+          "lastWord": "ולא",
+          "block": "tosafot-narrow",
+          "role": "text"
+        },
+        {
+          "line": 6,
+          "firstWord": "מלפני",
+          "lastWord": "אוכלים",
+          "block": "tosafot-narrow",
+          "role": "text"
+        },
+        {
+          "line": 7,
+          "firstWord": "בשלחן",
+          "lastWord": "לסלק",
+          "block": "tosafot-narrow",
+          "role": "text"
+        },
+        {
+          "line": 8,
+          "firstWord": "איקלע",
+          "lastWord": "וקידש",
+          "block": "tosafot-narrow",
+          "role": "text"
+        },
+        {
+          "line": 9,
+          "firstWord": "בהתחלת",
+          "lastWord": "איירי",
+          "block": "tosafot-narrow",
+          "role": "text"
+        },
+        {
+          "line": 10,
+          "firstWord": "כדפי׳",
+          "lastWord": "גרסינן",
+          "block": "tosafot-narrow",
+          "role": "text"
+        },
+        {
+          "line": 11,
+          "firstWord": "ושוין",
+          "lastWord": "יוסי",
+          "block": "tosafot-narrow",
+          "role": "text"
+        },
+        {
+          "line": 12,
+          "firstWord": "כדפירש",
+          "lastWord": "מביאין",
+          "block": "tosafot-narrow",
+          "role": "text"
+        },
+        {
+          "line": 13,
+          "firstWord": "את",
+          "lastWord": "דאמר",
+          "block": "tosafot-narrow",
+          "role": "text"
+        },
+        {
+          "line": 14,
+          "firstWord": "בכל",
+          "lastWord": "שלחן",
+          "block": "tosafot-narrow",
+          "role": "text"
+        },
+        {
+          "line": 15,
+          "firstWord": "ערוך",
+          "lastWord": "קשה",
+          "block": "tosafot-narrow",
+          "role": "text"
+        },
+        {
+          "line": 16,
+          "firstWord": "דערוך",
+          "lastWord": "אין",
+          "block": "tosafot-narrow",
+          "role": "text"
+        },
+        {
+          "line": 17,
+          "firstWord": "מביאין",
+          "lastWord": "אחר",
+          "block": "tosafot-narrow",
+          "role": "text"
+        },
+        {
+          "line": 18,
+          "firstWord": "קידוש",
+          "lastWord": "שהם",
+          "block": "tosafot-narrow",
+          "role": "text"
+        },
+        {
+          "line": 19,
+          "firstWord": "גדולים",
+          "lastWord": "אחר",
+          "block": "tosafot-narrow",
+          "role": "text"
+        },
+        {
+          "line": 20,
+          "firstWord": "קידוש",
+          "lastWord": "קידוש",
+          "block": "tosafot-narrow",
+          "role": "text"
+        },
+        {
+          "line": 21,
+          "firstWord": "לסעודה",
+          "lastWord": "מפה",
+          "block": "tosafot-narrow",
+          "role": "text"
+        },
+        {
+          "line": 22,
+          "firstWord": "ולקדש",
+          "lastWord": "כי",
+          "block": "tosafot-narrow",
+          "role": "text"
+        },
+        {
+          "line": 23,
+          "firstWord": "היכי",
+          "lastWord": "היה",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 24,
+          "firstWord": "יורד",
+          "lastWord": "בינתים",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 25,
+          "firstWord": "ידי",
+          "lastWord": "או",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 26,
+          "firstWord": "אפילו",
+          "lastWord": "עירובין",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 27,
+          "firstWord": "דף",
+          "lastWord": "כשמואל",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 28,
+          "firstWord": "דאמר",
+          "lastWord": "כרב",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 29,
+          "firstWord": "באיסורי",
+          "lastWord": "הונא",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 30,
+          "firstWord": "ורבה",
+          "lastWord": "וכן",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 31,
+          "firstWord": "פסק",
+          "lastWord": "להוציא",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 32,
+          "firstWord": "את",
+          "lastWord": "אחד",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 33,
+          "firstWord": "מבני",
+          "lastWord": "אורחים",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 34,
+          "firstWord": "סמוך",
+          "lastWord": "לומר",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 35,
+          "firstWord": "במקדש",
+          "lastWord": "דיש",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 36,
+          "firstWord": "קידוש",
+          "lastWord": "בבי",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 37,
+          "firstWord": "כנישתא",
+          "lastWord": "נראה",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 38,
+          "firstWord": "דמודה",
+          "lastWord": "קידוש",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 39,
+          "firstWord": "במקום",
+          "lastWord": "וקידש",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 40,
+          "firstWord": "בבית",
+          "lastWord": "אושעיא",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 41,
+          "firstWord": "אמר",
+          "lastWord": "ועולה",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 42,
+          "firstWord": "ואוכל",
+          "lastWord": "בדעתו",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 43,
+          "firstWord": "לאכול",
+          "lastWord": "בבית",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 44,
+          "firstWord": "שקידש",
+          "lastWord": "ולאו",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 45,
+          "firstWord": "דוקא",
+          "lastWord": "ויתיישב",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 46,
+          "firstWord": "שלא",
+          "lastWord": "גאון",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 47,
+          "firstWord": "בתשובות",
+          "lastWord": "כדאמר",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 48,
+          "firstWord": "ברכות",
+          "lastWord": "ואימת",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 49,
+          "firstWord": "מהדרא",
+          "lastWord": "רפואה",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 50,
+          "firstWord": "מצי",
+          "lastWord": "לברך",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 51,
+          "firstWord": "בביתם",
+          "lastWord": "על",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 52,
+          "firstWord": "שולחנו",
+          "lastWord": "קידוש",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 53,
+          "firstWord": "שלא",
+          "lastWord": "על",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 54,
+          "firstWord": "שולחנו",
+          "lastWord": "שלא",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 55,
+          "firstWord": "במקום",
+          "lastWord": "פטר",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 56,
+          "firstWord": "אא״כ",
+          "lastWord": "להביא",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 57,
+          "firstWord": "ראיה",
+          "lastWord": "המזון",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 58,
+          "firstWord": "פוטר",
+          "lastWord": "הסעודה",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 59,
+          "firstWord": "לפני",
+          "lastWord": "אלא",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 60,
+          "firstWord": "לשרות",
+          "lastWord": "שבתוך",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 61,
+          "firstWord": "המזון",
+          "lastWord": "לשתות",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 62,
+          "firstWord": "פוטר",
+          "lastWord": "דעדיף",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "firstWord": "טפי",
+          "lastWord": "לברך",
+          "block": "tosafot-wide",
+          "role": "text",
+          "line": 63
+        },
+        {
+          "line": 64,
+          "firstWord": "בתוך",
+          "lastWord": "המזון",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 65,
+          "firstWord": "תיפוק",
+          "lastWord": "המזון",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 66,
+          "firstWord": "בשלא",
+          "lastWord": "וי״ט",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 67,
+          "firstWord": "ובשעת",
+          "lastWord": "אם",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 68,
+          "firstWord": "דעתו",
+          "lastWord": "רגילות",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 69,
+          "firstWord": "לקבוע",
+          "lastWord": "יין",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 70,
+          "firstWord": "לא",
+          "lastWord": "המזון",
+          "block": "tosafot-wide",
+          "role": "text"
+        },
+        {
+          "line": 71,
+          "firstWord": "ורוצה",
+          "lastWord": "שלש",
+          "block": "tosafot-footer",
+          "role": "text"
+        },
+        {
+          "line": 72,
+          "firstWord": "אף",
+          "lastWord": "אף",
+          "block": "tosafot-preview",
+          "role": "next-amud-preview"
+        }
+      ],
+      "tosafotAlignmentReview": {
+        "wordIndexConvention": "Zero based lexical tokens from pinned Hebrew snapshot, excluding standalone punctuation.",
+        "sourceWordCount": 686,
+        "complete": false,
+        "matchedLines": [],
+        "unresolved": [
+          {
+            "line": 39,
+            "reason": "Printed/source boundaries need manual reconciliation.",
+            "sourceAtMismatch": "במקום",
+            "printedFirst": "במקום"
+          }
+        ],
+        "endpointVariants": [
+          {
+            "printed": "ורוצה",
+            "source": "ודעתו"
+          }
+        ]
+      },
+      "nextAmudPreview": {
+        "ref": "Tosafot on Pesachim 101a",
+        "words": [
+          "אף"
+        ]
+      }
     }
   },
   "gutterMeasurements": {
@@ -408,10 +1356,10 @@
     "rightGutter": 0.025609756097560974
   },
   "remainingPreparation": [
-    "Transcribe every inner-commentary and Tosafos line boundary.",
-    "Align printed line boundaries with the pinned source, documenting whole-comment reordering and next-page previews.",
-    "Check commentary opening widths, all transition boxes and end-line alignment against the scan.",
-    "Publish as engine-ready only after all three stream maps and source coverage are complete."
+    "Check every commentary boundary against the full-width scan crops; partial crops can hide opening-column and line-end words.",
+    "Reconcile printed wording with pinned source, preserving each source word or documenting edition variants explicitly. Current alignment reviews remain incomplete.",
+    "Verify all region transitions, opening widths and end-line alignment.",
+    "Publish as engine-ready only after all applicable streams, full source coverage and visual review are complete."
   ],
   "openingCommentaryBlocks": [
     {
@@ -419,7 +1367,7 @@
       "box": [
         72,
         103,
-        655,
+        470,
         191
       ],
       "rows": 4
@@ -427,7 +1375,7 @@
     {
       "stream": "tosafot",
       "box": [
-        674,
+        486,
         103,
         892,
         191
@@ -471,6 +1419,96 @@
         470,
         1568
       ]
+    }
+  ],
+  "commentaryBlocks": [
+    {
+      "id": "rashbam-narrow",
+      "stream": "rashbam",
+      "box": [
+        72,
+        404,
+        290,
+        566
+      ],
+      "rows": 8
+    },
+    {
+      "id": "rashbam-wide",
+      "stream": "rashbam",
+      "box": [
+        72,
+        571,
+        470,
+        1559
+      ],
+      "rows": 47
+    },
+    {
+      "id": "rashbam-preview",
+      "stream": "rashbam",
+      "box": [
+        112,
+        1565,
+        140,
+        1584
+      ],
+      "rows": 1
+    },
+    {
+      "id": "tosafot-opening",
+      "stream": "tosafot",
+      "box": [
+        486,
+        103,
+        892,
+        191
+      ],
+      "rows": 4
+    },
+    {
+      "id": "tosafot-narrow",
+      "stream": "tosafot",
+      "box": [
+        674,
+        191,
+        892,
+        570
+      ],
+      "rows": 18
+    },
+    {
+      "id": "tosafot-wide",
+      "stream": "tosafot",
+      "box": [
+        486,
+        571,
+        892,
+        1580
+      ],
+      "rows": 48
+    },
+    {
+      "id": "tosafot-footer",
+      "stream": "tosafot",
+      "box": [
+        72,
+        1587,
+        892,
+        1606
+      ],
+      "rows": 1
+    },
+    {
+      "id": "tosafot-preview",
+      "stream": "tosafot",
+      "box": [
+        112,
+        1606,
+        140,
+        1624
+      ],
+      "rows": 1
     }
   ]
 }

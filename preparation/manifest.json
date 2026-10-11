@@ -289,7 +289,7 @@
           "slug": "pesachim-100b",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=842&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=842&size=2",
-          "status": "gemara-transcribed-commentary-pending",
+          "status": "all-printed-line-boundaries-transcribed-source-alignment-pending",
           "sourceSnapshot": "sources/pesachim-100b.json",
           "engineReady": false,
           "specification": "pages/pesachim-100b.json"

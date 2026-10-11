@@ -11,3 +11,15 @@ for(const [slug,count,last,next]of [['bava-metzia-22b',52,'דמדרסא','bava-m
 }
 const ber=JSON.parse(fs.readFileSync(path.join(root,'pages/berakhot-26a.json')));assert.equal(ber.streams.gemara.lines[38].role,'heading');assert.equal(ber.streams.gemara.lines[39].firstWord,'תפלת');
 console.log('PASS preparation library: 81 unique pages and full Hebrew snapshots, preserved existing maps, correct shared-page boundaries, three observed Gemara maps, explicit next-page previews, geometry and unfinished-status gates. No inference or build was run.');
+const pes=JSON.parse(fs.readFileSync(path.join(root,'pages/pesachim-100b.json')));
+assert.equal(pes.streams.inner.rashiLines.length,13);assert.equal(pes.streams.inner.rashbamLines.length,56);assert.equal(pes.streams.tosafot.lines.length,72);
+for(const [stream,lines] of [['rashbam',pes.streams.inner.rashbamLines],['tosafot',pes.streams.tosafot.lines]]){
+ assert(lines.every((l,i)=>l.line===i+1&&l.firstWord&&l.lastWord));
+ assert.equal(lines.at(-1).role,'next-amud-preview');assert.equal(lines.at(-1).firstWord,'אף');
+ const next=JSON.parse(fs.readFileSync(path.join(root,'sources/pesachim-101a.json')));assert(strip(next.streams[stream].he.flat(Infinity)[0]).startsWith(strip('אף')));
+ const review=stream==='rashbam'?pes.streams.inner.rashbamAlignmentReview:pes.streams.tosafot.tosafotAlignmentReview;assert.equal(review.complete,false);assert(review.unresolved.length);
+}
+for(const block of pes.commentaryBlocks){const lines=block.stream==='rashbam'?pes.streams.inner.rashbamLines:pes.streams.tosafot.lines;assert.equal(lines.filter(l=>l.block===block.id).length,block.rows);}
+const footer=pes.commentaryBlocks.find(b=>b.id==='tosafot-footer');assert.equal(footer.box[0],pes.scan.contentBox[0]);assert.equal(footer.box[2],pes.scan.contentBox[2]);
+assert.equal(pes.openingCommentaryBlocks[0].box[2],470);assert.equal(pes.openingCommentaryBlocks[1].box[0],486);
+console.log('PASS Pesachim 100b checkpoint: commentary row allocation, broad opening columns, full-width footer, next-amud previews, and unresolved source alignment remains gated.');
