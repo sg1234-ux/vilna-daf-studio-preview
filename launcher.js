@@ -1,7 +1,7 @@
 const COMBINED_BUILD = 60;
 const APPROVED_KEY = "vilna-daf-agent-approved-v57";
 const PAGES = {
-  "bava-metzia-22a": {path:"draft-engine/index.html?ref=Bava%20Metzia%2022a&ui=60.18&build=62.57",title:"Bava Metzia 22a"},
+  "bava-metzia-22a": {path:"draft-engine/index.html?ref=Bava%20Metzia%2022a&ui=60.19&build=62.58",title:"Bava Metzia 22a"},
   "pesachim-100a": { path: "draft-engine/index.html?ref=Pesachim%20100a&ui=60.11&build=62.53", title: "Pesachim 100a" },
   "agent-builder": {
     path: "agent-builder/index.html?ui=60.11",

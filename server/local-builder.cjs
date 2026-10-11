@@ -60,17 +60,17 @@ async function createLocalServer({root=path.resolve(__dirname,'..'),directory,fe
           if(busy||auth.refreshing)throw problem(409,'Wait for the current request before signing out.');
           await readJSON(req);send(res,200,await auth.signOut());return;
         }
-        if(route==='review'){
+        if(route==='review'||route==='scan'){
           if(req.method!=='POST')throw problem(405,'Expected POST.');
           if(busy)throw problem(409,'Wait for the current AI review to finish.');
           busy=true;
           try{
-            const body=await readJSON(req);service.validateBody(body);
+            const body=await readJSON(req);if(route==='scan')require('./scan-service.cjs').validate(body);else service.validateBody(body);
             const models=await auth.models();
             if(!models.some(m=>m.id===body.model))throw problem(400,'Choose a model available to your ChatGPT account.');
             const token=await auth.accessToken();
             // Only the selected OAuth token is passed. Never read process.env's API key.
-            send(res,200,await service.review(body,{OPENAI_API_KEY:token,OPENAI_MODEL:body.model},fetchImpl,{stream:true,planUsage:true}));
+            send(res,200,await (route==='scan'?require('./scan-service.cjs').readScan(body,{OPENAI_API_KEY:token,OPENAI_MODEL:body.model},fetchImpl,{stream:true,planUsage:true,readCompletedStream:service.readCompletedStream}):service.review(body,{OPENAI_API_KEY:token,OPENAI_MODEL:body.model},fetchImpl,{stream:true,planUsage:true})));
           }finally{busy=false;}
           return;
         }
@@ -97,3 +97,4 @@ if(require.main===module){
   }).catch(error=>{console.error(error.code==='EADDRINUSE'?'The builder may already be running. Open http://127.0.0.1:1455/agent-builder/ or close the other local builder window and try again.':error.message);process.exitCode=1;});
 }
 module.exports={createLocalServer};
+

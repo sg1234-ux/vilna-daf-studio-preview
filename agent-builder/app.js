@@ -97,6 +97,8 @@ function renderDiagnostics() {
   $("approvalValue").textContent = diagnostics ? (failures.length ? "Blocked" : "Eligible for teacher approval") : "Not tested";
   $("approveDraft").disabled = !diagnostics || failures.length > 0;
   $("buildDraft").disabled = Boolean(pendingAdjustment) || reviewing;
+  $("readScan").disabled=!diagnostics||reviewing||Boolean(pendingAdjustment)||(!/^Bava Metzia 22a$/i.test(diagnostics.ref)&&!aiReady);
+  $("readScan").textContent=/^Bava Metzia 22a$/i.test(diagnostics?.ref||"")?"Build from saved 22a scan (free)":"Build from the real daf scan (AI)";
   $("askAgent").disabled = !diagnostics || Boolean(pendingAdjustment) || reviewing || (VilnaAgentConnection.isLocal && !aiReady);
   $("chatgptSignIn").disabled=reviewing||Boolean(pendingAdjustment);
   $("chatgptAccount").disabled=reviewing||Boolean(pendingAdjustment);
@@ -169,6 +171,26 @@ $("applyExactLines").addEventListener("click",()=>{
   const changes=exactLinePlan();if(!changes)return;
   sendAdjustment(changes);
   $("agentResult").textContent="Applying your typed line counts and Hebrew endpoints locally. No AI request was sent.";
+});
+
+$("readScan").addEventListener("click",async()=>{
+  if(!diagnostics||reviewing||pendingAdjustment)return;
+  reviewing=true;proposedReview=null;proposedReviewState=null;$("applyAgent").disabled=true;renderDiagnostics();
+  const ref=diagnostics.ref,cached=/^Bava Metzia 22a$/i.test(ref),stateKey=reviewStateKey();
+  const evidence=frame.contentWindow.captureScanEvidence(),sourceKey=JSON.stringify(Object.values(evidence.streams).map(s=>s.tokens));
+  $("scanResult").textContent=cached?"Loading the saved scan map. No AI request…":"Retrieving the real daf and reading its Hebrew lines with your connected AI account…";
+  try{
+    let result;
+    if(cached)result=await frame.contentWindow.applyCachedScan();
+    else{
+      const reading=await VilnaAgentConnection.scan({ref,evidence});
+      if(stateKey!==reviewStateKey()||sourceKey!==JSON.stringify(Object.values(frame.contentWindow.captureScanEvidence().streams).map(s=>s.tokens)))throw Error("The page changed while the scan was being read. Build again for the current page.");
+      result=await frame.contentWindow.applyScanReading(reading);
+    }
+    lastAdjustment=null;
+    $("scanResult").textContent=`${cached?"Saved scan map composed without an AI charge":"AI-read scan composed; inspect it before teacher approval"}. ${result.counts.gemara} Gemara, ${result.counts.inner} inner commentary and ${result.counts.tosafot} Tosafos lines. All source and layout checks passed.`;
+  }catch(error){$("scanResult").textContent=error.message;}
+  finally{reviewing=false;renderDiagnostics();}
 });
 
 $("askAgent").addEventListener("click", async () => {

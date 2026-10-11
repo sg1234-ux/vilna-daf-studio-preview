@@ -14,7 +14,7 @@ window.VilnaAgentConnection = (() => {
   async function request(route,body){
     const config=configuration();
     if(!config.base||(!isLocal&&!config.token))throw new Error('Connect your agent host first.');
-    const response=await fetch(`${config.base}/api/${isLocal?'local':'agent'}/${route}`,{method:body?'POST':'GET',headers:{...(!isLocal?{Authorization:`Bearer ${config.token}`} : {}),...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(55000),credentials:isLocal?'same-origin':'omit',redirect:'error'});
+    const response=await fetch(`${config.base}/api/${isLocal?'local':'agent'}/${route}`,{method:body?'POST':'GET',headers:{...(!isLocal?{Authorization:`Bearer ${config.token}`} : {}),...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(route==='scan'?59000:55000),credentials:isLocal?'same-origin':'omit',redirect:'error'});
     const result=await response.json().catch(()=>({}));
     if(!response.ok)throw new Error(result.error||`Agent connection failed (${response.status}).`);
     return result;
@@ -55,6 +55,6 @@ window.VilnaAgentConnection = (() => {
     const rendered=renderedHistory(comparison.attemptedEvidence);
     remember({result:restored?'Prior settings restored after worse checks.':'Adjustment composed and measured.',...measured(diagnostics),...(restored?{before:measured(comparison.before),attempted:{...measured(comparison.attempted),rendered}}:rendered?{rendered}:{})});
   }
-  return {isLocal,configuration,configure,request,review,outcome,setModel:value=>{model=value;},signOut:async()=>{const result=await request('signout',{});history=[];model='';return result;},reset:()=>{history=[];},disconnect:()=>{sessionStorage.removeItem(key);history=[];}};
+  return {isLocal,configuration,configure,request,review,scan:body=>request('scan',{...body,...(isLocal?{model}: {})}),outcome,setModel:value=>{model=value;},signOut:async()=>{const result=await request('signout',{});history=[];model='';return result;},reset:()=>{history=[];},disconnect:()=>{sessionStorage.removeItem(key);history=[];}};
 })();
 

@@ -1,5 +1,6 @@
 const {timingSafeEqual}=require('node:crypto');
 const capabilities=require('../agent-builder/agent-capabilities.js');
+const scanService=require('./scan-service.cjs');
 const MAX_BODY=180000;
 const SYSTEM=`You are the Vilna Daf Studio teacher's layout assistant. Interpret natural teacher corrections, spelling errors, pronouns and several corrections together. Rashi/Rashbam is inner; Tosafos is tosafot. A named stream overrides a stale region selector.
 Preserve every source word and order. Never invent source, exact Vilna boundaries, Rashbam status, or scan accuracy. Default opening commentary is four lines, and commentary continues directly beside Gemara. Keep Gemara gutters local to Gemara; never insert a horizontal gap across continuing commentary. A stream may reclaim another stream's space only AFTER its actual last line. Preserve saved line anchors and counts unless the teacher explicitly changes them.
@@ -82,12 +83,13 @@ function createHandler(route,{env=process.env,fetchImpl=fetch}={}){
     try{
       if(route==='status'){res.end(JSON.stringify({aiReady:Boolean(env.OPENAI_API_KEY),model:env.OPENAI_MODEL||'gpt-6-astra',configured:true}));return;}
       if(!String(req.headers['content-type']||'').startsWith('application/json'))throw failure(415,'Expected application/json.');
-      const body=await readBody(req);validateBody(body);
+      const body=await readBody(req);if(route==='scan')scanService.validate(body);else validateBody(body);
       if(Date.now()-windowStart>=60000){windowStart=Date.now();count=0;}
       if(++count>10)throw failure(429,'Please wait a minute before asking for more model reviews.');
-      res.end(JSON.stringify(await review(body,env,fetchImpl)));
+      res.end(JSON.stringify(await (route==='scan'?scanService.readScan(body,env,fetchImpl):review(body,env,fetchImpl))));
     }catch(error){res.writeHead(error.status||502);res.end(JSON.stringify({error:error.status?error.message:'The model request could not complete. No changes were made.'}));}
   };
 }
 module.exports={review,validateBody,createHandler,MAX_BODY,readCompletedStream};
+
 

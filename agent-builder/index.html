@@ -14,7 +14,7 @@
       }
     } catch {}
   </script>
-  <link rel="stylesheet" href="styles.css?ui=60.18&build=62.57">
+  <link rel="stylesheet" href="styles.css?ui=60.19&build=62.58">
 </head>
 <body>
   <header class="builder-header">
@@ -119,6 +119,8 @@
         <textarea id="feedback" rows="4" placeholder="For example: Keep four opening commentary lines; surround the Gemara with a gutter on all sides."></textarea>
         <button id="applyExactLines" class="secondary" disabled>Apply exact line instructions</button>
         <button id="askAgent" class="secondary" disabled>Ask agent to diagnose</button>
+        <button id="readScan" class="secondary" disabled>Build from the real daf scan</button>
+        <p id="scanResult" class="status">Saved 22a guidance is free. Reading a new scan uses your connected AI account; hosted API requests use API credits.</p>
         <p id="agentResult" class="status">The page's measured diagnostics will be sent with your region-specific correction.</p>
         <button id="applyAgent" class="secondary" disabled>Apply agent's proposed adjustment</button>
         <button id="autoRepair" class="secondary" disabled>Diagnose and repair measured failures</button>
@@ -136,14 +138,15 @@
     </aside>
 
     <section class="preview-wrap" aria-label="New amud preview">
-      <iframe id="draftFrame" src="../draft-engine/index.html?builder=1&ui=60.18&build=62.57" title="New amud draft" allow="microphone"></iframe>
+      <iframe id="draftFrame" src="../draft-engine/index.html?builder=1&ui=60.19&build=62.58" title="New amud draft" allow="microphone"></iframe>
     </section>
   </main>
-  <script src="../approved-store.js?ui=60.18"></script>
-  <script src="agent-brain.js?ui=60.18"></script>
-  <script src="agent-capabilities.js?ui=60.18"></script>
-  <script src="agent-connection.js?ui=60.18"></script>
-  <script src="app.js?ui=60.18&build=62.57"></script>
+  <script src="../approved-store.js?ui=60.19"></script>
+  <script src="agent-brain.js?ui=60.19"></script>
+  <script src="agent-capabilities.js?ui=60.19"></script>
+  <script src="scan-contract.js?ui=60.19"></script>
+  <script src="agent-connection.js?ui=60.19"></script>
+  <script src="app.js?ui=60.19&build=62.58"></script>
 </body>
 </html>
 
