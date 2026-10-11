@@ -450,10 +450,10 @@ function sendAdjustment(changes,{repair=false,replace=false,userRestore=false}={
 }
 function finishAdjustment(next) {
   const job=pendingAdjustment;if(!job)return;
-  if(job.restoring){pendingAdjustment=null;VilnaAgentConnection.outcome(next,true);message("Restored the previous layout settings after the adjustment worsened measured checks.",true);return;}
+  if(job.restoring){pendingAdjustment=null;VilnaAgentConnection.outcome(next,true,{before:job.before,attempted:job.failedDiagnostics});message("Restored the previous layout settings after the adjustment worsened measured checks.",true);return;}
   const sourceChanged=JSON.stringify(next.wordCounts)!==JSON.stringify(job.before.wordCounts);
   if(!job.userRestore&&(sourceChanged||VilnaAgentBrain.worse(VilnaAgentBrain.score(next),VilnaAgentBrain.score(job.before)))){
-    job.restoring=true;
+    job.failedDiagnostics=structuredClone(next);job.restoring=true;
     frame.contentWindow.postMessage({type:"vilna-agent-replace-settings",settings:job.before.settings||{}},location.origin);
     $("agentResult").textContent="The adjustment worsened source coverage or measured checks. Restoring the prior settings.";return;
   }
@@ -617,3 +617,4 @@ $("perekRashbamStatus").addEventListener("change", async () => {
   renderDiagnostics();
 });
 start();
+

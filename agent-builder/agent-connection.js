@@ -24,6 +24,10 @@ window.VilnaAgentConnection = (() => {
     remember({instruction:body.feedback.note,proposal:review.summary,clarifications:review.clarifications,applied:false});
     return review;
   }
-  function outcome(diagnostics,restored){remember({result:restored?'Prior settings restored after worse checks.':'Adjustment composed and measured.',settings:diagnostics.settings,failures:diagnostics.failures,unplacedCounts:diagnostics.unplacedCounts});}
+  function outcome(diagnostics,restored,comparison={}){
+    const measured=d=>d?{settings:d.settings,failures:d.failures,unplacedCounts:d.unplacedCounts,wordCounts:d.wordCounts,textOverflow:d.textOverflow}:null;
+    remember({result:restored?'Prior settings restored after worse checks.':'Adjustment composed and measured.',...measured(diagnostics),...(restored?{before:measured(comparison.before),attempted:measured(comparison.attempted)}:{})});
+  }
   return {configuration,configure,request,review,outcome,reset:()=>{history=[];},disconnect:()=>{sessionStorage.removeItem(key);history=[];}};
 })();
+

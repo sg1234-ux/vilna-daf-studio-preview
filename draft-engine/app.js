@@ -609,8 +609,7 @@ function calibratePrimaryWidths(tokens){
   else{const unanchored=STREAMS.filter(stream=>(stream!=="gemara"&&state.agentLockedStreams?.[stream])||!anchors.some(item=>item.stream===stream&&item.line===1)),targets=unanchored.length?unanchored:STREAMS;for(const stream of targets)widths[stream]+=(available-total)/targets.length;}
   return widths;
 }
-function removeGemaraDashes(tokens){return tokens.flatMap(token=>{if(token.break)return[token];const text=String(token.text||"").replace(/[\u2010-\u2015\u2212-]+/gu,"");return text?[{...token,text}]:[];});}
-function streamTokens(){const streams={gemara:tokenize(displayHtml(withoutBreaks(state.gemaraHtml))),inner:tokenize(displayHtml(innerHtml())),tosafot:tokenize(displayHtml(withoutBreaks(state.tosafotHtml)))},profile=referenceProfile();state.agentAnchorFailures=[];state.agentLockedStreams={};if(state.agentSettings.stripGemaraDashes)streams.gemara=removeGemaraDashes(streams.gemara);if(profile)for(const stream of STREAMS)streams[stream]=applyExactLineMap(normalizeMappedSourceTokens(streams[stream],stream),profile.maps?.[stream],stream);else for(const stream of STREAMS)streams[stream]=applyStreamLineAnchors(streams[stream],stream);if(state.agentSettings.stripGemaraDashes)streams.gemara=removeGemaraDashes(streams.gemara);return streams;}
+function streamTokens(){const streams={gemara:tokenize(displayHtml(withoutBreaks(state.gemaraHtml))),inner:tokenize(displayHtml(innerHtml())),tosafot:tokenize(displayHtml(withoutBreaks(state.tosafotHtml)))},profile=referenceProfile();state.agentAnchorFailures=[];state.agentLockedStreams={};if(profile)for(const stream of STREAMS)streams[stream]=applyExactLineMap(normalizeMappedSourceTokens(streams[stream],stream),profile.maps?.[stream],stream);else for(const stream of STREAMS)streams[stream]=applyStreamLineAnchors(streams[stream],stream);return streams;}
 function weightsFor(t){return{gemara:t.gemara.length*1.52,inner:t.inner.length,tosafot:t.tosafot.length};}
 function ordered(streams){const order=physicalOrder();return[...streams].sort((a,b)=>order.indexOf(a)-order.indexOf(b));}
 function widths(streams,w,floor=18){const total=streams.reduce((s,x)=>s+w[x],0)||1;let a=streams.map(x=>Math.max(floor,w[x]/total*100)),sum=a.reduce((x,y)=>x+y,0);return a.map(x=>x/sum*100);}
@@ -1234,7 +1233,7 @@ function setNavigationUnit(unit){
   const current=selectedWordElement();if(state.navigationUnit==="phrase"&&current?.dataset.stream==="gemara"&&current.dataset.phraseIndex!=null)state.selectedWordId=phraseElements(current.dataset.phraseIndex)[0]?.dataset.wordId||state.selectedWordId;
   updateNavigationUnitControls();applySelectionAppearance();applyFocusAppearance();updateNoteWindow();updateReadingControls();
 }
-function activateWordNavigation(){if(readingState.active)readingState.recognition?.abort();for(const old of $("dafPage").querySelectorAll(".word-token")){old.querySelectorAll(".phrase-visual-icon").forEach(icon=>icon.remove());if(old.classList.contains("layout-token")){old.className="layout-token";delete old.dataset.wordId;delete old.dataset.stream;old.style.fontSize="";}else old.replaceWith(old.textContent);}for(const stream of STREAMS){let index=0;for(const region of streamRegions(stream))index=wrapRegionWords(region,stream,index);}decoratePunctuation();phraseNavigationAvailable=assignPhraseNavigation();updateNavigationUnitControls();renderPhraseVisualMarkers();applySelectionAppearance();applyFocusAppearance();resetReadingSession({keepSelection:true});setInteractionMode(state.mode,{focus:false});}
+function activateWordNavigation(){if(readingState.active)readingState.recognition?.abort();for(const old of $("dafPage").querySelectorAll(".word-token")){old.querySelectorAll(".phrase-visual-icon").forEach(icon=>icon.remove());if(old.classList.contains("layout-token")){old.className="layout-token";delete old.dataset.wordId;delete old.dataset.stream;old.style.fontSize="";}else old.replaceWith(old.textContent);}for(const stream of STREAMS){let index=0;for(const region of streamRegions(stream))index=wrapRegionWords(region,stream,index);}decoratePunctuation();decorateGemaraDashes();phraseNavigationAvailable=assignPhraseNavigation();updateNavigationUnitControls();renderPhraseVisualMarkers();applySelectionAppearance();applyFocusAppearance();resetReadingSession({keepSelection:true});setInteractionMode(state.mode,{focus:false});}
 const PAGE_ZOOM_MIN=1,PAGE_ZOOM_MAX=2.5,PAGE_ZOOM_STEP=.5;
 function normalizedPageZoom(value){const zoom=Number(value);if(!Number.isFinite(zoom))return 1.5;return clamp(Math.round(zoom/PAGE_ZOOM_STEP)*PAGE_ZOOM_STEP,PAGE_ZOOM_MIN,PAGE_ZOOM_MAX);}
 function suspendPageZoom(){const page=$("dafPage"),shell=$("pageZoomShell");page.style.transform="none";shell.style.width=`${page.offsetWidth}px`;shell.style.height=`${page.offsetHeight}px`;}
@@ -1272,9 +1271,19 @@ function decoratePunctuation(){
     for(const node of nodes){const parts=punctuationParts(node.data);if(!parts.some(isDisplayPunctuation))continue;const fragment=document.createDocumentFragment();for(const part of parts){if(isDisplayPunctuation(part)){const mark=document.createElement("span");mark.className="display-punctuation";mark.textContent=part;fragment.append(mark);}else fragment.append(part);}node.replaceWith(fragment);}
   }
 }
+// Keep dash glyph slots and source tokens so an approved layout never reflows.
+function isDisplayDash(text){return /^[\u2010-\u2015\u2212-]+$/u.test(String(text));}
+function decorateGemaraDashes(){
+  for(const word of $("dafPage").querySelectorAll('.word-token[data-stream="gemara"]')){
+    const walker=document.createTreeWalker(word,NodeFilter.SHOW_TEXT,{acceptNode:node=>node.parentElement.closest(".display-dash,.phrase-visual-icon")?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT}),nodes=[];
+    while(walker.nextNode())nodes.push(walker.currentNode);
+    for(const node of nodes){const parts=node.data.split(/([\u2010-\u2015\u2212-]+)/u).filter(Boolean);if(!parts.some(isDisplayDash))continue;const fragment=document.createDocumentFragment();for(const part of parts){if(isDisplayDash(part)){const mark=document.createElement("span");mark.className="display-dash";mark.textContent=part;fragment.append(mark);}else fragment.append(part);}node.replaceWith(fragment);}
+  }
+}
 function togglePunctuation(force){state.punctuationEnabled=typeof force==="boolean"?force:!state.punctuationEnabled;updateDisplayToggles();}
 function updateDisplayToggles(){
   $("dafPage").classList.toggle("punctuation-hidden",!state.punctuationEnabled);
+  $("dafPage").classList.toggle("gemara-dashes-hidden",state.agentSettings.stripGemaraDashes===true);
   $("punctuationToggle").setAttribute("aria-pressed",String(state.punctuationEnabled));$("punctuationToggle").textContent=`Punctuation: ${state.punctuationEnabled?"On":"Off"}`;
   $("nekudosToggle").setAttribute("aria-pressed",String(state.nekudosEnabled));$("nekudosToggle").textContent=`Nekudos: ${state.nekudosEnabled?"On":"Off"}`;
   $("lineNumbersToggle").setAttribute("aria-pressed",String(state.lineNumbersEnabled));$("lineNumbersToggle").textContent=`Gemara line numbers: ${state.lineNumbersEnabled?"On":"Off"}`;
@@ -1439,7 +1448,7 @@ function excerptForeignObjectSvg(){if(!state.selection)return null;const{x,y,wid
 const vectorFontCache={};
 function loadVectorFont(key,url){if(!vectorFontCache[key])vectorFontCache[key]=new Promise((resolve,reject)=>opentype.load(url,(error,font)=>error?reject(error):resolve(font)));return vectorFontCache[key];}
 async function vectorFonts(){return{gemara:await loadVectorFont("gemara","assets/fonts/DrugulinCLM-Bold.otf"),commentary:await loadVectorFont("commentary","assets/fonts/Mekorot-Regular.ttf"),commentaryBold:await loadVectorFont("commentaryBold","assets/fonts/Mekorot-Bold.ttf")};}
-function glyphRun(font,text,fontSize,hidePunctuation=false){const glyphs=font.stringToGlyphs(text),visual=/[\u0590-\u05ff]/u.test(text)?glyphs.reverse():glyphs,scale=fontSize/font.unitsPerEm,parts=[];let cursor=0,x1=Infinity,y1=Infinity,x2=-Infinity,y2=-Infinity;visual.forEach((glyph,index)=>{const path=glyph.getPath(cursor,0,fontSize),box=path.getBoundingBox();if(path.commands.length){if(!hidePunctuation||!isDisplayPunctuation(String.fromCodePoint(glyph.unicode||0)))parts.push(path.toPathData(3));x1=Math.min(x1,box.x1);y1=Math.min(y1,box.y1);x2=Math.max(x2,box.x2);y2=Math.max(y2,box.y2);}const next=visual[index+1];cursor+=(glyph.advanceWidth||font.unitsPerEm*.5)*scale+(next?font.getKerningValue(glyph,next)*scale:0);});if(!parts.length)return null;return{d:parts.join(""),advance:Math.max(.01,cursor),box:{x1,y1,x2,y2}};}
+function glyphRun(font,text,fontSize,hidePunctuation=false,hideDashes=false){const glyphs=font.stringToGlyphs(text),visual=/[\u0590-\u05ff]/u.test(text)?glyphs.reverse():glyphs,scale=fontSize/font.unitsPerEm,parts=[];let cursor=0,x1=Infinity,y1=Infinity,x2=-Infinity,y2=-Infinity;visual.forEach((glyph,index)=>{const path=glyph.getPath(cursor,0,fontSize),box=path.getBoundingBox();if(path.commands.length){if(!(hidePunctuation&&isDisplayPunctuation(String.fromCodePoint(glyph.unicode||0)))&&!(hideDashes&&isDisplayDash(String.fromCodePoint(glyph.unicode||0))))parts.push(path.toPathData(3));x1=Math.min(x1,box.x1);y1=Math.min(y1,box.y1);x2=Math.max(x2,box.x2);y2=Math.max(y2,box.y2);}const next=visual[index+1];cursor+=(glyph.advanceWidth||font.unitsPerEm*.5)*scale+(next?font.getKerningValue(glyph,next)*scale:0);});if(!parts.length)return null;return{d:parts.join(""),advance:Math.max(.01,cursor),box:{x1,y1,x2,y2}};}
 function intersects(a,b){return a.right>b.x&&a.left<b.x+b.width&&a.bottom>b.y&&a.top<b.y+b.height;}
 function exportTextRect(element){if(element.classList.contains("word-token"))return element.getBoundingClientRect();const range=document.createRange();range.selectNodeContents(element);const rects=[...range.getClientRects()].filter(rect=>rect.width>.1&&rect.height>.1);return rects.length===1?rects[0]:element.getBoundingClientRect();}
 function strokePath(points,offsetX,offsetY){if(!points.length)return"";return points.map((p,i)=>`${i?"L":"M"}${(p.x-offsetX).toFixed(2)} ${(p.y-offsetY).toFixed(2)}`).join(" ");}
@@ -1450,7 +1459,7 @@ async function canvaExcerptSvg(){
   for(const element of targets){
     const visualRect=exportTextRect(element),rect={left:(visualRect.left-pageRect.left)/zoom,right:(visualRect.right-pageRect.left)/zoom,top:(visualRect.top-pageRect.top)/zoom,bottom:(visualRect.bottom-pageRect.top)/zoom,width:visualRect.width/zoom,height:visualRect.height/zoom},local={left:rect.left,right:rect.right,top:rect.top,bottom:rect.bottom};
     if(!intersects(local,selection)||!element.textContent.trim())continue;
-    const cs=getComputedStyle(element),isGemara=element.classList.contains("gemara-line-number")||Boolean(element.closest(".gemara,.daf-header")),bold=Number(cs.fontWeight)>=600||Boolean(element.closest("strong,.tosafot-notice")),font=isGemara?fonts.gemara:bold?fonts.commentaryBold:fonts.commentary,run=glyphRun(font,element.textContent.trim(),parseFloat(cs.fontSize)||12,!state.punctuationEnabled&&element.classList.contains("word-token"));
+    const cs=getComputedStyle(element),isGemara=element.classList.contains("gemara-line-number")||Boolean(element.closest(".gemara,.daf-header")),bold=Number(cs.fontWeight)>=600||Boolean(element.closest("strong,.tosafot-notice")),font=isGemara?fonts.gemara:bold?fonts.commentaryBold:fonts.commentary,run=glyphRun(font,element.textContent.trim(),parseFloat(cs.fontSize)||12,!state.punctuationEnabled&&element.classList.contains("word-token"),state.agentSettings.stripGemaraDashes===true&&element.dataset.stream==="gemara");
     if(!run)continue;
     const inkHeight=Math.max(.01,run.box.y2-run.box.y1),scaleX=rect.width/run.advance,baseline=local.top+(rect.height-inkHeight)/2-run.box.y1,x=local.left-selection.x,y=baseline-selection.y;
     const faded=element.classList.contains("word-whited-out"),pathStyle=faded?'fill="none" stroke="#d3cfc6" stroke-width=".35"':'fill="#080706"';textPaths.push(`<g transform="translate(${x.toFixed(3)} ${y.toFixed(3)})"><g transform="scale(${scaleX.toFixed(5)} 1)"><path d="${run.d}" ${pathStyle}/></g></g>`);
@@ -1493,18 +1502,29 @@ function safeAgentSettings(value={}){
   if(value.innerSide==="left"||value.innerSide==="right")clean.innerSide=value.innerSide;
   return clean;
 }
+async function updateAgentSettings(value,replace=false){
+  const previous=state.agentSettings||{},clean=safeAgentSettings(value),next=replace?clean:{...previous,...clean};
+  const layoutKey=settings=>JSON.stringify(Object.entries(settings).filter(([key])=>key!=="stripGemaraDashes").sort(([a],[b])=>a.localeCompare(b)));
+  state.agentSettings=next;
+  if(state.composition&&layoutKey(previous)===layoutKey(next)){
+    decorateGemaraDashes();updateDisplayToggles();postAgentDiagnostics();return;
+  }
+  state.approvedSnapshotLoaded=false;
+  try{await compose();}catch(error){setComposing(false);status(`Adjustment failed: ${error.message}`,true);postAgentDiagnostics([`adjustment failed: ${error.message}`]);}
+}
 window.addEventListener("message",async event=>{
   if(event.origin!==location.origin||event.source!==window.parent)return;
   const data=event.data||{};
   if(data.type==="vilna-agent-load"){
     state.approvedSnapshotLoaded=false;state.teacherApproved=data.approved===true;state.agentSettings=safeAgentSettings(data.settings);state.agentSettingsRef=String(data.ref||"").trim();state.rashbamHeadingMode=data.rashbamHeadingMode||"unresolved";state.rashbamAllowed=data.rashbamAllowed!==false;$("dafRef").value=String(data.ref||"").trim();await loadDaf();
   }else if(data.type==="vilna-agent-replace-settings"){
-    state.approvedSnapshotLoaded=false;state.agentSettings=safeAgentSettings(data.settings);try{await compose();}catch(error){setComposing(false);status(`Adjustment failed: ${error.message}`,true);postAgentDiagnostics([`adjustment failed: ${error.message}`]);}
+    await updateAgentSettings(data.settings,true);
   }else if(data.type==="vilna-agent-adjust"){
-    state.agentSettings={...state.agentSettings,...safeAgentSettings(data.settings)};try{await compose();}catch(error){setComposing(false);status(`Adjustment failed: ${error.message}`,true);postAgentDiagnostics([`adjustment failed: ${error.message}`]);}
+    await updateAgentSettings(data.settings);
   }else if(data.type==="vilna-agent-set-rashbam-policy"){
     const next=["full","short","none","unresolved"].includes(data.headingMode)?data.headingMode:"unresolved";
     if(next!==state.rashbamHeadingMode){state.rashbamHeadingMode=next;await compose();}
   }
 });
 $("dafPage").addEventListener("input",e=>{if(!e.target.closest(".flow-region,.top-commentary"))return;state.dirty=true;status("Page edited directly. Choose Reflow page edits when ready.");requestAnimationFrame(renderGemaraLineNumbers);});window.addEventListener("resize",()=>{syncAnnotationCanvas();renderGemaraLineNumbers();if(!state.approvedSnapshotLoaded&&!state.dirty&&!$("dafPage").classList.contains("composing"))requestAnimationFrame(()=>compose());});document.fonts.ready.then(async()=>{updateDisplayToggles();await applyTypography(state.typography,{recompose:false});if(new URLSearchParams(location.search).has("builder"))window.parent.postMessage({type:"vilna-agent-ready"},location.origin);else{const requested=new URLSearchParams(location.search).get("ref");if(requested&&registryEntry(requested))$("dafRef").value=requested;await loadDaf({automatic:true});}});
+

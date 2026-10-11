@@ -56,6 +56,16 @@ async function invoke(handler,{method='POST',origin='https://sg1234-ux.github.io
   assert.throws(()=>client.configure('https://safe.example/?token=secret',env.AGENT_ACCESS_TOKEN),/HTTPS/);
   client.configure('https://agent.example',env.AGENT_ACCESS_TOKEN);
   assert.equal((await client.review(body)).changes.enforceStreamContinuity,true);
+  const failed={...diagnostics,failures:['gemara source preservation'],unplacedCounts:{gemara:2,inner:0,tosafot:0}};
+  client.outcome(diagnostics,true,{before:diagnostics,attempted:failed});
+  let sentHistory;
+  context.fetch=async(url,options)=>{sentHistory=JSON.parse(options.body).history;return {ok:true,json:async()=>review};};
+  await client.review(body);
+  const rollback=sentHistory.at(-1);
+  assert.equal(rollback.attempted.failures[0],'gemara source preservation');
+  assert.equal(rollback.attempted.unplacedCounts.gemara,2);
+  assert.equal(rollback.before.unplacedCounts.gemara,0);
+  assert.equal(rollback.unplacedCounts.gemara,0,'Restored measurements are distinguished from the failed attempt');
   client.disconnect();assert.deepEqual(JSON.parse(JSON.stringify(client.configuration())),{});
   await assert.rejects(client.review(body),/Connect/);
   // Exercise the actual browser review button: stale/error proposals must never remain applicable.
@@ -82,3 +92,4 @@ async function invoke(handler,{method='POST',origin='https://sg1234-ux.github.io
   console.log('PASS: model tool contract, combined operations, anchor preservation, ambiguity blocking, server authentication/CORS/body limits/throttle, provider failures, and browser session connection.');
   console.log('PASS: real review-button error/stale-result handling and rendered Hebrew line evidence.');
 })().catch(error=>{console.error(error);process.exitCode=1;});
+

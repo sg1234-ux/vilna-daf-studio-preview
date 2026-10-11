@@ -1,6 +1,6 @@
 # Connect the layout model
 
-The builder can now send natural instructions, actual rendered line text and positions, source text, diagnostics, saved constraints, and the last eight conversation/result entries to an OpenAI model. The model proposes supported layout settings through a strict function contract. It does not execute code or approve pages. Apply uses the existing compositor, measured checks, rollback, and Undo.
+The builder can now send natural instructions, actual rendered line text and positions, source text, diagnostics, saved constraints, and the last eight conversation/result entries to an OpenAI model. The model proposes supported layout settings through a strict function contract. It does not execute code or approve pages. Layout changes use the existing compositor, measured checks, rollback, and Undo. Gemara dash removal hides only the dash glyphs, preserving their width and all text and line positions without recomposition. Undo restores their visibility. Rollback history includes the attempted failures and the baseline measurements, not just the restored result.
 
 ## Activate the server
 
@@ -30,3 +30,4 @@ Run `node tests/connected-model.test.cjs`, `node tests/agent-brain.test.cjs`, `n
 Exact unfamiliar Vilna line boundaries require verified evidence. The model receives line coordinates, not a raster screenshot. Source context is capped at 24,000 characters per stream and 200 rendered lines, with explicit truncation flags. Notes, recordings and student data are not included. Context/history resets when a different draft is built and disappears when the browser session ends. Repeated automatic repair uses the existing bounded local repair loop; the model receives results on the next teacher instruction. Punctuation toggles, arbitrary single-region widths, page-mode changes and source edits are not model-executable controls in this release.
 
 API responses use `store:false`; the service does not maintain its own conversation database. This does not override the provider's account retention policy. Rotate the agent password and API key through host settings if needed.
+

@@ -23,7 +23,7 @@
     enforceGemaraGutterBox:'Keep the standard Gemara gutter on all sides without a page-wide commentary gap.',
     finalGemaraGutterLines:'Bounded gutter beneath the final Gemara line.',
     forceCascade:'Use completion-driven layout.',preferredSurvivor:'Stream continuing after a commentary pair.',completedStream:'Stream finishing before the survivor.',
-    stripGemaraDashes:'Remove display dashes from Gemara only; does not alter stored source.',
+    stripGemaraDashes:'Hide Gemara dash glyphs only, preserving their width, every source token, line breaks and layout. No recomposition or source deletion.',
     targetLineCounts:'Exact visual line count for stream. Value integer 1–200.',
     lineAnchors:'Preserve a specific line using stream, line number, startText and endText; matching source required.',
     gemaraAlignment:'Partial Gemara line alignment.',gemaraAlignmentLine:'Gemara line to align.',
@@ -84,3 +84,4 @@
   }
   return {schema,settings,descriptions,ranges,compile};
 });
+
