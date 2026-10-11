@@ -443,6 +443,9 @@ function localAgentReview(body) {
   return { summary, reason, targetRegion, changes, hardFailures: approvalFailures() };
 }
 
+function captureAdjustmentEvidence(){
+  try{return structuredClone(frame.contentWindow.captureAgentEvidence());}catch{return null;}
+}
 function sendAdjustment(changes,{repair=false,replace=false,userRestore=false}={}) {
   if (!diagnostics||reviewing||pendingAdjustment||(!replace&&!Object.keys(changes).length)) return;
   lastAdjustment=structuredClone(diagnostics.settings||{});
@@ -453,16 +456,17 @@ function sendAdjustment(changes,{repair=false,replace=false,userRestore=false}={
 }
 function finishAdjustment(next) {
   const job=pendingAdjustment;if(!job)return;
-  if(job.restoring){pendingAdjustment=null;VilnaAgentConnection.outcome(next,true,{before:job.before,attempted:job.failedDiagnostics});message("Restored the previous layout settings after the adjustment worsened measured checks.",true);return;}
+  if(job.restoring){pendingAdjustment=null;VilnaAgentConnection.outcome(next,true,{before:job.before,attempted:job.failedDiagnostics,attemptedEvidence:job.failedEvidence});message("Restored the previous layout settings after the adjustment worsened measured checks.",true);return;}
   const sourceChanged=JSON.stringify(next.wordCounts)!==JSON.stringify(job.before.wordCounts);
   if(!job.userRestore&&(sourceChanged||VilnaAgentBrain.worse(VilnaAgentBrain.score(next),VilnaAgentBrain.score(job.before)))){
-    job.failedDiagnostics=structuredClone(next);job.restoring=true;
+    job.failedDiagnostics=structuredClone(next);job.failedEvidence=captureAdjustmentEvidence();job.restoring=true;
     frame.contentWindow.postMessage({type:"vilna-agent-replace-settings",settings:job.before.settings||{}},location.origin);
     $("agentResult").textContent="The adjustment worsened source coverage or measured checks. Restoring the prior settings.";return;
   }
   if(job.repair&&next.failures?.length&&job.attempt<3){
     const plan=VilnaAgentBrain.diagnose(next),key=JSON.stringify(plan.changes);
     if(Object.keys(plan.changes).length&&!job.tried.has(key)){
+      VilnaAgentConnection.outcome(next,false,{attemptedEvidence:captureAdjustmentEvidence()});
       job.before=structuredClone(next);job.attempt++;job.tried.add(key);
       frame.contentWindow.postMessage({type:"vilna-agent-adjust",settings:plan.changes},location.origin);
       $("agentResult").textContent=`Repair attempt ${job.attempt}: ${plan.notes.join(" ")}`;return;

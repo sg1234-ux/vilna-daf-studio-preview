@@ -49,7 +49,7 @@ async function invoke(handler,{method='POST',origin='https://sg1234-ux.github.io
   assert.equal((await invoke(handler)).status,429);assert.equal(paidCalls,10);
   const status=await invoke(service.createHandler('status',{env}),{method:'GET'});assert.equal(status.body.aiReady,true);assert(!JSON.stringify(status).includes(env.AGENT_ACCESS_TOKEN));
   assert.equal((await invoke(service.createHandler('status',{env:{...env,OPENAI_API_KEY:''}}),{method:'GET'})).body.aiReady,false);
-  const context={window:{},URL,AbortSignal,sessionStorage:{data:new Map(),getItem(k){return this.data.get(k);},setItem(k,v){this.data.set(k,v);},removeItem(k){this.data.delete(k);}},VilnaAgentCapabilities:cap,fetch:async(url,options)=>{assert(!url.includes(env.AGENT_ACCESS_TOKEN));assert.equal(options.credentials,'omit');return {ok:true,json:async()=>review};}};
+  const context={window:{},URL,AbortSignal,TextEncoder,sessionStorage:{data:new Map(),getItem(k){return this.data.get(k);},setItem(k,v){this.data.set(k,v);},removeItem(k){this.data.delete(k);}},VilnaAgentCapabilities:cap,fetch:async(url,options)=>{assert(!url.includes(env.AGENT_ACCESS_TOKEN));assert.equal(options.credentials,'omit');return {ok:true,json:async()=>review};}};
   vm.createContext(context);vm.runInContext(fs.readFileSync('agent-builder/agent-connection.js','utf8'),context);
   const client=context.window.VilnaAgentConnection;
   assert.throws(()=>client.configure('http://unsafe.example',env.AGENT_ACCESS_TOKEN),/HTTPS/);
@@ -57,7 +57,8 @@ async function invoke(handler,{method='POST',origin='https://sg1234-ux.github.io
   client.configure('https://agent.example',env.AGENT_ACCESS_TOKEN);
   assert.equal((await client.review(body)).changes.enforceStreamContinuity,true);
   const failed={...diagnostics,failures:['gemara source preservation'],unplacedCounts:{gemara:2,inner:0,tosafot:0}};
-  client.outcome(diagnostics,true,{before:diagnostics,attempted:failed});
+  const attemptedEvidence={ref:diagnostics.ref,mode:'navigate',streams:{gemara:{sourceText:'original source must not be duplicated',lines:[{line:1,text:'וכן מה שנטל',x:90,y:20,width:120,height:16}]},inner:{lines:Array.from({length:30},(_,i)=>({line:i+1,text:`inner ${i+1}`,x:4,y:i*16,width:80,height:12}))}}};
+  client.outcome(diagnostics,true,{before:diagnostics,attempted:{...failed,geometry:{transitionGapLines:3}},attemptedEvidence});
   let sentHistory;
   context.fetch=async(url,options)=>{sentHistory=JSON.parse(options.body).history;return {ok:true,json:async()=>review};};
   await client.review(body);
@@ -65,7 +66,18 @@ async function invoke(handler,{method='POST',origin='https://sg1234-ux.github.io
   assert.equal(rollback.attempted.failures[0],'gemara source preservation');
   assert.equal(rollback.attempted.unplacedCounts.gemara,2);
   assert.equal(rollback.before.unplacedCounts.gemara,0);
+  assert.equal(rollback.attempted.geometry.transitionGapLines,3);
+  assert.equal(rollback.attempted.rendered.streams.gemara.lines[0].text,'וכן מה שנטל');
+  assert.equal(rollback.attempted.rendered.streams.gemara.lines[0].width,120);
+  assert.equal(rollback.attempted.rendered.streams.inner.lines.at(-1).line,30);
+  assert.equal(rollback.attempted.rendered.streams.inner.renderedLineCount,30);
+  assert.equal(rollback.attempted.rendered.streams.inner.linesTruncated,true);
+  assert.equal(rollback.attempted.rendered.streams.gemara.sourceText,undefined,'History does not duplicate the original source.');
   assert.equal(rollback.unplacedCounts.gemara,0,'Restored measurements are distinguished from the failed attempt');
+  for(let i=0;i<8;i++)client.outcome({...diagnostics,settings:{note:'א'.repeat(18000)}},false);
+  let payloadBytes=0;
+  context.fetch=async(url,options)=>{payloadBytes=new TextEncoder().encode(options.body).length;return {ok:true,json:async()=>review};};
+  await client.review({...body,extra:'ב'.repeat(30000)});assert(payloadBytes<175000,'Large Hebrew history is bounded by UTF-8 bytes.');
   client.disconnect();assert.deepEqual(JSON.parse(JSON.stringify(client.configuration())),{});
   await assert.rejects(client.review(body),/Connect/);
   // Exercise the actual browser review button: stale/error proposals must never remain applicable.

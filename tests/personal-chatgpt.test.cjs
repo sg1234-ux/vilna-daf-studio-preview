@@ -104,7 +104,7 @@ const streamed=(event=completed())=>({ok:true,status:200,body:Readable.from([Buf
     await assert.rejects(readCompletedStream(streamed({type:'response.output_text.delta',delta:'unfinished'})),/did not finish/);
     await assert.rejects(readCompletedStream(streamed({type:'response.incomplete'})),/did not finish/);
     // Browser local mode cannot reuse a remote saved API connection or expose OAuth credentials.
-    const context={window:{},location:{hostname:'127.0.0.1',origin},URL,AbortSignal,sessionStorage:{getItem:()=>JSON.stringify({base:'https://paid.example',token:'paid-password'}),removeItem(){}},VilnaAgentCapabilities:require('../agent-builder/agent-capabilities.js'),fetch:async(url,options)=>{
+    const context={window:{},location:{hostname:'127.0.0.1',origin},URL,AbortSignal,TextEncoder,sessionStorage:{getItem:()=>JSON.stringify({base:'https://paid.example',token:'paid-password'}),removeItem(){}},VilnaAgentCapabilities:require('../agent-builder/agent-capabilities.js'),fetch:async(url,options)=>{
       assert.equal(url,`${origin}/api/local/review`);assert.equal(options.credentials,'same-origin');assert(!options.headers.Authorization);assert.equal(JSON.parse(options.body).model,'account-model');return json({review:proposal});
     }};
     vm.createContext(context);vm.runInContext(await fs.readFile('agent-builder/agent-connection.js','utf8'),context);const client=context.window.VilnaAgentConnection;
