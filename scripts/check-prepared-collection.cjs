@@ -24,9 +24,28 @@ function validate(slug,expectedCounts){
  for(const block of model.blocks)assert.equal(model.streams[block.stream].lines.filter(l=>l.block===block.id).length,block.lineCount);
  assert.equal(model.openingLines,4);assert.equal(model.blocks.find(b=>b.id==='rashi-opening').lineCount,4);assert.equal(model.blocks.find(b=>b.id==='tosafot-opening').lineCount,4);
  if(slug==='bava-metzia-22b'){assert.equal(model.blocks.find(b=>b.id==='rashi-side-overhang').lineCount,1);assert.equal(model.blocks.find(b=>b.id==='tosafot-narrow').lineCount,60);}
- else {assert.equal(model.streams.gemara.lines[38].role,'heading');assert.equal(model.blocks.find(b=>b.id==='rashi-hadran').lineCount,1);assert.equal(model.streams.tosafot.lines.at(-1).firstWord,'טעה');assert.equal(model.streams.rashi.lines.at(-1).firstWord,'מבדיל');}
- console.log('PASS',spec.ref,JSON.stringify(expectedCounts),'complete source identities, print variants, and four-line opening with side overhang.');
+ else if(slug==='berakhot-26a'){assert.equal(model.streams.gemara.lines[38].role,'heading');assert.equal(model.blocks.find(b=>b.id==='rashi-hadran').lineCount,1);assert.equal(model.streams.tosafot.lines.at(-1).firstWord,'טעה');assert.equal(model.streams.rashi.lines.at(-1).firstWord,'מבדיל');}
+ const previews=Object.values(model.streams).flatMap(s=>s.tokens.filter(t=>t.nextAmud));
+ for(const name of Object.keys(model.streams)){
+  const tokens=model.streams[name].tokens.filter(t=>t.nextAmud);if(!tokens.length)continue;
+  const nextSlug=tokens[0].ref.toLowerCase().replace(/ /g,'-'),nextSource=JSON.parse(fs.readFileSync(path.join(root,'sources',nextSlug+'.json'))),prefix=leaves(nextSource.streams[name].he).flatMap(([,t])=>lex(t)).slice(0,tokens.length);
+  assert.deepEqual(tokens.map(t=>norm(t.sourceText)),prefix.map(norm),'next-amud prefix provenance');
+ }
+ if(slug==='bava-metzia-23a'){
+  assert.deepEqual(['gemara-narrow','gemara-widen-right','gemara-full-width'].map(id=>model.blocks.find(b=>b.id===id).lineCount),[41,5,6]);
+ }else if(slug==='berakhot-26b'){
+  assert.equal(model.blocks.find(b=>b.id==='gemara-widen-left').lineCount,17);assert.equal(model.blocks.find(b=>b.id==='tosafot-footer').lineCount,10);
+ }else if(slug==='pesachim-101a'){
+  assert.equal(model.blocks.find(b=>b.id==='rashbam-wide').lineCount,21);assert.equal(model.blocks.find(b=>b.id==='tosafot-full-footer').lineCount,6);assert.equal(model.streams.rashi.lines.at(-1).displayText,'אין');assert.equal(model.titles[0].stream,'rashbam');
+ }
+ console.log('PASS' ,spec.ref,JSON.stringify(expectedCounts),'complete source identities, print variants, and four broad opening rows and measured physical blocks.');
 }
 validate('bava-metzia-22b',{gemara:52,rashi:70,tosafot:70});
 
 validate('berakhot-26a',{gemara:57,rashi:57,tosafot:53});
+
+validate('bava-metzia-23a',{gemara:53,rashi:51,tosafot:57});
+
+validate('berakhot-26b',{gemara:50,rashi:41,tosafot:73});
+
+validate('pesachim-101a',{gemara:32,rashi:12,rashbam:51,tosafot:71});

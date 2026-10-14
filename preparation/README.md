@@ -44,3 +44,17 @@ Run `node scripts/check-prepared-page.cjs` and `node tests/preparation-library.t
 All 81 reference images were retrieved and verified as images on 2026-10-14. `reference-images.json` preserves their source URLs, byte sizes and SHA-256 hashes. Retrieval does not mean that all pages have been visually read or mapped. Run `node scripts/check-prepared-collection.cjs` for BM 22b’s full source identity, printed variants and corrected four-line opening allocation checks. Builder integration remains separate and paused.
 
 Berachos 26a source coverage is 539 Gemara lexical tokens, 313 Rashi tokens and 299 Tosafos tokens, with heading/source-marker distinctions recorded and next-page words tracked separately. Run `node scripts/check-prepared-collection.cjs` to check both BM 22b and Berachos 26a. Remaining pages retain queued status; retrieval is not visual preparation.
+
+## Additional completed preparation — 2026-10-14
+
+BM 23a, Berachos 26b and Pesachim 101a are now separately prepared and source-checked. They remain `engineReady: false` pending the collection-wide renderer adapter.
+
+| Page | Gemara rows | Rashi rows | Rashbam rows | Tosafos rows |
+|---|---:|---:|---:|---:|
+| BM 23a | 53 | 51 | — | 57 |
+| Berachos 26b | 50 | 41 | — | 73 |
+| Pesachim 101a | 32 | 12 | 51 | 71 |
+
+Counts include isolated next-page previews. BM 23a widens Gemara first into completed Rashi and then to full width. Berachos 26b has Rashi on the left and Tosafos on the right; Gemara widens left, while Tosafos continues into a full-width footer. Pesachim 101a has four broad opening rows in each commentary: the fourth Tosafos row includes the large ולשמואל heading. It has an independent Rashbam title, wider commentary regions below Gemara, a full-width Tosafos footer and a separately recorded printed editorial cross-reference.
+
+The complete source snapshots remain unchanged. Printed abbreviations, the Pesachim 101a מפינה לפינה / source מבית לבית difference, and borrowed preview forms are recorded explicitly. Run `node scripts/check-prepared-collection.cjs`, `node scripts/check-prepared-page.cjs` and `node tests/preparation-library.test.cjs`. These checks establish preparation integrity; they do not claim the paused builder adapter has been implemented or visually tested.
