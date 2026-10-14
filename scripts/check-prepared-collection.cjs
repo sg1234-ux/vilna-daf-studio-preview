@@ -19,7 +19,11 @@ function validate(slug,expectedCounts){
     assert.deepEqual(words,printed.map(norm));
    }else assert.deepEqual(lex(l.sourceText).map(norm),printed.map(norm));
   }
-  assert.equal(cursor,s.tokens.length);assert.equal(new Set(s.lines.flatMap(l=>l.sourceWordIds)).size,s.tokens.length);
+  if(s.deferredSourceSpan){
+   const [a,b]=s.deferredSourceSpan;assert.equal(a,cursor);assert.equal(b,s.tokens.length);assert(b>a);assert.equal(s.deferredTo,'Pesachim 102a');
+   const c=model.sourceContinuations.find(c=>c.stream===name);assert.deepEqual(c.sourceSpan,[a,b]);assert.deepEqual(c.sourceWordIds,s.tokens.slice(a,b).map(t=>t.sourceWordId));assert.equal(c.sourceText,s.tokens.slice(a,b).map(t=>t.sourceText).join(' '));
+  }else assert.equal(cursor,s.tokens.length);
+  assert.equal(new Set(s.lines.flatMap(l=>l.sourceWordIds)).size,cursor);
  }
  for(const block of model.blocks)assert.equal(model.streams[block.stream].lines.filter(l=>l.block===block.id).length,block.lineCount);
  assert.equal(model.openingLines,4);assert.equal(model.blocks.find(b=>b.id==='rashi-opening').lineCount,4);assert.equal(model.blocks.find(b=>b.id==='tosafot-opening').lineCount,4);
@@ -30,6 +34,13 @@ function validate(slug,expectedCounts){
   const tokens=model.streams[name].tokens.filter(t=>t.nextAmud);if(!tokens.length)continue;
   const nextSlug=tokens[0].ref.toLowerCase().replace(/ /g,'-'),nextSource=JSON.parse(fs.readFileSync(path.join(root,'sources',nextSlug+'.json'))),prefix=leaves(nextSource.streams[name].he).flatMap(([,t])=>lex(t)).slice(0,tokens.length);
   assert.deepEqual(tokens.map(t=>norm(t.sourceText)),prefix.map(norm),'next-amud prefix provenance');
+ }
+ if(slug==='bava-metzia-23b'){
+  assert.equal(model.streams.rashi.lines.length,62);assert.equal(model.blocks.find(b=>b.id==='gemara-wide').lineCount,5);assert(model.streams.tosafot.borrowedWordCount>1);assert(model.diagrams.some(d=>d.id==='triangle-example'));assert.equal(model.streams.tosafot.lines.at(-1).displayText,'ומודה');
+ }else if(slug==='berakhot-27a'){
+  assert.equal(model.blocks.find(b=>b.id==='rashi-full-footer').lineCount,8);assert.equal(model.blocks.find(b=>b.id==='gemara-widen-left').lineCount,23);
+ }else if(slug==='pesachim-101b'){
+  assert.equal(model.streams.rashbam.lines.some(l=>l.role==='next-amud-preview'),false);assert.deepEqual(model.streams.tosafot.deferredSourceSpan,[484,724]);assert.equal(model.streams.tosafot.lines.at(-1).displayText,'לברך');assert.equal(model.blocks.find(b=>b.id==='tosafot-narrow').lineCount,38);
  }
  if(slug==='bava-metzia-23a'){
   assert.deepEqual(['gemara-narrow','gemara-widen-right','gemara-full-width'].map(id=>model.blocks.find(b=>b.id===id).lineCount),[41,5,6]);
@@ -49,3 +60,9 @@ validate('bava-metzia-23a',{gemara:53,rashi:51,tosafot:57});
 validate('berakhot-26b',{gemara:50,rashi:41,tosafot:73});
 
 validate('pesachim-101a',{gemara:32,rashi:12,rashbam:51,tosafot:71});
+
+validate('bava-metzia-23b',{gemara:57,rashi:62,tosafot:71});
+
+validate('berakhot-27a',{gemara:51,rashi:73,tosafot:34});
+
+validate('pesachim-101b',{gemara:34,rashi:26,rashbam:44,tosafot:61});
