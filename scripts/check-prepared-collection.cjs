@@ -6,9 +6,12 @@ function validate(slug,expectedCounts){
  const root=path.resolve(__dirname,'../preparation'),spec=JSON.parse(fs.readFileSync(path.join(root,'pages',slug+'.json'))),raw=fs.readFileSync(path.join(root,'sources',slug+'.json')),source=JSON.parse(raw),model=spec.renderInstructions;
  assert.equal(spec.preparationComplete,true);assert.deepEqual(spec.remainingPreparation,[]);assert.equal(crypto.createHash('sha256').update(raw).digest('hex'),spec.verification.sourceSnapshotSha256);assert.equal(spec.engineReady,false);
  for(const [name,s]of Object.entries(model.streams)){
-  const expected=leaves(source.streams[name].he).flatMap(([p,t])=>lex(t).map((text,i)=>({id:`${name}:${p.join('.')}:${i}`,text}))),base=s.tokens.filter(t=>!t.nextAmud),byId=new Map(expected.map(w=>[w.id,w.text]));
-  assert.equal(base.length,s.sourceWordCount);assert.deepEqual(base.map(t=>t.sourceWordId).sort(),expected.map(t=>t.id).sort());for(const t of base)assert.equal(t.sourceText,byId.get(t.sourceWordId));
-  assert.equal(s.lines.length,expectedCounts[name]);let cursor=0;
+  const expected=leaves(source.streams[name].he).flatMap(([p,t])=>lex(t).map((text,i)=>({id:`${name}:${p.join('.')}:${i}`,text}))),base=s.tokens.filter(t=>!t.nextAmud&&!t.incomingFromPreviousAmud),byId=new Map(expected.map(w=>[w.id,w.text]));
+  assert.equal(base.length,s.sourceWordCount);
+  const incoming=s.tokens.filter(t=>t.incomingFromPreviousAmud);assert.equal(incoming.length,s.incomingFromPreviousWordCount||0);
+  if(incoming.length){const c=model.incomingSourceContinuations.find(c=>c.stream===name),prior=JSON.parse(fs.readFileSync(path.join(root,c.priorSpecification))).renderInstructions.streams[name].tokens.slice(...c.sourceSpan),snapshot=fs.readFileSync(path.join(root,c.sourceSnapshot));assert.equal(crypto.createHash('sha256').update(snapshot).digest('hex'),c.sourceSnapshotSha256);assert.deepEqual(incoming.map(t=>t.originalSourceWordId),prior.map(t=>t.sourceWordId));assert.deepEqual(incoming.map(t=>t.sourceText),prior.map(t=>t.sourceText));assert(incoming.every(t=>t.ref===c.sourceRef));}
+  assert.deepEqual(base.map(t=>t.sourceWordId).sort(),expected.map(t=>t.id).sort());for(const t of base)assert.equal(t.sourceText,byId.get(t.sourceWordId));
+  assert.equal(s.lines.length,expectedCounts[name]);let cursor=s.previousSourceSpan?.[1]||0;const startCursor=cursor;if(s.previousSourceSpan){assert.equal(s.previousSourceSpan[0],0);assert.equal(s.printedOnPreviousAmud,'Bava Metzia 23b');const prior=JSON.parse(fs.readFileSync(path.join(root,'pages/bava-metzia-23b.json'))).renderInstructions.streams[name].tokens.filter(t=>t.nextAmud).slice(0,cursor);assert.deepEqual(s.tokens.slice(0,cursor).map(t=>norm(t.sourceText)),prior.map(t=>norm(t.sourceText)));}
   for(const [i,l]of s.lines.entries()){
    assert.equal(l.line,i+1);const [a,b]=l.sourceSpan;assert.equal(a,cursor);assert(b>a&&b<=s.tokens.length);cursor=b;
    assert.equal(l.sourceText,s.tokens.slice(a,b).map(t=>t.sourceText).join(' '));assert.deepEqual(l.sourceWordIds,s.tokens.slice(a,b).map(t=>t.sourceWordId));
@@ -23,7 +26,10 @@ function validate(slug,expectedCounts){
    const [a,b]=s.deferredSourceSpan;assert.equal(a,cursor);assert.equal(b,s.tokens.length);assert(b>a);assert.equal(s.deferredTo,'Pesachim 102a');
    const c=model.sourceContinuations.find(c=>c.stream===name);assert.deepEqual(c.sourceSpan,[a,b]);assert.deepEqual(c.sourceWordIds,s.tokens.slice(a,b).map(t=>t.sourceWordId));assert.equal(c.sourceText,s.tokens.slice(a,b).map(t=>t.sourceText).join(' '));
   }else assert.equal(cursor,s.tokens.length);
-  assert.equal(new Set(s.lines.flatMap(l=>l.sourceWordIds)).size,cursor);
+  assert.equal(new Set(s.lines.flatMap(l=>l.sourceWordIds)).size,cursor-startCursor);
+ }
+ if(model.nextPagePreviewPolicy==='omit-isolated-preview-words'){
+  for(const stream of Object.values(model.streams))assert(stream.lines.every(l=>l.role!=='next-amud-preview'),'isolated previews must be omitted');
  }
  for(const block of model.blocks)assert.equal(model.streams[block.stream].lines.filter(l=>l.block===block.id).length,block.lineCount);
  assert.equal(model.openingLines,4);assert.equal(model.blocks.find(b=>b.id==='rashi-opening').lineCount,4);assert.equal(model.blocks.find(b=>b.id==='tosafot-opening').lineCount,4);
@@ -66,3 +72,9 @@ validate('bava-metzia-23b',{gemara:57,rashi:62,tosafot:71});
 validate('berakhot-27a',{gemara:51,rashi:73,tosafot:34});
 
 validate('pesachim-101b',{gemara:34,rashi:26,rashbam:44,tosafot:61});
+
+validate('berakhot-27b',{gemara:50,rashi:48,tosafot:29});
+
+validate('bava-metzia-24a',{gemara:48,rashi:42,tosafot:69});
+
+validate('pesachim-102a',{gemara:32,rashi:23,rashbam:41,tosafot:49});

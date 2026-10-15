@@ -74,3 +74,15 @@ BM 23b has Rashi on the left and Tosafos on the right. Rashi's triangle annotati
 Berachos 27a widens Gemara left after Tosafos ends. Rashi continues into eight full-width footer rows. Marginal headings such as תורה אור are not inserted into Rashi's source text.
 
 Pesachim 101b has Rashi above a separate Rashbam section on the left and Tosafos on the right. Rashbam has 16 narrow rows, 20 wider rows and eight full-width footer rows. Tosafos has four opening rows, 38 narrow rows, 18 wider rows and the לברך preview. The canonical Tosafos source continues beyond the physical amud: all 724 source words remain saved, 484 are assigned to the printed page including its preview, and the remaining 240 are explicitly deferred to physical 102a. `deferredSourceSpan`, `sourceContinuations` and 102a's manifest `incomingSourceContinuation` preserve that boundary. The next preparation must reconcile this continuation with its own canonical snapshot and must not discard or duplicate overlapping source text. The collection checker verifies source identities in both the printed prefix and deferred suffix, independently of building.
+
+## Preparation without isolated next-page previews
+
+At the user's request on 2026-10-14, new records omit isolated next-page preview words. Existing completed records remain preserved. Main text and complete commentary printed on the current page remain included when a canonical source reference crosses the amud boundary. `nextPagePreviewPolicy` and the collection checker enforce this distinction.
+
+| Newly completed physical page | Gemara rows | Rashi rows | Rashbam rows | Tosafos rows |
+|---|---:|---:|---:|---:|
+| BM 24a | 48 | 42 | — | 69 |
+| Berachos 27b | 50 | 48 | — | 29 |
+| Pesachim 102a | 32 | 23 | 41 | 49 |
+
+These counts exclude isolated previews. All three remain preparation-complete and renderer-adapter-pending. BM 24a retains the canonical 87-word Tosafos prefix already printed on 23b in `previousSourceSpan`, without rendering it twice. Berachos 27b includes the main Rashi comment מעברין לך filed under 28a; its isolated following preview is excluded. Pesachim 102a consumes the 241-word Tosafos continuation from canonical 101b span [483,724] before its own 128-word Tosafos source. The first incoming word לברך was the previous page's preview and is main text here. Incoming source IDs are qualified by their original amud to prevent collisions with this page's own source IDs; original IDs and snapshot hashes remain available for validation.
