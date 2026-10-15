@@ -80,3 +80,5 @@ validate('bava-metzia-24a',{gemara:48,rashi:42,tosafot:69});
 validate('pesachim-102a',{gemara:32,rashi:23,rashbam:41,tosafot:49});
 
 validate('berakhot-28a',{gemara:56,rashi:49,tosafot:28});
+
+validate('bava-metzia-24b',{gemara:51,rashi:40,tosafot:66});
