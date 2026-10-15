@@ -11,7 +11,7 @@ function validate(slug,expectedCounts){
   const incoming=s.tokens.filter(t=>t.incomingFromPreviousAmud);assert.equal(incoming.length,s.incomingFromPreviousWordCount||0);
   if(incoming.length){const c=model.incomingSourceContinuations.find(c=>c.stream===name),prior=JSON.parse(fs.readFileSync(path.join(root,c.priorSpecification))).renderInstructions.streams[name].tokens.slice(...c.sourceSpan),snapshot=fs.readFileSync(path.join(root,c.sourceSnapshot));assert.equal(crypto.createHash('sha256').update(snapshot).digest('hex'),c.sourceSnapshotSha256);assert.deepEqual(incoming.map(t=>t.originalSourceWordId),prior.map(t=>t.sourceWordId));assert.deepEqual(incoming.map(t=>t.sourceText),prior.map(t=>t.sourceText));assert(incoming.every(t=>t.ref===c.sourceRef));}
   assert.deepEqual(base.map(t=>t.sourceWordId).sort(),expected.map(t=>t.id).sort());for(const t of base)assert.equal(t.sourceText,byId.get(t.sourceWordId));
-  assert.equal(s.lines.length,expectedCounts[name]);let cursor=s.previousSourceSpan?.[1]||0;const startCursor=cursor;if(s.previousSourceSpan){assert.equal(s.previousSourceSpan[0],0);assert.equal(s.printedOnPreviousAmud,'Bava Metzia 23b');const prior=JSON.parse(fs.readFileSync(path.join(root,'pages/bava-metzia-23b.json'))).renderInstructions.streams[name].tokens.filter(t=>t.nextAmud).slice(0,cursor);assert.deepEqual(s.tokens.slice(0,cursor).map(t=>norm(t.sourceText)),prior.map(t=>norm(t.sourceText)));}
+  assert.equal(s.lines.length,expectedCounts[name]);let cursor=s.previousSourceSpan?.[1]||0;const startCursor=cursor;if(s.previousSourceSpan){assert.equal(s.previousSourceSpan[0],0);assert(['Bava Metzia 23b','Berakhot 27b'].includes(s.printedOnPreviousAmud));const previousSlug=s.printedOnPreviousAmud.toLowerCase().replace(/ /g,'-');const prior=JSON.parse(fs.readFileSync(path.join(root,'pages',previousSlug+'.json'))).renderInstructions.streams[name].tokens.filter(t=>t.nextAmud).slice(0,cursor);assert.deepEqual(s.tokens.slice(0,cursor).map(t=>norm(t.sourceText)),prior.map(t=>norm(t.sourceText)));}
   for(const [i,l]of s.lines.entries()){
    assert.equal(l.line,i+1);const [a,b]=l.sourceSpan;assert.equal(a,cursor);assert(b>a&&b<=s.tokens.length);cursor=b;
    assert.equal(l.sourceText,s.tokens.slice(a,b).map(t=>t.sourceText).join(' '));assert.deepEqual(l.sourceWordIds,s.tokens.slice(a,b).map(t=>t.sourceWordId));
@@ -78,3 +78,5 @@ validate('berakhot-27b',{gemara:50,rashi:48,tosafot:29});
 validate('bava-metzia-24a',{gemara:48,rashi:42,tosafot:69});
 
 validate('pesachim-102a',{gemara:32,rashi:23,rashbam:41,tosafot:49});
+
+validate('berakhot-28a',{gemara:56,rashi:49,tosafot:28});
