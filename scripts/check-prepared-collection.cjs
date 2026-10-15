@@ -22,7 +22,12 @@ function validate(slug,expectedCounts){
     assert.deepEqual(words,printed.map(norm));
    }else assert.deepEqual(lex(l.sourceText).map(norm),printed.map(norm));
   }
-  if(s.deferredSourceSpan){
+  if(s.unprintedDuplicateSourceSpan){
+   const [a,b]=s.unprintedDuplicateSourceSpan;assert.equal(a,cursor);assert.equal(b,s.tokens.length);assert(b>a);assert.equal(s.duplicateOfSourceWordIds.length,b-a);
+   const printedIds=new Set(s.lines.flatMap(l=>l.sourceWordIds));assert(s.duplicateOfSourceWordIds.every(id=>printedIds.has(id)));
+   assert.deepEqual(s.tokens.slice(a,b).map(t=>t.sourceText),s.duplicateOfSourceWordIds.map(id=>byId.get(id)));
+   assert(s.tokens.slice(a,b).every(t=>!printedIds.has(t.sourceWordId)));assert(s.unprintedDuplicateReason);
+  }else if(s.deferredSourceSpan){
    const [a,b]=s.deferredSourceSpan;assert.equal(a,cursor);assert.equal(b,s.tokens.length);assert(b>a);assert.equal(s.deferredTo,'Pesachim 102a');
    const c=model.sourceContinuations.find(c=>c.stream===name);assert.deepEqual(c.sourceSpan,[a,b]);assert.deepEqual(c.sourceWordIds,s.tokens.slice(a,b).map(t=>t.sourceWordId));assert.equal(c.sourceText,s.tokens.slice(a,b).map(t=>t.sourceText).join(' '));
   }else assert.equal(cursor,s.tokens.length);
@@ -82,3 +87,5 @@ validate('pesachim-102a',{gemara:32,rashi:23,rashbam:41,tosafot:49});
 validate('berakhot-28a',{gemara:56,rashi:49,tosafot:28});
 
 validate('bava-metzia-24b',{gemara:51,rashi:40,tosafot:66});
+
+validate('pesachim-102b',{gemara:20,rashi:11,rashbam:51,tosafot:68});

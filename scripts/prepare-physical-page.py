@@ -13,18 +13,23 @@ def compile_page(o):
  for name,obs in o['streams'].items():
   raw=[(p,t)for p,t in leaves(src['streams'][name]['he'])if t]
   if obs.get('commentOrder'):raw=[raw[i]for i in obs['commentOrder']]
+  duplicates=obs.get('unprintedDuplicateLeaves',{})
+  original=raw[:]
+  for a,b in duplicates.items():assert lex(original[int(a)][1])==lex(original[int(b)][1]),'Only exact duplicate canonical leaves can be omitted from printing'
+  raw=[v for i,v in enumerate(original)if str(i)not in duplicates]+[original[int(i)]for i in duplicates]
   tokens=[dict(sourceWordId=f'{name}:{".".join(map(str,p))}:{i}',sourceText=t)for p,text in raw for i,t in enumerate(lex(text))];words=[norm(t['sourceText'])for t in tokens]
+  printedWordCount=len(words)-sum(len(lex(original[int(i)][1]))for i in duplicates)
   lines=[dict(line=i+1,firstWord=(ws:=r.split())[0],lastWord=ws[-1],role='text')for i,r in enumerate(obs['rows'])]
   aliases={**o.get('aliases',{}),**obs.get('aliases',{})}
   def endpoint(i,key):
    value=lines[i][key];return list(map(norm,obs.get('endpointSource',{}).get(str(i+1)+':'+key,aliases.get(value,[value]))))
   @lru_cache(None)
   def solve(i,start):
-   if i==len(lines):return (0,((),),i,start)if start==len(words)else(10**6,(),i,start)
+   if i==len(lines):return (0,((),),i,start)if start==printedWordCount else(10**6,(),i,start)
    a=endpoint(i,'firstWord');b=endpoint(i,'lastWord')
    if words[start:start+len(a)]!=a:return(10**6,(),i,start)
    best=10**6;paths=[];depth=i;failed=start
-   for end in range(start+1,min(len(words),start+95)+1):
+   for end in range(start+1,min(printedWordCount,start+95)+1):
     if words[end-len(b):end]!=b:continue
     score,tails,d,z=solve(i+1,end)
     if d>depth:depth,failed=d,z
@@ -53,6 +58,10 @@ def compile_page(o):
    if v:l['printVariants']=v
    cursor=end
   streams[name]=dict(tokens=tokens,lines=lines,sourceWordCount=len(tokens),borrowedWordCount=0)
+  if duplicates:
+   streams[name]['unprintedDuplicateSourceSpan']=[printedWordCount,len(tokens)]
+   streams[name]['unprintedDuplicateReason']='Canonical snapshot repeats an identical comment; manual scan review found one printed occurrence.'
+   streams[name]['duplicateOfSourceWordIds']=[f'{name}:{".".join(map(str,original[int(b)][0]))}:{i}'for a,b in duplicates.items()for i,t in enumerate(lex(original[int(b)][1]))]
  for name,s in streams.items():
   cursor=0
   for b in [b for b in o['blocks']if b['stream']==name]:
