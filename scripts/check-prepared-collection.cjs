@@ -22,22 +22,32 @@ function validate(slug,expectedCounts){
     assert.deepEqual(words,printed.map(norm));
    }else assert.deepEqual(lex(l.sourceText).map(norm),printed.map(norm));
   }
+  let accountedEnd=cursor;
+  if(s.deferredSourceSpan){
+   const [a,b]=s.deferredSourceSpan;assert.equal(a,accountedEnd);assert(b>a&&b<=s.tokens.length);accountedEnd=b;
+   assert.equal(s.deferredTo,slug==='pesachim-101b'?'Pesachim 102a':'Pesachim 103b');
+   const c=model.sourceContinuations.find(c=>c.stream===name);assert.deepEqual(c.sourceSpan,[a,b]);assert.deepEqual(c.sourceWordIds,s.tokens.slice(a,b).map(t=>t.sourceWordId));assert.equal(c.sourceText,s.tokens.slice(a,b).map(t=>t.sourceText).join(' '));
+  }
   if(s.unprintedDuplicateSourceSpan){
-   const [a,b]=s.unprintedDuplicateSourceSpan;assert.equal(a,cursor);assert.equal(b,s.tokens.length);assert(b>a);assert.equal(s.duplicateOfSourceWordIds.length,b-a);
+   const [a,b]=s.unprintedDuplicateSourceSpan;assert.equal(a,accountedEnd);assert.equal(b,s.tokens.length);accountedEnd=b;assert(b>a);assert.equal(s.duplicateOfSourceWordIds.length,b-a);
    const printedIds=new Set(s.lines.flatMap(l=>l.sourceWordIds));assert(s.duplicateOfSourceWordIds.every(id=>printedIds.has(id)));
    assert.deepEqual(s.tokens.slice(a,b).map(t=>t.sourceText),s.duplicateOfSourceWordIds.map(id=>byId.get(id)));
    assert(s.tokens.slice(a,b).every(t=>!printedIds.has(t.sourceWordId)));assert(s.unprintedDuplicateReason);
-  }else if(s.deferredSourceSpan){
-   const [a,b]=s.deferredSourceSpan;assert.equal(a,cursor);assert.equal(b,s.tokens.length);assert(b>a);assert.equal(s.deferredTo,'Pesachim 102a');
-   const c=model.sourceContinuations.find(c=>c.stream===name);assert.deepEqual(c.sourceSpan,[a,b]);assert.deepEqual(c.sourceWordIds,s.tokens.slice(a,b).map(t=>t.sourceWordId));assert.equal(c.sourceText,s.tokens.slice(a,b).map(t=>t.sourceText).join(' '));
-  }else assert.equal(cursor,s.tokens.length);
+  }
+  assert.equal(accountedEnd,s.tokens.length);
   assert.equal(new Set(s.lines.flatMap(l=>l.sourceWordIds)).size,cursor-startCursor);
  }
  if(model.nextPagePreviewPolicy==='omit-isolated-preview-words'){
   for(const stream of Object.values(model.streams))assert(stream.lines.every(l=>l.role!=='next-amud-preview'),'isolated previews must be omitted');
  }
  for(const block of model.blocks)assert.equal(model.streams[block.stream].lines.filter(l=>l.block===block.id).length,block.lineCount);
- assert.equal(model.openingLines,4);assert.equal(model.blocks.find(b=>b.id==='rashi-opening').lineCount,4);assert.equal(model.blocks.find(b=>b.id==='tosafot-opening').lineCount,4);
+ for(const d of model.diagrams||[]){if(d.anchorAfterSourceWordId){const stream=model.streams[d.stream];assert(stream.lines[d.line-1].sourceWordIds.includes(d.anchorAfterSourceWordId));assert.equal(d.textExclusionBox.length,4);assert(d.box[2]>d.box[0]&&d.box[3]>d.box[1]);}}
+
+ assert.equal(model.openingLines,4);assert.equal(model.blocks.find(b=>b.id==='rashi-opening').lineCount,4);if(slug==='berakhot-28b'){
+  assert.equal(model.openingLayout.tosafotBroadRows,0);assert.equal(model.openingLayout.rashiSideOverhangRows,1);assert(!model.blocks.some(b=>b.id==='tosafot-opening'));
+  const ro=model.blocks.find(b=>b.id==='rashi-opening'),ts=model.blocks.find(b=>b.id==='tosafot-side'),g=model.blocks.find(b=>b.id==='gemara-narrow');
+  assert.equal(ro.box[0],model.coreBox[0]);assert.equal(ro.box[2],model.coreBox[2]);assert.equal(ts.lineCount,4);assert.equal(ts.box[1],g.box[1]);assert(ts.box[0]>g.box[2]);
+ }else assert.equal(model.blocks.find(b=>b.id==='tosafot-opening').lineCount,4);
  if(slug==='bava-metzia-22b'){assert.equal(model.blocks.find(b=>b.id==='rashi-side-overhang').lineCount,1);assert.equal(model.blocks.find(b=>b.id==='tosafot-narrow').lineCount,60);}
  else if(slug==='berakhot-26a'){assert.equal(model.streams.gemara.lines[38].role,'heading');assert.equal(model.blocks.find(b=>b.id==='rashi-hadran').lineCount,1);assert.equal(model.streams.tosafot.lines.at(-1).firstWord,'טעה');assert.equal(model.streams.rashi.lines.at(-1).firstWord,'מבדיל');}
  const previews=Object.values(model.streams).flatMap(s=>s.tokens.filter(t=>t.nextAmud));
@@ -89,3 +99,9 @@ validate('berakhot-28a',{gemara:56,rashi:49,tosafot:28});
 validate('bava-metzia-24b',{gemara:51,rashi:40,tosafot:66});
 
 validate('pesachim-102b',{gemara:20,rashi:11,rashbam:51,tosafot:68});
+
+validate('berakhot-28b',{gemara:54,rashi:48,tosafot:4});
+
+validate('bava-metzia-25a',{gemara:46,rashi:65,tosafot:39});
+
+validate('pesachim-103a',{gemara:35,rashi:13,rashbam:54,tosafot:59});

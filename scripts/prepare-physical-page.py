@@ -18,7 +18,9 @@ def compile_page(o):
   for a,b in duplicates.items():assert lex(original[int(a)][1])==lex(original[int(b)][1]),'Only exact duplicate canonical leaves can be omitted from printing'
   raw=[v for i,v in enumerate(original)if str(i)not in duplicates]+[original[int(i)]for i in duplicates]
   tokens=[dict(sourceWordId=f'{name}:{".".join(map(str,p))}:{i}',sourceText=t)for p,text in raw for i,t in enumerate(lex(text))];words=[norm(t['sourceText'])for t in tokens]
-  printedWordCount=len(words)-sum(len(lex(original[int(i)][1]))for i in duplicates)
+  mainWordCount=len(words)-sum(len(lex(original[int(i)][1]))for i in duplicates)
+  printedWordCount=obs.get('printedSourceWordCount',mainWordCount)
+  assert 0<printedWordCount<=mainWordCount
   lines=[dict(line=i+1,firstWord=(ws:=r.split())[0],lastWord=ws[-1],role='text')for i,r in enumerate(obs['rows'])]
   aliases={**o.get('aliases',{}),**obs.get('aliases',{})}
   def endpoint(i,key):
@@ -58,8 +60,12 @@ def compile_page(o):
    if v:l['printVariants']=v
    cursor=end
   streams[name]=dict(tokens=tokens,lines=lines,sourceWordCount=len(tokens),borrowedWordCount=0)
+  if printedWordCount<mainWordCount:
+   assert obs.get('deferredToRef')
+   streams[name]['deferredSourceSpan']=[printedWordCount,mainWordCount]
+   streams[name]['deferredTo']=obs['deferredToRef']
   if duplicates:
-   streams[name]['unprintedDuplicateSourceSpan']=[printedWordCount,len(tokens)]
+   streams[name]['unprintedDuplicateSourceSpan']=[mainWordCount,len(tokens)]
    streams[name]['unprintedDuplicateReason']='Canonical snapshot repeats an identical comment; manual scan review found one printed occurrence.'
    streams[name]['duplicateOfSourceWordIds']=[f'{name}:{".".join(map(str,original[int(b)][0]))}:{i}'for a,b in duplicates.items()for i,t in enumerate(lex(original[int(b)][1]))]
  for name,s in streams.items():
@@ -71,6 +77,11 @@ def compile_page(o):
   assert cursor==len(s['lines']),(name,cursor,len(s['lines']))
  idx=json.loads((ROOT/'reference-images.json').read_text());refimg=next(i for i in idx['images']if i['slug']==slug)
  spec=dict(format='vilna-daf-preparation-page',version=1,ref=src['ref'],status='preparation-complete-renderer-adapter-pending',preparationComplete=True,engineReady=False,scan=dict(url=refimg['url'],sha256=refimg['sha256'],width=o['width'],height=o['height'],contentBox=o['coreBox']),coordinateSystem='Pixels in the pinned reference image; measured region boxes and interpolated row cells, not glyph outlines.',renderInstructions=dict(format='vilna-prepared-physical-page',version=1,direction='rtl',coreBox=o['coreBox'],openingLines=4,nextPagePreviewPolicy='omit-isolated-preview-words',streams=streams,blocks=o['blocks'],headers=o.get('headers',[]),titles=o.get('titles',[]),measuredGemaraGuttersPixels=o['gutters'],scaling='Scale boxes and gutter measurements consistently; preserve observed row boundaries.',editingPolicy={'appearance':'Explicit local appearance edits override defaults while preserving source spans.','source':'Keep canonical source identities and document printed variants separately.'}),notes=o.get('notes',[]),remainingPreparation=[],pendingIntegration=['Batch builder integration remains paused until the preparation collection is complete.'],verification=dict(method='Manual enlarged-scan endpoint observations; globally reconciled unique source spans; source snapshot and image hashes pinned.',reviewedOn=o['reviewedOn'],sourceSnapshotSha256=hashlib.sha256(rawfile.read_bytes()).hexdigest(),observationFile='observations/'+slug+'.json'))
+ for name,stream in streams.items():
+  if stream.get('deferredSourceSpan'):
+   a,b=stream['deferredSourceSpan'];spec['renderInstructions'].setdefault('sourceContinuations',[]).append(dict(stream=name,sourceSpan=[a,b],sourceWordIds=[t['sourceWordId']for t in stream['tokens'][a:b]],sourceText=' '.join(t['sourceText']for t in stream['tokens'][a:b]),deferredTo=stream['deferredTo'],reason='Canonical comment continues on the following physical amud; isolated preview is omitted.'))
+ if o.get('openingLayout'):spec['renderInstructions']['openingLayout']=o['openingLayout']
+ if o.get('diagrams'):spec['renderInstructions']['diagrams']=o['diagrams']
  (ROOT/'pages'/f'{slug}.json').write_text(json.dumps(spec,ensure_ascii=False,indent=2)+'\n')
  m=json.loads((ROOT/'manifest.json').read_text())
  for c in m['chapters']:
