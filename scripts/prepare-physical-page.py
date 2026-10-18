@@ -17,7 +17,22 @@ def compile_page(o):
   original=raw[:]
   for a,b in duplicates.items():assert lex(original[int(a)][1])==lex(original[int(b)][1]),'Only exact duplicate canonical leaves can be omitted from printing'
   raw=[v for i,v in enumerate(original)if str(i)not in duplicates]+[original[int(i)]for i in duplicates]
-  tokens=[dict(sourceWordId=f'{name}:{".".join(map(str,p))}:{i}',sourceText=t)for p,text in raw for i,t in enumerate(lex(text))];words=[norm(t['sourceText'])for t in tokens]
+  tokens=[dict(sourceWordId=f'{name}:{".".join(map(str,p))}:{i}',sourceText=t)for p,text in raw for i,t in enumerate(lex(text))]
+  ownWordCount=len(tokens);incoming=[]
+  if obs.get('incomingFrom'):
+   c=obs['incomingFrom'];prior=json.loads((ROOT/c['specification']).read_text())['renderInstructions']['streams'][name]
+   assert prior['deferredSourceSpan']==c['sourceSpan'];assert prior['deferredTo']==src['ref']
+   for t in prior['tokens'][slice(*c['sourceSpan'])]:
+    incoming.append(dict(sourceWordId=name+':'+c['sourceRef'].split()[-1]+':'+t['sourceWordId'].split(':',1)[1],sourceText=t['sourceText'],originalSourceWordId=t['sourceWordId'],incomingFromPreviousAmud=True,ref=c['sourceRef']))
+   tokens=incoming+tokens
+  borrowed=[]
+  if obs.get('borrowFromNext'):
+   assert not duplicates,'Borrowing with duplicate suffix needs explicit ordering review'
+   c=obs['borrowFromNext'];following=json.loads((ROOT/c['sourceSnapshot']).read_text());canonical=[dict(sourceWordId=f'{name}:{".".join(map(str,p))}:{i}',sourceText=w)for p,t in leaves(following['streams'][name]['he'])for i,w in enumerate(lex(t))]
+   assert following['ref']==c['sourceRef'];assert c.get('completePrintedComment')
+   borrowed=[dict(sourceWordId=name+':'+c['sourceRef'].split()[-1]+':'+str(i),sourceText=t['sourceText'],originalSourceWordId=t['sourceWordId'],nextAmud=True,ref=c['sourceRef'])for i,t in enumerate(canonical[:c['wordCount']])]
+   assert len(borrowed)==c['wordCount'];tokens+=borrowed
+  words=[norm(t['sourceText'])for t in tokens]
   mainWordCount=len(words)-sum(len(lex(original[int(i)][1]))for i in duplicates)
   printedWordCount=obs.get('printedSourceWordCount',mainWordCount)
   assert 0<printedWordCount<=mainWordCount
@@ -59,7 +74,8 @@ def compile_page(o):
    aa=list(map(norm,lex(plain)));bb=list(map(norm,lex(display)));v=[dict(operation=tag,sourceWordSpan=[cursor+x,cursor+y],sourceWords=aa[x:y],printedWords=bb[u:v])for tag,x,y,u,v in difflib.SequenceMatcher(None,aa,bb,autojunk=False).get_opcodes()if tag!='equal']
    if v:l['printVariants']=v
    cursor=end
-  streams[name]=dict(tokens=tokens,lines=lines,sourceWordCount=len(tokens),borrowedWordCount=0)
+  streams[name]=dict(tokens=tokens,lines=lines,sourceWordCount=ownWordCount,borrowedWordCount=len(borrowed))
+  if incoming:streams[name]['incomingFromPreviousWordCount']=len(incoming)
   if printedWordCount<mainWordCount:
    assert obs.get('deferredToRef')
    streams[name]['deferredSourceSpan']=[printedWordCount,mainWordCount]
@@ -78,6 +94,8 @@ def compile_page(o):
  idx=json.loads((ROOT/'reference-images.json').read_text());refimg=next(i for i in idx['images']if i['slug']==slug)
  spec=dict(format='vilna-daf-preparation-page',version=1,ref=src['ref'],status='preparation-complete-renderer-adapter-pending',preparationComplete=True,engineReady=False,scan=dict(url=refimg['url'],sha256=refimg['sha256'],width=o['width'],height=o['height'],contentBox=o['coreBox']),coordinateSystem='Pixels in the pinned reference image; measured region boxes and interpolated row cells, not glyph outlines.',renderInstructions=dict(format='vilna-prepared-physical-page',version=1,direction='rtl',coreBox=o['coreBox'],openingLines=4,nextPagePreviewPolicy='omit-isolated-preview-words',streams=streams,blocks=o['blocks'],headers=o.get('headers',[]),titles=o.get('titles',[]),measuredGemaraGuttersPixels=o['gutters'],scaling='Scale boxes and gutter measurements consistently; preserve observed row boundaries.',editingPolicy={'appearance':'Explicit local appearance edits override defaults while preserving source spans.','source':'Keep canonical source identities and document printed variants separately.'}),notes=o.get('notes',[]),remainingPreparation=[],pendingIntegration=['Batch builder integration remains paused until the preparation collection is complete.'],verification=dict(method='Manual enlarged-scan endpoint observations; globally reconciled unique source spans; source snapshot and image hashes pinned.',reviewedOn=o['reviewedOn'],sourceSnapshotSha256=hashlib.sha256(rawfile.read_bytes()).hexdigest(),observationFile='observations/'+slug+'.json'))
  for name,stream in streams.items():
+  if o['streams'][name].get('incomingFrom'):
+   c=o['streams'][name]['incomingFrom'];snapshot=ROOT/c['sourceSnapshot'];spec['renderInstructions'].setdefault('incomingSourceContinuations',[]).append(dict(stream=name,priorSpecification=c['specification'],sourceRef=c['sourceRef'],sourceSpan=c['sourceSpan'],sourceSnapshot=c['sourceSnapshot'],sourceSnapshotSha256=hashlib.sha256(snapshot.read_bytes()).hexdigest()))
   if stream.get('deferredSourceSpan'):
    a,b=stream['deferredSourceSpan'];spec['renderInstructions'].setdefault('sourceContinuations',[]).append(dict(stream=name,sourceSpan=[a,b],sourceWordIds=[t['sourceWordId']for t in stream['tokens'][a:b]],sourceText=' '.join(t['sourceText']for t in stream['tokens'][a:b]),deferredTo=stream['deferredTo'],reason='Canonical comment continues on the following physical amud; isolated preview is omitted.'))
  if o.get('openingLayout'):spec['renderInstructions']['openingLayout']=o['openingLayout']

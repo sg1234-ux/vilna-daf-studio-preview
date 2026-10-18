@@ -55,6 +55,8 @@ function validate(slug,expectedCounts){
   const tokens=model.streams[name].tokens.filter(t=>t.nextAmud);if(!tokens.length)continue;
   const nextSlug=tokens[0].ref.toLowerCase().replace(/ /g,'-'),nextSource=JSON.parse(fs.readFileSync(path.join(root,'sources',nextSlug+'.json'))),prefix=leaves(nextSource.streams[name].he).flatMap(([,t])=>lex(t)).slice(0,tokens.length);
   assert.deepEqual(tokens.map(t=>norm(t.sourceText)),prefix.map(norm),'next-amud prefix provenance');
+  if(tokens.some(t=>t.originalSourceWordId)){const originalIds=leaves(nextSource.streams[name].he).flatMap(([p,t])=>lex(t).map((w,i)=>`${name}:${p.join('.')}:${i}`)).slice(0,tokens.length);assert.deepEqual(tokens.map(t=>t.originalSourceWordId),originalIds,'next-amud original source identities');}
+
  }
  if(slug==='bava-metzia-23b'){
   assert.equal(model.streams.rashi.lines.length,62);assert.equal(model.blocks.find(b=>b.id==='gemara-wide').lineCount,5);assert(model.streams.tosafot.borrowedWordCount>1);assert(model.diagrams.some(d=>d.id==='triangle-example'));assert.equal(model.streams.tosafot.lines.at(-1).displayText,'ומודה');
@@ -105,3 +107,7 @@ validate('berakhot-28b',{gemara:54,rashi:48,tosafot:4});
 validate('bava-metzia-25a',{gemara:46,rashi:65,tosafot:39});
 
 validate('pesachim-103a',{gemara:35,rashi:13,rashbam:54,tosafot:59});
+
+validate('berakhot-29a',{gemara:56,rashi:50,tosafot:38});
+validate('bava-metzia-25b',{gemara:45,rashi:51,tosafot:71});
+validate('pesachim-103b',{gemara:29,rashi:17,rashbam:49,tosafot:64});

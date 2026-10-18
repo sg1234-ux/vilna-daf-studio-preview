@@ -98,3 +98,19 @@ Berachos 28b is complete without isolated previews: 54 Gemara rows (five narrow,
 BM 25a is complete without isolated previews: 46 Gemara rows (31 narrow and 15 widened left), 65 Rashi rows (four opening, 54 side, seven full-width footer) and 39 Tosafos rows (four opening and 35 side). Rashi is on the right, Tosafos on the left. The Rashi tripod illustration is anchored to its source token and has a separate exclusion box. The extra printed ה״ג הא דלא אשתייר ביה מידי heading and printed דלית / canonical דאית are explicit variants; canonical source identities remain unchanged. Observations: `observations/bava-metzia-25a.json`. Builder integration remains paused.
 
 Pesachim 103a is complete without isolated previews: 35 Gemara rows, 13 Rashi rows (four opening and nine side), 54 Rashbam rows (31 narrow, 14 wider and nine full-width footer) and 59 Tosafos rows (four opening, 42 narrow and 13 wider). Tosafos prints one לא הוי ידעיתו comment where the canonical source duplicates it: source span [599,689] retains the exact duplicate with links to the printed occurrence. All 689 original Tosafos words remain preserved; the current physical amud prints [0,424], ending כלומר. The isolated דברים preview is omitted. Canonical continuation [424,599] starts דברים and is deferred to physical 103b, whose opening main text was inspected to confirm the boundary. The manifest records this incoming continuation for later preparation. The checker verifies printed, deferred and duplicate spans as separate contiguous parts. Observations: `observations/pesachim-103a.json`. Builder integration remains paused.
+
+## Additional preparation — Berachos 29a, BM 25b, Pesachim 103b
+
+| Page | Gemara rows | Rashi rows | Rashbam rows | Tosafos rows |
+|---|---:|---:|---:|---:|
+| Berachos 29a | 56 | 50 | — | 38 |
+| BM 25b | 45 | 51 | — | 71 |
+| Pesachim 103b | 29 | 17 | 49 | 64 |
+
+These counts omit isolated next-page previews. All remain preparation-complete and renderer-adapter-pending. Manual scan observations are saved beside the page records.
+
+Berachos 29a has Rashi on the right and Tosafos on the left. Gemara has 31 narrow rows, ten widened left and 15 full width. Repeated wording in the closing discussion is disambiguated with inspected full-row text, preserving the intended source occurrence.
+
+BM 25b has Rashi on the left and Tosafos on the right. Gemara has 42 narrow rows and three widened left. Rashi has four opening and 47 side rows; Tosafos has four opening, 54 narrow and 13 full-width footer rows.
+
+Pesachim 103b has Rashi above Rashbam on the left and Tosafos on the right. Tosafos begins with the 175-word continuation from canonical 103a span [424,599], now main text on this page. Incoming IDs include their original amud and retain the original source ID and snapshot hash. Its four opening, 34 narrow and 26 wider rows include all 356 own-source words and all 175 incoming words exactly once. Rashbam has 20 narrow, 27 wider and two full-width footer rows. Its comments follow the inspected printed order rather than the canonical leaf order. The complete four-word על שבע comment is printed in the footer although canonically filed under 104a; the following isolated והא preview is omitted. The 104a manifest entry records this already-printed canonical prefix to prevent duplication during later preparation. The compiler now supports incoming continuations and complete comments borrowed from the next canonical snapshot; the collection checker verifies their original sources independently. Builder integration remains paused.
