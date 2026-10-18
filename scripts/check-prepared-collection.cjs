@@ -11,7 +11,7 @@ function validate(slug,expectedCounts){
   const incoming=s.tokens.filter(t=>t.incomingFromPreviousAmud);assert.equal(incoming.length,s.incomingFromPreviousWordCount||0);
   if(incoming.length){const c=model.incomingSourceContinuations.find(c=>c.stream===name),prior=JSON.parse(fs.readFileSync(path.join(root,c.priorSpecification))).renderInstructions.streams[name].tokens.slice(...c.sourceSpan),snapshot=fs.readFileSync(path.join(root,c.sourceSnapshot));assert.equal(crypto.createHash('sha256').update(snapshot).digest('hex'),c.sourceSnapshotSha256);assert.deepEqual(incoming.map(t=>t.originalSourceWordId),prior.map(t=>t.sourceWordId));assert.deepEqual(incoming.map(t=>t.sourceText),prior.map(t=>t.sourceText));assert(incoming.every(t=>t.ref===c.sourceRef));}
   assert.deepEqual(base.map(t=>t.sourceWordId).sort(),expected.map(t=>t.id).sort());for(const t of base)assert.equal(t.sourceText,byId.get(t.sourceWordId));
-  assert.equal(s.lines.length,expectedCounts[name]);let cursor=s.previousSourceSpan?.[1]||0;const startCursor=cursor;if(s.previousSourceSpan){assert.equal(s.previousSourceSpan[0],0);assert(['Bava Metzia 23b','Berakhot 27b'].includes(s.printedOnPreviousAmud));const previousSlug=s.printedOnPreviousAmud.toLowerCase().replace(/ /g,'-');const prior=JSON.parse(fs.readFileSync(path.join(root,'pages',previousSlug+'.json'))).renderInstructions.streams[name].tokens.filter(t=>t.nextAmud).slice(0,cursor);assert.deepEqual(s.tokens.slice(0,cursor).map(t=>norm(t.sourceText)),prior.map(t=>norm(t.sourceText)));}
+  assert.equal(s.lines.length,expectedCounts[name]);let cursor=s.previousSourceSpan?.[1]||0;const startCursor=cursor;if(s.previousSourceSpan){assert.equal(s.previousSourceSpan[0],0);assert(['Bava Metzia 23b','Berakhot 27b','Pesachim 103b'].includes(s.printedOnPreviousAmud));const previousSlug=s.printedOnPreviousAmud.toLowerCase().replace(/ /g,'-');const prior=JSON.parse(fs.readFileSync(path.join(root,'pages',previousSlug+'.json'))).renderInstructions.streams[name].tokens.filter(t=>t.nextAmud).slice(0,cursor);assert.deepEqual(s.tokens.slice(0,cursor).map(t=>norm(t.sourceText)),prior.map(t=>norm(t.sourceText)));}
   for(const [i,l]of s.lines.entries()){
    assert.equal(l.line,i+1);const [a,b]=l.sourceSpan;assert.equal(a,cursor);assert(b>a&&b<=s.tokens.length);cursor=b;
    assert.equal(l.sourceText,s.tokens.slice(a,b).map(t=>t.sourceText).join(' '));assert.deepEqual(l.sourceWordIds,s.tokens.slice(a,b).map(t=>t.sourceWordId));
@@ -57,6 +57,15 @@ function validate(slug,expectedCounts){
   assert.deepEqual(tokens.map(t=>norm(t.sourceText)),prefix.map(norm),'next-amud prefix provenance');
   if(tokens.some(t=>t.originalSourceWordId)){const originalIds=leaves(nextSource.streams[name].he).flatMap(([p,t])=>lex(t).map((w,i)=>`${name}:${p.join('.')}:${i}`)).slice(0,tokens.length);assert.deepEqual(tokens.map(t=>t.originalSourceWordId),originalIds,'next-amud original source identities');}
 
+ }
+ if(slug==='pesachim-104a'){
+  const rb=model.streams.rashbam;
+  assert.deepEqual(rb.previousSourceSpan,[0,4]);assert.equal(rb.printedOnPreviousAmud,'Pesachim 103b');assert.equal(rb.lines[0].sourceSpan[0],4);
+  const prior=JSON.parse(fs.readFileSync(path.join(root,'pages/pesachim-103b.json'))).renderInstructions.streams.rashbam.tokens.filter(t=>t.nextAmud&&t.ref==='Pesachim 104a');
+  assert.deepEqual(rb.tokens.slice(0,4).map(t=>t.sourceWordId),prior.map(t=>t.originalSourceWordId));
+  assert.equal(rb.lines[5].displayText,'ולא ממנינא הוא: חתימה. סוף');assert.equal(rb.lines[6].displayText,'הברכה חותם בברוך: פתיחתן');
+  assert(rb.lines[5].printVariants.some(v=>v.operation==='insert'));assert(rb.lines[6].printVariants.some(v=>v.operation==='insert'));
+  assert.equal(model.blocks.find(b=>b.id==='gemara-widen-left').lineCount,2);
  }
  if(slug==='bava-metzia-23b'){
   assert.equal(model.streams.rashi.lines.length,62);assert.equal(model.blocks.find(b=>b.id==='gemara-wide').lineCount,5);assert(model.streams.tosafot.borrowedWordCount>1);assert(model.diagrams.some(d=>d.id==='triangle-example'));assert.equal(model.streams.tosafot.lines.at(-1).displayText,'ומודה');
@@ -111,3 +120,8 @@ validate('pesachim-103a',{gemara:35,rashi:13,rashbam:54,tosafot:59});
 validate('berakhot-29a',{gemara:56,rashi:50,tosafot:38});
 validate('bava-metzia-25b',{gemara:45,rashi:51,tosafot:71});
 validate('pesachim-103b',{gemara:29,rashi:17,rashbam:49,tosafot:64});
+
+validate('berakhot-29b',{gemara:52,rashi:42,tosafot:72});
+validate('bava-metzia-26a',{gemara:32,rashi:56,tosafot:67});
+
+validate('pesachim-104a',{gemara:49,rashi:21,rashbam:47,tosafot:58});

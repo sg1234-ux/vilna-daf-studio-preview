@@ -33,6 +33,15 @@ def compile_page(o):
    borrowed=[dict(sourceWordId=name+':'+c['sourceRef'].split()[-1]+':'+str(i),sourceText=t['sourceText'],originalSourceWordId=t['sourceWordId'],nextAmud=True,ref=c['sourceRef'])for i,t in enumerate(canonical[:c['wordCount']])]
    assert len(borrowed)==c['wordCount'];tokens+=borrowed
   words=[norm(t['sourceText'])for t in tokens]
+  startWord=0
+  if obs.get('previouslyPrintedPrefix'):
+   assert not incoming
+   c=obs['previouslyPrintedPrefix'];startWord=c['wordCount'];assert 0<startWord<ownWordCount
+   previousPage=json.loads((ROOT/c['specification']).read_text());assert previousPage['ref']==c['ref']
+   previous=previousPage['renderInstructions']['streams'][name]
+   prior=[t for t in previous['tokens']if t.get('nextAmud')and t['ref']==src['ref']]
+   assert len(prior)==startWord;assert [norm(t['sourceText'])for t in prior]==words[:startWord]
+   assert [t['originalSourceWordId']for t in prior]==[t['sourceWordId']for t in tokens[:startWord]],'Previously printed prefix must retain exact canonical source identities'
   mainWordCount=len(words)-sum(len(lex(original[int(i)][1]))for i in duplicates)
   printedWordCount=obs.get('printedSourceWordCount',mainWordCount)
   assert 0<printedWordCount<=mainWordCount
@@ -60,12 +69,12 @@ def compile_page(o):
      for tail in tails:
       if len(paths)<2:paths.append((end,)+tail)
    return(best,tuple(paths),depth,failed)
-  score,paths,d,z=solve(0,0)
+  score,paths,d,z=solve(0,startWord)
   print(name,'rows',len(lines),'source words',len(words),'solutions',len(paths),'score',score,'reached',d,'next source',[t['sourceText']for t in tokens[z:z+8]],'next row',lines[d]if d<len(lines)else None)
   if len(paths)>1:
    print('ambiguous rows',[i+1 for i,(a,b)in enumerate(zip(paths[0],paths[1]))if a!=b])
   if len(paths)!=1:raise ValueError('Needs scan/source review: '+name)
-  cursor=0
+  cursor=startWord
   for i,(l,end)in enumerate(zip(lines,paths[0])):
    l['sourceSpan']=[cursor,end];l['sourceWordIds']=[t['sourceWordId']for t in tokens[cursor:end]];l['sourceText']=' '.join(t['sourceText']for t in tokens[cursor:end]);plain=re.sub('[\u0591-\u05c7]','',unicodedata.normalize('NFD',l['sourceText']));display=obs.get('printedText',{}).get(str(i+1))
    if display is None:
@@ -76,6 +85,7 @@ def compile_page(o):
    cursor=end
   streams[name]=dict(tokens=tokens,lines=lines,sourceWordCount=ownWordCount,borrowedWordCount=len(borrowed))
   if incoming:streams[name]['incomingFromPreviousWordCount']=len(incoming)
+  if startWord:streams[name].update(previousSourceSpan=[0,startWord],printedOnPreviousAmud=obs['previouslyPrintedPrefix']['ref'])
   if printedWordCount<mainWordCount:
    assert obs.get('deferredToRef')
    streams[name]['deferredSourceSpan']=[printedWordCount,mainWordCount]
