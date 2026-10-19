@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.53";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.66";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -14,8 +14,10 @@ const TYPOGRAPHY_PRESETS={
   "build31":{className:"type-build31",label:"Build 31 comparison: Frank Ruhl Libre with Noto Rashi Hebrew.",localFonts:[]}
 };
 const PAGE_REGISTRY=[
+  {tractate:"Pesachim",tractateLabel:"פסחים",ref:"Pesachim 100b",pageLabel:"ק ע״ב",verified:true},
   {tractate:"Pesachim",tractateLabel:"פסחים",ref:"Pesachim 100a",pageLabel:"ק ע״א",verified:true},
-  {tractate:"Bava Metzia",tractateLabel:"בבא מציעא",ref:"Bava Metzia 21a",pageLabel:"כא ע״א",verified:true}
+  {tractate:"Bava Metzia",tractateLabel:"בבא מציעא",ref:"Bava Metzia 21a",pageLabel:"כא ע״א",verified:true},
+  {tractate:"Bava Metzia",tractateLabel:"בבא מציעא",ref:"Bava Metzia 22a",pageLabel:"כב ע״א",verified:true}
 ];
 const savedTypography="archival-open";
 const state={...sample,selection:null,selecting:false,composition:null,agentSettings:{},rashbamHeadingMode:"full",rashbamAllowed:true,typography:TYPOGRAPHY_PRESETS[savedTypography]?savedTypography:"archival-open",mode:"navigate",navigationUnit:"word",selectedWordId:null,editSelectedWordIds:[],wordFontScales:{},whitedWordIds:{},focusEnabled:false,focusWindow:1,visualLinks:{},notesEnabled:false,nekudosEnabled:true,punctuationEnabled:true,lineNumbersEnabled:false,pageZoom:1.5,notes:{},noteWindowPosition:null,annotating:false,annotationTool:"pen",annotationColor:"#b32424",strokeWidth:3,annotations:[],annotationUndo:[],annotationRedo:[]};
@@ -443,6 +445,7 @@ function profileStages(profile){
   ];
 }
 function auditReferenceProfile(profile){
+  if(profile?.physical)return VilnaPhysicalPage.audit(profile.physical);
   const errors=[],layout=profile?.layout,maps=profile?.maps;
   if(!layout||!maps)return["missing mapped layout"];
   const stages=profileStages(profile);
@@ -509,8 +512,8 @@ function physicalOrder(){const side=state.agentSettings.innerSide;if(side==="rig
 function toHebrewNumber(number){const vals=[[400,"ת"],[300,"ש"],[200,"ר"],[100,"ק"],[90,"צ"],[80,"פ"],[70,"ע"],[60,"ס"],[50,"נ"],[40,"מ"],[30,"ל"],[20,"כ"],[10,"י"],[9,"ט"],[8,"ח"],[7,"ז"],[6,"ו"],[5,"ה"],[4,"ד"],[3,"ג"],[2,"ב"],[1,"א"]];let n=+number,out="";for(const[v,l]of vals)while(n>=v){out+=l;n-=v;}return out;}
 function updateHeader(){const m=state.ref.match(/(\d+)([ab])\s*$/i),a=m?.[2].toLowerCase()==="a",profile=referenceProfile(),type=typographyProfile()?.typography||{},settings=state.agentSettings||{};$("dafPage").classList.toggle("amud-a",a);$("dafPage").classList.toggle("amud-b",!a);$("dafNumber").textContent=m?`${toHebrewNumber(m[1])}${a?".":":"}`:state.ref;$("chapterTitle").textContent=state.header;$("amudReport").textContent=a?"Aleph — ע״א":"Beis — ע״ב";$("dafPage").style.setProperty("--gemara-opening-scale",type.gemaraOpeningScale||1.22);$("dafPage").style.setProperty("--inner-dibbur-scale",type.innerDibburScale||1.04);$("dafPage").style.setProperty("--tosafot-dibbur-scale",type.tosafotDibburScale||1.08);$("dafPage").style.setProperty("--dibbur-size-increase","1px");$("dafPage").style.setProperty("--page-height",`${settings.pageHeight||type.pageHeight||1030}px`);$("dafPage").style.setProperty("--page-bottom-padding",`${type.pageBottomPadding||32}px`);$("dafPage").style.setProperty("--opening-lines",settings.openingLines||profile?.layout?.openingLines||4);}
 function scaleParts(scale){if(typeof scale==="number")return{gemara:scale,gemaraSize:scale,commentary:scale,gemaraTracking:0,innerFontFactor:1,tosafotFontFactor:1};const gemara=Number(scale.gemara)||1;return{gemara,gemaraSize:Number(scale.gemaraSize)||gemara,commentary:Number(scale.commentary)||1,gemaraTracking:Number(scale.gemaraTracking)||0,innerFontFactor:Number(scale.innerFontFactor)||1,tosafotFontFactor:Number(scale.tosafotFontFactor)||1};}
-function setScale(scale){const p=$("dafPage"),s=scaleParts(scale),type=typographyProfile()?.typography||{},settings=state.agentSettings||{},gemaraSize=(type.gemaraSize||15.1)*(settings.gemaraScale||1),commentarySize=(type.commentarySize||11.05)*(settings.commentaryScale||1),gemaraLeading=(type.gemaraLeading||16.35)*(settings.gemaraScale||1),commentaryLeading=(type.commentaryLeading||12.05)*(settings.commentaryScale||1);p.style.setProperty("--gemara-size",`${gemaraSize*s.gemaraSize}px`);p.style.setProperty("--gemara-leading",`${gemaraLeading*s.gemara}px`);p.style.setProperty("--gemara-tracking",`${s.gemaraTracking}px`);p.style.setProperty("--commentary-size",`${commentarySize*s.commentary}px`);p.style.setProperty("--commentary-leading",`${commentaryLeading*s.commentary}px`);p.style.setProperty("--inner-font-factor",s.innerFontFactor);p.style.setProperty("--tosafot-font-factor",s.tosafotFontFactor);}
-function makeProbe(region){const cs=getComputedStyle(region),pageStyle=getComputedStyle($("dafPage")),p=document.createElement("div");p.className=region.className;p.dataset.stream=region.dataset.stream||"";p.dataset.band=region.dataset.band||"";Object.assign(p.style,{position:"fixed",visibility:"hidden",left:"-10000px",top:"-10000px",width:`${region.clientWidth}px`,height:"auto",overflow:"visible",boxSizing:"border-box",paddingTop:cs.paddingTop,paddingRight:cs.paddingRight,paddingBottom:cs.paddingBottom,paddingLeft:cs.paddingLeft,fontFamily:cs.fontFamily,fontSize:cs.fontSize,fontWeight:cs.fontWeight,lineHeight:cs.lineHeight,direction:"rtl",textAlign:"justify",whiteSpace:"normal",wordSpacing:cs.wordSpacing,letterSpacing:cs.letterSpacing});for(const property of["--gemara-size","--gemara-leading","--commentary-size","--commentary-leading","--gemara-opening-scale","--inner-dibbur-scale","--tosafot-dibbur-scale","--dibbur-size-increase","--inner-body-leading"])p.style.setProperty(property,pageStyle.getPropertyValue(property));document.body.appendChild(p);return p;}
+function setScale(scale){const p=$("dafPage"),s=scaleParts(scale),type=typographyProfile()?.typography||{},settings=state.agentSettings||{},gemaraSize=(type.gemaraSize||15.1)*(settings.gemaraScale||1),commentarySize=(type.commentarySize||11.05)*(settings.commentaryScale||1),gemaraLeading=(type.gemaraLeading||16.35)*(settings.gemaraScale||1),commentaryLeading=(type.commentaryLeading||12.05)*(settings.commentaryScale||1);p.style.setProperty("--inner-body-leading",type.innerLeading?`${type.innerLeading*s.commentary}px`:"");p.style.setProperty("--gemara-size",`${gemaraSize*s.gemaraSize}px`);p.style.setProperty("--gemara-leading",`${gemaraLeading*s.gemara}px`);p.style.setProperty("--gemara-tracking",`${s.gemaraTracking}px`);p.style.setProperty("--commentary-size",`${commentarySize*s.commentary}px`);p.style.setProperty("--commentary-leading",`${commentaryLeading*s.commentary}px`);p.style.setProperty("--inner-font-factor",s.innerFontFactor);p.style.setProperty("--tosafot-font-factor",s.tosafotFontFactor);}
+function makeProbe(region){const cs=getComputedStyle(region),pageStyle=getComputedStyle($("dafPage")),p=document.createElement("div");p.className=region.className;p.dataset.stream=region.dataset.stream||"";p.dataset.band=region.dataset.band||"";Object.assign(p.style,{position:"fixed",visibility:"hidden",left:"-10000px",top:"-10000px",width:cs.width,height:"auto",overflow:"visible",boxSizing:"border-box",paddingTop:cs.paddingTop,paddingRight:cs.paddingRight,paddingBottom:cs.paddingBottom,paddingLeft:cs.paddingLeft,fontFamily:cs.fontFamily,fontSize:cs.fontSize,fontWeight:cs.fontWeight,lineHeight:cs.lineHeight,direction:"rtl",textAlign:"justify",whiteSpace:"normal",wordSpacing:cs.wordSpacing,letterSpacing:cs.letterSpacing});for(const property of["--gemara-size","--gemara-leading","--commentary-size","--commentary-leading","--gemara-opening-scale","--inner-dibbur-scale","--tosafot-dibbur-scale","--dibbur-size-increase","--inner-body-leading"])p.style.setProperty(property,pageStyle.getPropertyValue(property));document.body.appendChild(p);return p;}
 function visualLineCount(element){
   const line=parseFloat(getComputedStyle(element).lineHeight)||1,rects=[...element.querySelectorAll(".layout-token,.word-token")].filter(token=>token.textContent.trim()).map(token=>token.getBoundingClientRect()).sort((a,b)=>a.top-b.top),rows=[];
   for(const rect of rects){const center=rect.top+rect.height/2;if(!rows.length||center-rows[rows.length-1]>line*.55)rows.push(center);}
@@ -581,11 +584,21 @@ function applyStreamLineAnchors(tokens,stream){
   const anchors=(state.agentSettings.lineAnchors||[]).filter(item=>item.stream===stream).sort((a,b)=>a.line-b.line);
   if(!anchors.length||referenceProfile())return tokens;
   const words=tokens.filter(token=>!token.break&&!token.blankLine),boundaries=new Set;let searchFrom=0,complete=true;
-  for(const anchor of anchors){
+  for(const [anchorIndex,anchor] of anchors.entries()){
     const startPhrase=anchorPhraseWords(anchor.startText),endPhrase=anchorPhraseWords(anchor.endText),start=phrasePositions(words,startPhrase,searchFrom)[0];
     if(!Number.isInteger(start)){state.agentAnchorFailures.push(`${stream} line ${anchor.line} opening anchor was not found in sequence`);continue;}
-    const endStart=phrasePositions(words,endPhrase,start).find(index=>index>=start);
-    if(!Number.isInteger(endStart)){state.agentAnchorFailures.push(`${stream} line ${anchor.line} closing anchor was not found after its opening`);continue;}
+    const nextAnchor=anchors[anchorIndex+1],nextOpening=nextAnchor?.line===anchor.line+1?anchorPhraseWords(nextAnchor.startText):null;
+    const endPositions=phrasePositions(words,endPhrase,start);
+    // Repeated words are common in Gemara. A consecutive line's opening
+    // disambiguates which occurrence closes this line; otherwise the first
+    // occurrence can insert an unintended extra line before the next anchor.
+    const endStart=endPositions.find(index=>{
+      if(!nextOpening)return true;
+      let next=phraseEndAt(words,endPhrase,index)+1;
+      while(next<words.length&&!normalizedAnchorWord(words[next].text))next++;
+      return phraseMatchesAt(words,nextOpening,next);
+    });
+    if(!Number.isInteger(endStart)){state.agentAnchorFailures.push(`${stream} line ${anchor.line} closing anchor “${anchor.endText}” was not found${nextOpening?' directly before the next requested opening':' after its opening'}`);continue;}
     let end=phraseEndAt(words,endPhrase,endStart);while(end+1<words.length&&!normalizedAnchorWord(words[end+1].text))end++;complete=complete&&start===searchFrom;if(end<start){state.agentAnchorFailures.push(`${stream} line ${anchor.line} anchor order is invalid`);continue;}searchFrom=end+1;
     if(start>0)boundaries.add(start);if(end<words.length-1)boundaries.add(end+1);
   }
@@ -597,11 +610,11 @@ function anchorLineTokens(tokens,anchor){const lines=splitMappedLines(tokens);re
 function measureAnchorLine(tokens,stream,anchor){
   const line=anchorLineTokens(tokens,anchor);if(!line.length)return null;
   const probe=document.createElement("div");probe.className=`flow-region ${stream==="gemara"?"gemara":"commentary"}`;probe.dataset.stream=stream;Object.assign(probe.style,{position:"fixed",visibility:"hidden",left:"-10000px",top:"-10000px",display:"inline-block",width:"max-content",height:"auto",overflow:"visible",whiteSpace:"nowrap",textAlign:"right"});
-  probe.innerHTML=tokensHtml(line);document.body.appendChild(probe);const current=probe.getBoundingClientRect().width,nextIndex=tokens.indexOf(line.at(-1))+1,next=tokens.slice(nextIndex).find(token=>token.text);
+  probe.innerHTML=tokensHtml(line);$("dafPage").appendChild(probe);const current=probe.getBoundingClientRect().width,nextIndex=tokens.indexOf(line.at(-1))+1,next=tokens.slice(nextIndex).find(token=>token.text);
   let withNext=current;if(next){probe.innerHTML=tokensHtml([...line,next]);withNext=probe.getBoundingClientRect().width;}probe.remove();return Math.max(current,(current+withNext)/2);
 }
 function calibratePrimaryWidths(tokens){
-  const body=$("bodyGeometry"),pageStyle=getComputedStyle($("dafPage")),gutter=parseFloat(pageStyle.getPropertyValue("--daf-side-gutter"))||20,baselineGutter=parseFloat(pageStyle.getPropertyValue("--daf-gutter"))||25,available=Math.max(1,body.clientWidth-2*gutter),baselineAvailable=Math.max(1,body.clientWidth-2*baselineGutter),base={gemara:2.5,inner:1.625,tosafot:1.625},baseTotal=5.75,widths=Object.fromEntries(STREAMS.map(stream=>[stream,baselineAvailable*base[stream]/baseTotal])),anchors=state.agentSettings.lineAnchors||[];
+  const body=$("bodyGeometry"),pageStyle=getComputedStyle($("dafPage")),gutter=state.agentSettings.enforceGemaraGutterBox?(parseFloat(pageStyle.getPropertyValue("--daf-gutter"))||25):(parseFloat(pageStyle.getPropertyValue("--daf-side-gutter"))||20),baselineGutter=parseFloat(pageStyle.getPropertyValue("--daf-gutter"))||25,available=Math.max(1,body.clientWidth-2*gutter),baselineAvailable=Math.max(1,body.clientWidth-2*baselineGutter),base={gemara:2.5,inner:1.625,tosafot:1.625},baseTotal=5.75,widths=Object.fromEntries(STREAMS.map(stream=>[stream,baselineAvailable*base[stream]/baseTotal])),anchors=state.agentSettings.lineAnchors||[];
   for(const stream of STREAMS){if(stream!=="gemara"&&state.agentLockedStreams?.[stream])continue;const anchor=anchors.find(item=>item.stream===stream&&item.line===1);if(!anchor)continue;const measured=measureAnchorLine(tokens[stream],stream,anchor);if(measured)widths[stream]=measured;}
   const minimum={gemara:baselineAvailable*2.5/baseTotal,inner:baselineAvailable*1.625/baseTotal,tosafot:baselineAvailable*1.625/baseTotal};
   for(const stream of STREAMS)widths[stream]=Math.max(minimum[stream],widths[stream]);
@@ -609,8 +622,7 @@ function calibratePrimaryWidths(tokens){
   else{const unanchored=STREAMS.filter(stream=>(stream!=="gemara"&&state.agentLockedStreams?.[stream])||!anchors.some(item=>item.stream===stream&&item.line===1)),targets=unanchored.length?unanchored:STREAMS;for(const stream of targets)widths[stream]+=(available-total)/targets.length;}
   return widths;
 }
-function removeGemaraDashes(tokens){return tokens.flatMap(token=>{if(token.break)return[token];const text=String(token.text||"").replace(/[\u2010-\u2015\u2212-]+/gu,"");return text?[{...token,text}]:[];});}
-function streamTokens(){const streams={gemara:tokenize(displayHtml(withoutBreaks(state.gemaraHtml))),inner:tokenize(displayHtml(innerHtml())),tosafot:tokenize(displayHtml(withoutBreaks(state.tosafotHtml)))},profile=referenceProfile();state.agentAnchorFailures=[];state.agentLockedStreams={};if(state.agentSettings.stripGemaraDashes)streams.gemara=removeGemaraDashes(streams.gemara);if(profile)for(const stream of STREAMS)streams[stream]=applyExactLineMap(normalizeMappedSourceTokens(streams[stream],stream),profile.maps?.[stream],stream);else for(const stream of STREAMS)streams[stream]=applyStreamLineAnchors(streams[stream],stream);if(state.agentSettings.stripGemaraDashes)streams.gemara=removeGemaraDashes(streams.gemara);return streams;}
+function streamTokens(){const streams={gemara:tokenize(displayHtml(withoutBreaks(state.gemaraHtml))),inner:tokenize(displayHtml(innerHtml())),tosafot:tokenize(displayHtml(withoutBreaks(state.tosafotHtml)))},profile=referenceProfile();state.agentAnchorFailures=[];state.agentLockedStreams={};if(profile)for(const stream of STREAMS)streams[stream]=applyExactLineMap(normalizeMappedSourceTokens(streams[stream],stream),profile.maps?.[stream],stream);else for(const stream of STREAMS)streams[stream]=applyStreamLineAnchors(streams[stream],stream);return streams;}
 function weightsFor(t){return{gemara:t.gemara.length*1.52,inner:t.inner.length,tosafot:t.tosafot.length};}
 function ordered(streams){const order=physicalOrder();return[...streams].sort((a,b)=>order.indexOf(a)-order.indexOf(b));}
 function widths(streams,w,floor=18){const total=streams.reduce((s,x)=>s+w[x],0)||1;let a=streams.map(x=>Math.max(floor,w[x]/total*100)),sum=a.reduce((x,y)=>x+y,0);return a.map(x=>x/sum*100);}
@@ -618,7 +630,7 @@ function clamp(value,min,max){return Math.max(min,Math.min(max,value));}
 function primaryWidths(){const order=ordered(STREAMS),map=state.agentPrimaryWidths||{gemara:2.5,inner:1.625,tosafot:1.625};return order.map(stream=>map[stream]);}
 function stepped(start,end,step){const values=[];for(let value=start;value<=end;value+=step)values.push(value);return values;}
 function releasedPairWidths(previousStreams,previousWidths,nextStreams){
-  const bodyWidth=Math.max(1,$("bodyGeometry").clientWidth),gutter=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--daf-side-gutter"))||20,pairGutter=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--daf-gutter"))||25,streamGutter=streams=>streams.includes("gemara")?gutter:pairGutter,oldAvailable=Math.max(1,bodyWidth-streamGutter(previousStreams)*Math.max(0,previousStreams.length-1)),nextAvailable=Math.max(1,bodyWidth-streamGutter(nextStreams)*Math.max(0,nextStreams.length-1)),oldTotal=previousWidths.reduce((sum,value)=>sum+value,0)||1,oldPixels=Object.fromEntries(previousStreams.map((stream,index)=>[stream,previousWidths[index]/oldTotal*oldAvailable])),removed=previousStreams.filter(stream=>!nextStreams.includes(stream));
+  const bodyWidth=Math.max(1,$("bodyGeometry").clientWidth),gutter=state.agentSettings.enforceGemaraGutterBox?(parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--daf-gutter"))||25):(parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--daf-side-gutter"))||20),pairGutter=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--daf-gutter"))||25,streamGutter=streams=>streams.includes("gemara")?gutter:pairGutter,oldAvailable=Math.max(1,bodyWidth-streamGutter(previousStreams)*Math.max(0,previousStreams.length-1)),nextAvailable=Math.max(1,bodyWidth-streamGutter(nextStreams)*Math.max(0,nextStreams.length-1)),oldTotal=previousWidths.reduce((sum,value)=>sum+value,0)||1,oldPixels=Object.fromEntries(previousStreams.map((stream,index)=>[stream,previousWidths[index]/oldTotal*oldAvailable])),removed=previousStreams.filter(stream=>!nextStreams.includes(stream));
   if(nextStreams.length!==2||removed.length!==1)return nextStreams.map(()=>100/Math.max(1,nextStreams.length));
   const removedIndex=previousStreams.indexOf(removed[0]),pixels={};
   if(removedIndex===0){pixels[nextStreams[1]]=oldPixels[nextStreams[1]];pixels[nextStreams[0]]=nextAvailable-pixels[nextStreams[1]];}
@@ -645,7 +657,7 @@ function recoveryWidthPatterns(seed){
 }
 function mappedCascadePattern(profile){
   const gutter=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--daf-gutter"))||25,gemaraLeading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--gemara-leading"))||16.35,commentaryLeading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--commentary-leading"))||12.05;
-  const boxWalls=profile.layout.boxWalls!==false,stages=profileStages(profile),bands=stages.map((stage,index)=>{const lineHeight=stream=>stream==="gemara"?gemaraLeading:commentaryLeading,extra=stream=>index===0?(profile.layout.extraLineHeights?.[stream]||0):0,wallHeight=index===0&&boxWalls&&stage.streams.includes("gemara")?gutter*2:0,contentHeight=Math.max(...stage.streams.map(stream=>((stage.counts[stream]||0)+extra(stream))*lineHeight(stream)+(stream==="gemara"?wallHeight:0)));return{height:0,...(index<stages.length-1?{pixelHeight:contentHeight}:{}),streams:stage.streams,widths:stage.widths,counts:stage.counts};});
+  const boxWalls=profile.layout.boxWalls!==false,stages=profileStages(profile),bands=stages.map((stage,index)=>{const lineHeight=stream=>stream==="gemara"?gemaraLeading:(stream==="inner"?Number(profile.typography?.innerLeading)||commentaryLeading:commentaryLeading),extra=stream=>index===0?(profile.layout.extraLineHeights?.[stream]||0):0,wallHeight=stage.streams.includes("gemara")?((index===0?(boxWalls?gutter*2:Number(profile.layout.gemaraTopGutter)||0):0)+(!stages.slice(index+1).some(next=>next.streams.includes("gemara"))?(Number(profile.layout.gemaraBottomGutter)||0):0)):0,contentHeight=Math.max(...stage.streams.map(stream=>((stage.counts[stream]||0)+extra(stream))*lineHeight(stream)+(stream==="gemara"?wallHeight:stream===stage.commentaryGutterStream?(Number(stage.commentaryBottomGutter)||0):0)));return{height:0,...(index<stages.length-1?{pixelHeight:contentHeight}:{}),streams:stage.streams,widths:stage.widths,counts:stage.counts,...(stage.commentaryBottomGutter?{commentaryBottomGutter:stage.commentaryBottomGutter,commentaryGutterStream:stage.commentaryGutterStream}:{}),...(index===0&&profile.layout.gemaraTopGutter?{gemaraTopGutter:profile.layout.gemaraTopGutter}:{}),...(!stages.slice(index+1).some(next=>next.streams.includes("gemara"))&&profile.layout.gemaraBottomGutter?{gemaraGutter:profile.layout.gemaraBottomGutter}:{})};});
   return{name:"PDF-mapped verified stage layout",cascade:true,mapped:true,boxWalls,bands};
 }
 function hasExplicitLayoutGuidance(){
@@ -689,7 +701,7 @@ function auditCompletionEventPatterns(patterns){
   return failures;
 }
 function candidates(w,scale=1){
-  const three=ordered(STREAMS),top=primaryWidths(w),guided=state.agentSettings.forceCascade&&STREAMS.includes(state.agentSettings.preferredSurvivor);
+  const three=ordered(STREAMS),top=primaryWidths(w),guided=state.agentSettings.forceCascade&&STREAMS.includes(state.agentSettings.preferredSurvivor)&&!Number.isInteger(Number(state.agentSettings.expansionLine||state.agentSettings.gemaraExpansionLine));
   if(guided){const completed=STREAMS.includes(state.agentSettings.completedStream)?state.agentSettings.completedStream:"gemara",pair=ordered(STREAMS.filter(stream=>stream!==completed)),survivor=state.agentSettings.preferredSurvivor,lines=state.agentSettings.continuationLines||2,leading=parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--commentary-leading"))||12.05,pairWidth=releasedPairWidths(three,top,pair);if(!pair.includes(survivor))return[];return stepped(28,82,3).map(upper=>({name:`teacher-guided ${completed} completes; ${survivor} takeover (${lines} narrow lines)`,cascade:true,guided:true,bands:[{height:upper,streams:three,widths:top},{height:0,pixelHeight:lines*leading,streams:pair,widths:pairWidth},{height:100-upper,streams:[survivor],widths:[100]}]}));}
   const expansionLine=Number(state.agentSettings.expansionLine||state.agentSettings.gemaraExpansionLine),expansionStream=STREAMS.includes(state.agentSettings.expansionStream)?state.agentSettings.expansionStream:"gemara",expansionInto=STREAMS.includes(state.agentSettings.expansionIntoStream)&&state.agentSettings.expansionIntoStream!==expansionStream?state.agentSettings.expansionIntoStream:null;
   if(Number.isInteger(expansionLine)){
@@ -697,13 +709,14 @@ function candidates(w,scale=1){
     for(const omitted of expansionInto?[expansionInto]:STREAMS.filter(value=>value!==expansionStream)){
       const pair=ordered(STREAMS.filter(stream=>stream!==omitted)),pairWidth=releasedPairWidths(three,top,pair);
       if(!pair.includes(expansionStream))continue;
+      const commentaryLeading=(type.commentaryLeading||12.05)*(settings.commentaryScale||1)*parts.commentary;
       const bands=[{height:0,pixelHeight:boundaryHeight,streams:three,widths:top},{height:100,streams:pair,widths:pairWidth}];
-      // A final wide Gemara line releases its column after that line, allowing
-      // the surviving commentary to continue across the remaining page width.
-      if(expansionStream==="gemara"&&state.agentLockedStreams?.gemara&&Number(settings.targetLineCounts?.gemara)===expansionLine){
-        const gutterLines=Number(settings.finalGemaraGutterLines)||0,finalGutter=gutterLines*parseFloat(pageStyle.getPropertyValue("--commentary-leading"));
+      // The requested wide Gemara lines release their column at completion,
+      // allowing the surviving commentary to use the remaining page width.
+      if(expansionStream==="gemara"&&Number.isInteger(Number(settings.targetLineCounts?.gemara))&&Number(settings.targetLineCounts.gemara)>=expansionLine){
+        const gutterLines=Number(settings.finalGemaraGutterLines)||0,finalGutter=gutterLines*commentaryLeading,bottomGutter=Math.max(finalGutter,settings.enforceGemaraGutterBox?gutter:0);
         bands[0]={...bands[0],commentaryBottomGutter:finalGutter,commentaryGutterStream:omitted};
-        bands[1]={...bands[1],height:0,pixelHeight:leading+finalGutter,gemaraGutter:finalGutter};
+        bands[1]={...bands[1],height:0,pixelHeight:(Number(settings.targetLineCounts.gemara)-expansionLine+1)*leading+bottomGutter,gemaraGutter:bottomGutter};
         const survivor=pair.find(stream=>stream!=="gemara");bands.push({height:100,streams:[survivor],widths:[100]});
       }
       guidedPatterns.push({name:`teacher-guided ${expansionStream} expansion from line ${expansionLine} after ${omitted}`,cascade:true,guided:true,teacherExactExpansion:true,expansionStream,expansionLine,bands});
@@ -723,7 +736,7 @@ function buildGeometry(pattern){
   }
   const gemaraBox=!pattern.mapped&&pattern.bands.length>1&&pattern.bands[0].streams.includes("gemara")&&!pattern.bands[1].streams.includes("gemara")&&pattern.bands[1].streams.includes("inner")&&pattern.bands[1].streams.includes("tosafot");
   body.innerHTML="";body.classList.toggle("teacher-gemara-gutter-box",Boolean(state.agentSettings.enforceGemaraGutterBox));body.classList.toggle("mapped-geometry",Boolean(pattern.mapped));body.classList.toggle("mapped-no-box-walls",Boolean(pattern.mapped&&pattern.boxWalls===false));body.classList.toggle("general-gemara-box",gemaraBox);body.classList.toggle("strict-stream-continuity",Boolean(state.agentSettings.enforceStreamContinuity||state.agentSettings.enforceCommentaryContinuity));
-  const addRegion=(row,stream,bandIndex)=>{const r=document.createElement("div"),profile=referenceProfile(),mapped=Boolean(profile?.maps?.[stream]?.lineEndTokens?.length||state.agentLockedStreams?.[stream]);r.className=`flow-region ${stream==="gemara"?"gemara":"commentary"}${mapped?" reference-mapped":""}${state.agentLockedStreams?.[stream]?" anchor-mapped":""}`;r.dataset.stream=stream;r.dataset.band=bandIndex;if(stream==="gemara"&&state.agentSettings.enforceGemaraGutterBox&&!pattern.bands.slice(bandIndex+1).some(band=>band.streams.includes("gemara")))r.style.paddingBottom="var(--daf-gutter)";r.contentEditable=state.mode==="edit"?"true":"false";r.spellcheck=false;r.setAttribute("aria-label",`${stream} editable region`);if(stream==="gemara"&&pattern.bands[bandIndex].gemaraGutter){const gutter=pattern.bands[bandIndex].gemaraGutter;r.style.paddingBottom=`${gutter}px`;r.dataset.finalGemaraGutter=String(gutter);}
+  const addRegion=(row,stream,bandIndex)=>{const r=document.createElement("div"),profile=referenceProfile(),mapped=Boolean(profile?.maps?.[stream]?.lineEndTokens?.length||state.agentLockedStreams?.[stream]);r.className=`flow-region ${stream==="gemara"?"gemara":"commentary"}${mapped?" reference-mapped":""}${state.agentLockedStreams?.[stream]?" anchor-mapped":""}`;r.dataset.stream=stream;r.dataset.band=bandIndex;if(stream==="gemara"&&pattern.bands[bandIndex].gemaraTopGutter)r.style.paddingTop=`${pattern.bands[bandIndex].gemaraTopGutter}px`;if(stream==="gemara"&&state.agentSettings.enforceGemaraGutterBox&&!pattern.bands.slice(bandIndex+1).some(band=>band.streams.includes("gemara")))r.style.paddingBottom="var(--daf-gutter)";r.contentEditable=state.mode==="edit"?"true":"false";r.spellcheck=false;r.setAttribute("aria-label",`${stream} editable region`);if(stream==="gemara"&&pattern.bands[bandIndex].gemaraGutter){const gutter=pattern.bands[bandIndex].gemaraGutter;r.style.paddingBottom=`${gutter}px`;r.dataset.finalGemaraGutter=String(gutter);}
     if(stream===pattern.bands[bandIndex].commentaryGutterStream&&pattern.bands[bandIndex].commentaryBottomGutter){r.style.paddingBottom=`${pattern.bands[bandIndex].commentaryBottomGutter}px`;r.dataset.commentaryBottomGutter=String(pattern.bands[bandIndex].commentaryBottomGutter);}
     row.appendChild(r);regions[stream].push(r);};
   pattern.bands.forEach((band,i)=>{const row=document.createElement("div"),isPair=band.streams.length===2&&band.streams.includes("inner")&&band.streams.includes("tosafot");row.className=`geometry-band${isPair?" commentary-pair":""}`;row.style.flex=`0 0 ${heights[i]}px`;row.style.height=`${heights[i]}px`;row.style.gridTemplateColumns=band.widths.map(x=>`${x}fr`).join(" ");band.streams.forEach(stream=>addRegion(row,stream,i));body.appendChild(row);});return regions;
@@ -738,7 +751,18 @@ function composeMappedExact(tokens,profile){
   for(const [element,stream] of [[$("topRight"),right],[$("topLeft"),left]]){element.dataset.stream=stream;element.classList.add("reference-mapped");const sourceCount=profileOpeningSourceLines(profile,stream),opening=lines[stream].slice(0,sourceCount);setMappedLines(element,opening);cursors[stream]=sourceCount;if(stream===profile.notice?.stream&&noticeLines){const notice=document.createElement("span");notice.className="mapped-line tosafot-notice";notice.contentEditable="false";notice.setAttribute("aria-label","Fixed decorative Tosafos notice");notice.textContent=profile.notice.text;element.prepend(notice);fitMappedLineWidths(element);}element.contentEditable=state.mode==="edit"?"true":"false";element.spellcheck=false;}
   for(const stage of stages)for(const stream of stage.streams){const count=stage.counts[stream]||0,region=regions[stream][regionIndex[stream]++];setMappedLines(region,lines[stream].slice(cursors[stream],cursors[stream]+count));cursors[stream]+=count;}
   for(const stream of STREAMS)if(cursors[stream]!==lines[stream].length)throw new Error(`Mapped line allocation mismatch for ${stream}: placed ${cursors[stream]}, received ${lines[stream].length}`);
+  applyReferenceRenderingRules(profile,regions);
   return{score:0,overflow:0,sourceOverflow:0,blankRatio:0,minOccupancy:1,transitionGap:0,scale:1,pattern};
+}
+function applyReferenceRenderingRules(profile=referenceProfile(),regions=Object.fromEntries(STREAMS.map(stream=>[stream,compositionRegions(stream)]))){
+  if(!profile)return;
+  if(profile.layout.uniformGemaraLineWidths)for(const region of regions.gemara){for(const line of region.querySelectorAll(":scope > .mapped-line")){line.style.width="100%";line.style.marginInline="0";}fitMappedLineWidths(region);}
+  if(profile.layout.lastGemaraLineAlign){const last=regions.gemara.at(-1)?.querySelector(":scope > .mapped-line:last-child");if(last){last.style.textAlign=profile.layout.lastGemaraLineAlign;last.style.textAlignLast=profile.layout.lastGemaraLineAlign;}}
+  const overhang=profile.layout.openingOverhang;
+  if(overhang&&profile.layout.gemaraTopGutter>=(Number(profile.typography?.commentaryLeading)||12.05)){
+    const region=regions[overhang.stream]?.[0],line=region?.querySelector(":scope > .mapped-line");
+    if(line){region.style.overflow="visible";line.style.width=`calc(100% + ${Number(overhang.extraWidth)||0}px)`;fitMappedLineWidths(region);}
+  }
 }
 function flowOpening(tokens,shapeLines=false){const right=physicalOrder()[2],left=physicalOrder()[0],rightEl=$("topRight"),leftEl=$("topLeft"),profile=referenceProfile(),openingLines=Math.round(parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--opening-lines"))||4);for(const[el,stream]of[[rightEl,right],[leftEl,left]]){el.dataset.stream=stream;el.classList.toggle("reference-mapped",Boolean(profile?.maps?.[stream]?.lineEndTokens?.length||state.agentLockedStreams?.[stream]));el.classList.toggle("anchor-mapped",Boolean(state.agentLockedStreams?.[stream]));}const rr=fitOpeningTokens(tokens[right],rightEl,openingLines),lr=fitOpeningTokens(tokens[left],leftEl,openingLines);rightEl.innerHTML=renderedTokens(rr.chunk,rightEl);leftEl.innerHTML=renderedTokens(lr.chunk,leftEl);fitMappedLineWidths(rightEl);fitMappedLineWidths(leftEl);if(shapeLines){finishRegionLine(rightEl,rr.rest.length>0);finishRegionLine(leftEl,lr.rest.length>0);}rightEl.contentEditable=state.mode==="edit"?"true":"false";leftEl.contentEditable=state.mode==="edit"?"true":"false";rightEl.spellcheck=false;leftEl.spellcheck=false;return{...tokens,[right]:rr.rest,[left]:lr.rest};}
 function lastStateForBand(result,bandIndex){return[...(result?.regionStates||[])].reverse().find(item=>item.bandIndex===bandIndex)||null;}
@@ -948,6 +972,42 @@ function fillPasses(result){
 function exactExpansionFailure(pattern){if(!pattern.teacherExactExpansion||!STREAMS.includes(pattern.expansionStream))return null;const opening=pattern.expansionStream==="gemara"?0:Math.round(parseFloat(getComputedStyle($("dafPage")).getPropertyValue("--opening-lines"))||4),regions=compositionRegions(pattern.expansionStream),first=regions[0],actual=opening+(first?visualLineCount(first):0),expected=Math.max(0,Number(pattern.expansionLine)-1);if(actual!==expected)return`${pattern.expansionStream} width transition is after line ${actual}, not line ${pattern.expansionLine}`;const next=regions[1],lastNarrow=first?renderedRows(first).at(-1):null,firstWide=next?renderedRows(next)[0]:null,line=first?parseFloat(getComputedStyle(first).lineHeight)||1:1;if(!firstWide)return`${pattern.expansionStream} line ${pattern.expansionLine} is not visibly rendered`;if(lastNarrow&&firstWide.top-lastNarrow.top<line*.55)return`${pattern.expansionStream} line ${pattern.expansionLine} overlaps the preceding line`;return null;}
 function candidatePasses(result){result.renderedLineCounts=currentRenderedLineCounts();result.lineCountFailures=targetLineCountFailures(result);result.anchorFailures=validateAgentLineAnchors();return !result.anchorFailures.length&&!validateAnchoredLineGeometry().length&&result.overflow===0&&!result.completionFailures.length&&!result.lineCountFailures.length&&!exactExpansionFailure(result.pattern)&&result.transitionGapLines<=1.15&&fillPasses(result)&&geometryTilesPage();}
 function geometryTilesPage(){const body=$("bodyGeometry"),bands=[...body.querySelectorAll(":scope > .geometry-band")];return Math.abs(bands.reduce((sum,band)=>sum+band.clientHeight,0)-body.clientHeight)<=1;}
+// Fit partially specified Gemara lines against an exact expansion boundary.
+// Each stream is measured separately: changing both commentaries together can
+// fill Rashi's column while overflowing Tosafos.
+async function calibratedPartialExpansionScale(tokens){
+  const settings=state.agentSettings,count=Number(settings.targetLineCounts?.gemara),expansion=Number(settings.expansionLine),omitted=settings.expansionIntoStream;
+  if(state.agentLockedStreams?.gemara||settings.expansionStream!=="gemara"||!Number.isInteger(count)||!Number.isInteger(expansion)||expansion<2||count<expansion||!STREAMS.includes(omitted)||omitted==="gemara"||!settings.lineAnchors?.some(anchor=>anchor.stream==="gemara"&&anchor.line===1))return null;
+  const survivor=STREAMS.find(stream=>stream!=="gemara"&&stream!==omitted),factorKey=survivor==="inner"?"innerFontFactor":"tosafotFontFactor",deadline=performance.now()+15000;
+  for(const leading of [1,.97,.94,1.03,1.06,.91,.88]){
+    const scale={gemara:leading,gemaraSize:1,commentary:1,gemaraTracking:0,innerFontFactor:1,tosafotFontFactor:1};
+    const measure=()=>evaluate(candidates(weightsFor(tokens),scale)[0],scale,tokens);
+    let low=0,high=2,found=false;
+    for(let step=0;step<10;step++){
+      scale.gemaraTracking=(low+high)/2;const result=measure(),lines=currentRenderedLineCounts().gemara;
+      if(lines===count&&!result.results.gemara.rest.length&&!validateAgentLineAnchors().length){found=true;break;}
+      if(result.results.gemara.rest.length||lines>count)high=scale.gemaraTracking;else low=scale.gemaraTracking;
+    }
+    if(!found)continue;
+    low=.7;high=1.6;
+    for(let step=0;step<9;step++){
+      scale.commentary=(low+high)/2;const result=measure();
+      if(!result.results[omitted].rest.length&&!result.clippedStreams.includes(omitted))low=scale.commentary;else high=scale.commentary;
+      if(step%4===3){await nextPaint();if(performance.now()>deadline)return null;}
+    }
+    scale.commentary=low;
+    low=.7;high=1.3;
+    for(let step=0;step<9;step++){
+      scale[factorKey]=(low+high)/2;const result=measure();
+      if(!result.results[survivor].rest.length&&!result.clippedStreams.includes(survivor))low=scale[factorKey];else high=scale[factorKey];
+      if(step%4===3){await nextPaint();if(performance.now()>deadline)return null;}
+    }
+    scale[factorKey]=low;
+    const result=measure();if(candidatePasses(result)&&!validateComposition(result).filter(failure=>failure!=="commentary baseline transition").length)return scale;
+    if(performance.now()>deadline)return null;
+  }
+  return null;
+}
 async function calibratedAnchorScale(tokens){
   const settings=state.agentSettings,count=Number(settings.targetLineCounts?.gemara);
   if(!state.agentLockedStreams?.gemara||Number(settings.expansionLine)!==count||settings.expansionStream!=="gemara")return null;
@@ -1003,7 +1063,7 @@ function validateMappedGeometry(){
   const boxWalls=profile.layout.boxWalls!==false,topPadding=gemara?parseFloat(getComputedStyle(gemara).paddingTop):NaN,bottomPadding=gemara?parseFloat(getComputedStyle(gemara).paddingBottom):NaN;
   if(bridge)failures.push("unexpected Gemara bridge");
   if(boxWalls&&(Math.abs(topPadding-gutter)>.6||Math.abs(bottomPadding-gutter)>.6))failures.push("25px top/bottom walls");
-  if(!boxWalls&&(Math.abs(topPadding)>.6||Math.abs(bottomPadding)>.6))failures.push("wall-free Gemara transition");
+  if(!boxWalls&&(Math.abs(topPadding-(Number(profile.layout.gemaraTopGutter)||0))>.6||Math.abs(bottomPadding)>.6))failures.push("wall-free Gemara transition");
   const count=(stream,band)=>[...$("bodyGeometry").querySelectorAll(`[data-stream="${stream}"][data-band="${band}"] .mapped-line`)].length;
   profileStages(profile).forEach((stage,band)=>stage.streams.forEach(stream=>{if(count(stream,band)!==stage.counts[stream])failures.push(`${stream} stage ${band+1} placement`);}));
   const canonicalLineText=value=>String(value||"").replace(/\s+([.׃,:;!?])/gu,"$1").replace(/\s+/g," ").trim(),mappedSource=streamTokens(),lineText=line=>line===null?"":canonicalLineText(line.map(token=>token.text).join(" "));
@@ -1032,7 +1092,19 @@ async function compose(){
   suspendPageZoom();updateHeader();setComposing(true);
   $("patternReport").textContent="Testing layouts…";$("fillReport").textContent="Please wait";$("rulesReport").textContent="Test in progress";
   status("Composition test 0% — evaluating Vilna page geometry…");await nextPaint();
+  const prepared=referenceProfile()?.physical;
+  if(prepared){
+    await document.fonts.ready;
+    VilnaPhysicalPage.render(prepared,{page:$("dafPage"),body:$("bodyGeometry"),topLeft:$("topLeft"),topRight:$("topRight"),settings:state.agentSettings,mode:state.mode,nekudos:state.nekudosEnabled});
+    await document.fonts.ready;VilnaPhysicalPage.fit($("dafPage"));
+    await nextPaint();
+    const placementFailures=VilnaPhysicalPage.settle(prepared,$("dafPage"),state.agentSettings);
+    const failures=[...placementFailures,...VilnaPhysicalPage.validate(prepared,$("dafPage"))],final={pattern:{name:"Saved scan instructions — Pesachim 100b",mapped:true,physical:true,bands:[]},overflow:failures.some(f=>f.includes("clipping")),failures,blankRatio:0,minOccupancy:1,transitionGap:0,scale:1};
+    state.composition=final;state.dirty=false;$("patternReport").textContent=final.pattern.name;$("fillReport").textContent="Prepared amud";$("rulesReport").textContent=failures.length?failures.join(", "):"Prepared source and line checks passed";setComposing(false);afterCompose();status(failures.length?failures.join(", "):"100b composed from saved instructions — no AI call.",Boolean(failures.length));return final;
+  }
+  $("dafPage").classList.remove("prepared-physical");$("bodyGeometry").style.height="";
   const tokens=streamTokens(),profile=referenceProfile(),originalBodyVisibility=$("bodyGeometry").style.visibility;
+  setScale(1);
   state.agentPrimaryWidths=profile?null:calibratePrimaryWidths(tokens);
   if(profile){
     const profileErrors=auditReferenceProfile(profile);if(profileErrors.length)throw new Error(`Reference-map audit failed: ${profileErrors.join(", ")}`);
@@ -1043,7 +1115,7 @@ async function compose(){
     $("patternReport").textContent=pattern.name.replace("inner","Rashi/Rashbam");$("fillReport").textContent=final.failures.length?"Final test failed":"Mapped amud";$("rulesReport").textContent=final.failures.length?`Review: ${final.failures.join(", ")}`:"All mapped and region rules passed";
     setComposing(false);afterCompose();status(final.failures.length?`Mapped composition failed: ${final.failures.join(", ")}.`:`Mapped composition complete — exact lines, gutter box and cascading takeovers passed for ${state.ref}.`,final.failures.length>0);return final;
   }
-  const calibratedScale=await calibratedAnchorScale(tokens);
+  const calibratedScale=await calibratedPartialExpansionScale(tokens)||await calibratedAnchorScale(tokens);
   const w=weightsFor(tokens),targets=state.agentSettings.targetLineCounts||{},targetScaleStream=Number.isInteger(Number(targets.gemara))?"gemara":STREAMS.find(stream=>Number.isInteger(Number(targets[stream]))),leadingValues=targetScaleStream==="gemara"?[1,.97,.94,.91,.88,1.03,1.06]:[1],trackingValues=state.agentLockedStreams?.gemara?[0]:targetScaleStream==="gemara"?[0,.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,-.5,-1]:[0],commentaryValues=targetScaleStream==="gemara"?[1,.96,.92,.88,.84,.8]:[1],globalScales=calibratedScale?[calibratedScale]:state.agentLockedStreams?.gemara?leadingValues.flatMap(gemara=>[1,.96,.92,.88,.84,.8].flatMap(gemaraSize=>commentaryValues.map(commentary=>({gemara,gemaraSize,commentary,gemaraTracking:0})))):targetScaleStream==="gemara"?leadingValues.flatMap(gemara=>trackingValues.flatMap(gemaraTracking=>commentaryValues.map(commentary=>({gemara,gemaraSize:1,commentary,gemaraTracking})))):targetScaleStream?Array.from({length:41},(_,index)=>({gemara:1,gemaraSize:1,commentary:.78+index*.01,gemaraTracking:0})):[1],patterns=candidates(w,1),openingCandidates=SOLVER_REGRESSION_MODE&&knownReferenceProfile()?.layout?.openingLines?[knownReferenceProfile().layout.openingLines]:(state.agentSettings.openingLines?[state.agentSettings.openingLines]:[4]),total=globalScales.reduce((sum,scale)=>sum+candidates(w,scale).length,0)*openingCandidates.length;
   $("bodyGeometry").style.visibility="hidden";
   let best=null,bestPassing=null,bestSource=null,done=0;const familyBest=new Map,coarseResults=[];
@@ -1103,7 +1175,7 @@ async function compose(){
 const LOCAL_PESACHIM_DATA={"pesachim 100a": "assets/data/pesachim-100a-gemara.json", "rashi on pesachim 100a": "assets/data/pesachim-100a-rashi.json", "rashbam on pesachim 100a": "assets/data/pesachim-100a-rashbam.json", "tosafot on pesachim 100a": "assets/data/pesachim-100a-tosafot.json"};
 const LOCAL_BAVA_DATA={"bava metzia 21a":"assets/data/bava-metzia-21a-gemara.json","rashi on bava metzia 21a":"assets/data/bava-metzia-21a-rashi.json","tosafot on bava metzia 21a":"assets/data/bava-metzia-21a-tosafot.json"};
 async function fetchText(ref,{commentary=false}={}){const url=`https://www.sefaria.org/api/texts/${encodeURIComponent(ref)}?context=0&commentary=0&pad=0&stripItags=0&alts=1`,local=LOCAL_BAVA_DATA[ref.trim().toLowerCase()],pinned=LOCAL_PESACHIM_DATA[ref.trim().toLowerCase()];if(pinned){const res=await fetch(pinned);if(!res.ok)throw new Error("The saved Sefaria source could not be loaded");const data=await res.json();return{html:flattenSefaria(data.he,{commentary}),heRef:data.heRef||ref,heTitle:data.heTitle||""};}let data;try{const res=await fetch(url);if(!res.ok)throw new Error(`Sefaria returned ${res.status}`);data=await res.json();}catch(error){if(!local)throw error;const fallback=await fetch(local);if(!fallback.ok)throw error;data=await fallback.json();}if(data.error&&!local)return{html:"",heRef:ref,heTitle:""};return{html:flattenSefaria(data.he,{commentary}),heRef:data.heRef||ref,heTitle:data.heTitle||""};}
-function headerFor(ref,g){if(/^Pesachim\s+(99b|100a)$/i.test(ref))return"ערבי פסחים פרק עשירי פסחים";if(/^Bava\s+Metzia\s+21[ab]$/i.test(ref))return"אלו מציאות פרק שני בבא מציעא";return g.heTitle||g.heRef.replace(/[\d.:]+/g,"").trim()||ref;}
+function headerFor(ref,g){if(/^Pesachim\s+(99b|100a|100b)$/i.test(ref))return"ערבי פסחים פרק עשירי פסחים";if(/^Bava\s+Metzia\s+(?:21[ab]|22a)$/i.test(ref))return"אלו מציאות פרק שני בבא מציעא";return g.heTitle||g.heRef.replace(/[\d.:]+/g,"").trim()||ref;}
 function normalizeOpeningGemara(html,ref){if(!/^Pesachim\s+99b$/i.test(ref))return html;const marks="[\\u0591-\\u05C7]*",marker=new RegExp(`^\\s*מ${marks}ת${marks}(?:נ${marks}י${marks})?[׳']?\\s*[.:׃-]?\\s*`,"u"),box=document.createElement("div");box.innerHTML=html.replace(marker,"");const opening=box.querySelector("strong,b");if(opening)opening.replaceWith(...opening.childNodes);return box.innerHTML.replace(/^(\s*)(\S+\s+\S+)/u,"$1<strong>$2</strong>");}
 function normalizeGemaraForRef(html,ref){let normalized=normalizeOpeningGemara(html,ref);if(!/^Bava\s+Metzia\s+21a$/i.test(ref)||/הדרן\s+עלך\s+שנים\s+אוחזין/u.test(stripNekudos(htmlToPlain(normalized))))return normalized;const marks="[\\u0591-\\u05C7]*",mishnah=new RegExp(`מ${marks}ת${marks}נ${marks}י${marks}[׳']?`,"u");return normalized.replace(mishnah,match=>`<strong>הדרן עלך שנים אוחזין</strong> ${match}`);}
 function normalizeCommentaryForRef(html,ref,stream){if(stream!=="inner"||!/^Bava\s+Metzia\s+21a$/i.test(ref)||/הדרן\s+עלך\s+שנים\s+אוחזין/u.test(html))return html;return html.replace(/(?=<(?:strong|b)>\s*מתני[׳']?\s+אלו\s+מציאות)/u,"<strong>הדרן עלך שנים אוחזין</strong> ");}
@@ -1117,7 +1189,7 @@ function updateVerificationStatus(ref=state.ref){
   document.querySelector(".app-header h1").textContent=approved?ref:"New Amud Draft";
   document.querySelector(".control-panel .panel-section h2").textContent=approved?"Amud":"Agent draft";
   document.title=approved?`${ref} — Vilna Daf Studio`:`Vilna Daf Studio Agent Draft - Build ${BUILD_VERSION}`;
-if(state.teacherApproved===true){const element=$("verificationStatus");element.classList.add("verified");element.textContent="Teacher-approved amud";return;}if(/^Pesachim 100a$/i.test(ref)){const element=$("verificationStatus");element.classList.add("verified");element.textContent="Teacher-approved reference layout";return;}const mapped=Boolean(REFERENCE_PROFILES[String(ref||"").trim().toLowerCase()]),element=$("verificationStatus");element.classList.toggle("verified",mapped);element.textContent=mapped?"Verified against uploaded Vilna PDF":"Automatic composition — PDF line map not yet verified";}
+if(state.teacherApproved===true){const element=$("verificationStatus");element.classList.add("verified");element.textContent="Teacher-approved amud";return;}if(/^Pesachim 100a$/i.test(ref)){const element=$("verificationStatus");element.classList.add("verified");element.textContent="Teacher-approved reference layout";return;}const mapped=Boolean(REFERENCE_PROFILES[String(ref||"").trim().toLowerCase()]),element=$("verificationStatus");const aiRead=Boolean(knownReferenceProfile(ref)?.scanRead);element.classList.toggle("verified",mapped&&!aiRead);element.textContent=aiRead?"AI-read scan — awaiting teacher verification":mapped?"Verified against Vilna reference scan":"Automatic composition — PDF line map not yet verified";}
 async function applyScanGuidance(ref){
   if(state.agentSettingsRef&&state.agentSettingsRef.toLowerCase()!==ref.toLowerCase())state.agentSettings={};
   state.agentSettingsRef=ref;
@@ -1128,7 +1200,21 @@ async function applyScanGuidance(ref){
   state.agentSettings={...safeAgentSettings(guidance.settings),...existing};
   // Explicit teacher corrections replace these defaults; other amudim are unaffected.
 }
-async function loadDaf({automatic=false}={}){const ref=$("dafRef").value.trim();if(!/\d+[ab]\s*$/i.test(ref)){status("Use a Talmud reference ending in a or b, such as Pesachim 99b.",true);return;}$("loadDaf").disabled=true;status("Step 1 of 2 — loading complete Gemara, Rashi, Tosafos, and applicable Rashbam from Sefaria…");try{const tractate=ref.replace(/\s+\d+[ab]\s*$/i,""),location=ref.match(/\d+[ab]\s*$/i)[0].trim(),commentary={commentary:true},rashbamRequest=state.rashbamAllowed===false?Promise.resolve({html:""}):fetchText(`Rashbam on ${tractate} ${location}`,commentary).catch(()=>({html:""})),requests=[fetchText(ref),fetchText(`Rashi on ${tractate} ${location}`,commentary),fetchText(`Tosafot on ${tractate} ${location}`,commentary),rashbamRequest],[g,r,t,b]=await Promise.all(requests);if(!g.html)throw new Error("No Hebrew Gemara text was returned");const gemaraHtml=normalizeGemaraForRef(g.html,ref),rashiHtml=normalizeCommentaryForRef(r.html,ref,"inner");Object.assign(state,{ref,header:headerFor(ref,g),gemaraHtml,rashiHtml,tosafotHtml:t.html,rashbamHtml:b.html,isSample:false,selectedWordId:null,editSelectedWordIds:[],wordFontScales:{},whitedWordIds:{},focusEnabled:false,focusWindow:1,visualLinks:{},notes:{},annotations:[],annotationUndo:[],annotationRedo:[],selection:null});if(/^Pesachim 100a$/i.test(ref)){state.rashbamHeadingMode="short";}await applyScanGuidance(ref);syncRegistrySelection(ref);clearExcerpt();syncAnnotationCanvas();status(`Step 2 of 2 — text loaded${b.html?" with Rashbam":""}; starting the composition test…`);await nextPaint();await compose();}catch(e){setComposing(false);status(`${automatic?"Automatic import failed":"Could not load this daf"}: ${e.message}. The demonstration text remains available.`,true);postAgentDiagnostics([`source load: ${e.message}`]);}finally{$("loadDaf").disabled=false;}}
+async function loadScanReferencePack(ref){
+  if(/^Pesachim\s+100b$/i.test(ref)){
+    const pack=await VilnaPreparedLibrary.load(ref);if(!pack)throw Error("The prepared 100b instructions are not enabled.");REFERENCE_PROFILES[ref.trim().toLowerCase()]=pack.profile;state.rashbamHeadingMode="short";return pack;
+  }
+  const params=new URLSearchParams(location.search);
+  if(!/^Bava\s+Metzia\s+22a$/i.test(ref)||(params.has("builder")&&params.get("scan")!=="1"))return null;
+  const response=await fetch("assets/guidance/bava-metzia-22a.json");
+  if(!response.ok)throw new Error("The Bava Metzia 22a reference could not be loaded");
+  const pack=await response.json();
+  if(pack.ref!=="Bava Metzia 22a"||!pack.profile?.maps||!pack.source?.gemaraHtml)throw new Error("Invalid Bava Metzia 22a reference");
+  REFERENCE_PROFILES[ref.trim().toLowerCase()]=pack.profile;
+  state.agentSettings={...state.agentSettings,stripGemaraDashes:true};
+  return pack;
+}
+async function loadDaf({automatic=false}={}){const ref=$("dafRef").value.trim();if(!/\d+[ab]\s*$/i.test(ref)){status("Use a Talmud reference ending in a or b, such as Pesachim 99b.",true);return;}$("loadDaf").disabled=true;status("Step 1 of 2 — loading complete Gemara, Rashi, Tosafos, and applicable Rashbam from Sefaria…");try{const tractate=ref.replace(/\s+\d+[ab]\s*$/i,""),location=ref.match(/\d+[ab]\s*$/i)[0].trim(),commentary={commentary:true},scanPack=await loadScanReferencePack(ref),requests=scanPack?[Promise.resolve({html:scanPack.source.gemaraHtml}),Promise.resolve({html:scanPack.source.rashiHtml}),Promise.resolve({html:scanPack.source.tosafotHtml}),Promise.resolve({html:scanPack.source.rashbamHtml||""})]:[fetchText(ref),fetchText(`Rashi on ${tractate} ${location}`,commentary),fetchText(`Tosafot on ${tractate} ${location}`,commentary),state.rashbamAllowed===false?Promise.resolve({html:""}):fetchText(`Rashbam on ${tractate} ${location}`,commentary).catch(()=>({html:""}))],[g,r,t,b]=await Promise.all(requests);if(!g.html)throw new Error("No Hebrew Gemara text was returned");const gemaraHtml=normalizeGemaraForRef(g.html,ref),rashiHtml=normalizeCommentaryForRef(r.html,ref,"inner");Object.assign(state,{ref,header:headerFor(ref,g),gemaraHtml,rashiHtml,tosafotHtml:t.html,rashbamHtml:b.html,isSample:false,selectedWordId:null,editSelectedWordIds:[],wordFontScales:{},whitedWordIds:{},focusEnabled:false,focusWindow:1,visualLinks:{},notes:{},annotations:[],annotationUndo:[],annotationRedo:[],selection:null});if(/^Pesachim 100a$/i.test(ref)){state.rashbamHeadingMode="short";}await applyScanGuidance(ref);syncRegistrySelection(ref);clearExcerpt();syncAnnotationCanvas();status(`Step 2 of 2 — text loaded${b.html?" with Rashbam":""}; starting the composition test…`);await nextPaint();await compose();}catch(e){setComposing(false);status(`${automatic?"Automatic import failed":"Could not load this daf"}: ${e.message}. The demonstration text remains available.`,true);postAgentDiagnostics([`source load: ${e.message}`]);}finally{$("loadDaf").disabled=false;}}
 function status(text,error=false){
   const approved=state.teacherApproved===true||(!new URLSearchParams(location.search).has("builder")&&["pesachim 99b","pesachim 100a","bava metzia 21a"].includes(String(state.ref||"").trim().toLowerCase()));
   const diagnostic=/^(?:Composition test|Exact PDF token map|Mapped composition|Final composition test)/.test(text);
@@ -1139,7 +1225,7 @@ function commentaryPlain(text){return escapeHtml(text).replace(/(^|:\s+)([^:]{1,
 function overlayFreeHtml(element){const clone=element.cloneNode(true);clone.querySelectorAll(".phrase-visual-icon").forEach(node=>node.remove());return clone.innerHTML;}
 function editableRegionHtml(region){const mapped=[...region.children].filter(child=>child.classList.contains("mapped-line"));return mapped.length?mapped.filter(line=>!line.classList.contains("mapped-blank-line")&&!line.classList.contains("tosafot-notice")).map(overlayFreeHtml).join(" "):overlayFreeHtml(region);}
 function renderedStreamHtml(stream){const pieces=[];const top=["topRight","topLeft"].map(id=>$(id)).find(el=>el.dataset.stream===stream);if(top)pieces.push(editableRegionHtml(top));$("bodyGeometry").querySelectorAll(`[data-stream="${stream}"]`).forEach(el=>pieces.push(editableRegionHtml(el)));return pieces.join(" ").trim();}
-function capturePageEdits(){state.gemaraHtml=cleanHtml(renderedStreamHtml("gemara"));state.tosafotHtml=cleanHtml(renderedStreamHtml("tosafot"));const innerRendered=renderedStreamHtml("inner"),innerPlain=htmlToPlain(innerRendered),marker="פירוש רבינו שמואל תלמיד רש״י ז״ל",at=innerPlain.indexOf(marker);if(at>=0){state.rashiHtml=commentaryPlain(innerPlain.slice(0,at).trim());state.rashbamHtml=commentaryPlain(innerPlain.slice(at+marker.length).trim());}else{state.rashiHtml=cleanHtml(innerRendered);state.rashbamHtml="";}}
+function capturePageEdits(){if(referenceProfile()?.physical){const failures=VilnaPhysicalPage.validate(referenceProfile().physical,$("dafPage"));if(failures.length)throw Error("Prepared source text changed; rebuild before saving. Appearance edits are supported.");state.dirty=false;return;}state.gemaraHtml=cleanHtml(renderedStreamHtml("gemara"));state.tosafotHtml=cleanHtml(renderedStreamHtml("tosafot"));const innerRendered=renderedStreamHtml("inner"),innerPlain=htmlToPlain(innerRendered),marker="פירוש רבינו שמואל תלמיד רש״י ז״ל",at=innerPlain.indexOf(marker);if(at>=0){state.rashiHtml=commentaryPlain(innerPlain.slice(0,at).trim());state.rashbamHtml=commentaryPlain(innerPlain.slice(at+marker.length).trim());}else{state.rashiHtml=cleanHtml(innerRendered);state.rashbamHtml="";}}
 async function reflowPageEdits(){state.approvedSnapshotLoaded=false;capturePageEdits();await compose();}
 
 function streamRegions(stream){const top=[$("topRight"),$("topLeft")].find(el=>el.dataset.stream===stream);return[...(top?[top]:[]),...$("bodyGeometry").querySelectorAll(`.geometry-band > .flow-region[data-stream="${stream}"],.geometry-band > .transition-continuity-bridge[data-continuity-stream="${stream}"]`)];}
@@ -1204,9 +1290,9 @@ function updateFocusNavigatorControls(){
   $("focusNavigatorStatus").textContent=!available?"Phrase navigation becomes available when Gemara text is loaded.":!state.focusEnabled?"Turn Focus on to fade the full page outside the active phrase window.":current==null?"Select a Gemara phrase to begin.":`Phrase ${current+1} of ${profile.length}; ${focusWindowCount()} phrase${focusWindowCount()===1?"":"s"} remain visible.`;
 }
 function updateVisualControls(){
-  const index=selectedPhraseIndex(),links=index==null?[]:visualLinksFor(index),valid=index!=null&&state.navigationUnit==="phrase";
-  $("attachVisual").disabled=!valid;$("openVisual").disabled=!links.length;$("removeVisual").disabled=!links.length;
-  $("visualStatus").textContent=!valid?"Select a Gemara phrase to attach a visual.":links.length?`Phrase ${index+1} has ${links.length} linked visual${links.length===1?"":"s"}.`:`Phrase ${index+1} has no linked visual.`;
+  const index=selectedPhraseIndex(),links=index==null?[]:visualLinksFor(index);
+  $("attachVisual").disabled=!phraseNavigationAvailable;$("openVisual").disabled=!links.length;$("removeVisual").disabled=!links.length;
+  $("visualStatus").textContent=!phraseNavigationAvailable?"Load Gemara text to attach a visual.":index==null?"Click a word in the Gemara, paste your slide link, then choose Attach.":links.length?`Phrase ${index+1} has ${links.length} linked visual${links.length===1?"":"s"}.`:`Ready to attach a visual to phrase ${index+1}.`;
 }
 function setFocusEnabled(force){
   state.focusEnabled=typeof force==="boolean"?force:!state.focusEnabled;
@@ -1214,11 +1300,12 @@ function setFocusEnabled(force){
   applySelectionAppearance();applyFocusAppearance();updateVisualControls();
 }
 function addVisualLink(){
-  const index=selectedPhraseIndex(),raw=$("visualUrl").value.trim();if(index==null)return;
+  const index=selectedPhraseIndex(),raw=$("visualUrl").value.trim();if(index==null){$("visualStatus").textContent=state.mode==="edit"?"Choose Navigate, click a word in the Gemara, then choose Attach. Your link is still here.":"Click a word in the Gemara, then choose Attach. Your link is still here.";return;}
   let url;try{url=new URL(raw);if(!/^https?:$/.test(url.protocol))throw new Error();}catch{$("visualStatus").textContent="Enter a complete Google Slides, Canva, or other https link.";return;}
+  setNavigationUnit("phrase");
   const links=visualLinksFor(index),value=url.toString();if(!links.includes(value))state.visualLinks[index]=[...links,value];$("visualUrl").value="";renderPhraseVisualMarkers();updateVisualControls();
 }
-function openPhraseVisual(index=selectedPhraseIndex()){const links=visualLinksFor(index);if(links.length)window.open(links.at(-1),"_blank","noopener,noreferrer");}
+function openPhraseVisual(index=selectedPhraseIndex()){const links=visualLinksFor(index);if(links.length>1&&window.VilnaLessonDeckUI)return window.VilnaLessonDeckUI.openLinks(index);if(links.length){try{const url=new URL(links[0]);if(/^https?:$/.test(url.protocol))window.open(url.href,"_blank","noopener,noreferrer");}catch{}}}
 function removeVisualLink(){const index=selectedPhraseIndex(),links=visualLinksFor(index);if(index==null||!links.length)return;const next=links.slice(0,-1);if(next.length)state.visualLinks[index]=next;else delete state.visualLinks[index];renderPhraseVisualMarkers();updateVisualControls();}
 function clearSelectionAppearance(){$("dafPage").querySelectorAll(".selected-word,.selected-phrase").forEach(word=>word.classList.remove("selected-word","selected-phrase"));}
 function applySelectionAppearance(){clearSelectionAppearance();const selected=selectedWordElement();if(!selected)return;if(state.navigationUnit==="phrase"&&selected.dataset.stream==="gemara"&&selected.dataset.phraseIndex!=null)phraseElements(selected.dataset.phraseIndex).forEach(word=>word.classList.add("selected-phrase"));else selected.classList.add("selected-word");}
@@ -1234,7 +1321,7 @@ function setNavigationUnit(unit){
   const current=selectedWordElement();if(state.navigationUnit==="phrase"&&current?.dataset.stream==="gemara"&&current.dataset.phraseIndex!=null)state.selectedWordId=phraseElements(current.dataset.phraseIndex)[0]?.dataset.wordId||state.selectedWordId;
   updateNavigationUnitControls();applySelectionAppearance();applyFocusAppearance();updateNoteWindow();updateReadingControls();
 }
-function activateWordNavigation(){if(readingState.active)readingState.recognition?.abort();for(const old of $("dafPage").querySelectorAll(".word-token")){old.querySelectorAll(".phrase-visual-icon").forEach(icon=>icon.remove());if(old.classList.contains("layout-token")){old.className="layout-token";delete old.dataset.wordId;delete old.dataset.stream;old.style.fontSize="";}else old.replaceWith(old.textContent);}for(const stream of STREAMS){let index=0;for(const region of streamRegions(stream))index=wrapRegionWords(region,stream,index);}decoratePunctuation();phraseNavigationAvailable=assignPhraseNavigation();updateNavigationUnitControls();renderPhraseVisualMarkers();applySelectionAppearance();applyFocusAppearance();resetReadingSession({keepSelection:true});setInteractionMode(state.mode,{focus:false});}
+function activateWordNavigation(){if(readingState.active)readingState.recognition?.abort();for(const old of $("dafPage").querySelectorAll(".word-token")){old.querySelectorAll(".phrase-visual-icon").forEach(icon=>icon.remove());if(old.classList.contains("layout-token")){old.className="layout-token";delete old.dataset.wordId;delete old.dataset.stream;old.style.fontSize="";}else old.replaceWith(old.textContent);}for(const stream of STREAMS){let index=0;for(const region of streamRegions(stream))index=wrapRegionWords(region,stream,index);}decoratePunctuation();decorateGemaraDashes();phraseNavigationAvailable=assignPhraseNavigation();updateNavigationUnitControls();renderPhraseVisualMarkers();applySelectionAppearance();applyFocusAppearance();resetReadingSession({keepSelection:true});setInteractionMode(state.mode,{focus:false});}
 const PAGE_ZOOM_MIN=1,PAGE_ZOOM_MAX=2.5,PAGE_ZOOM_STEP=.5;
 function normalizedPageZoom(value){const zoom=Number(value);if(!Number.isFinite(zoom))return 1.5;return clamp(Math.round(zoom/PAGE_ZOOM_STEP)*PAGE_ZOOM_STEP,PAGE_ZOOM_MIN,PAGE_ZOOM_MAX);}
 function suspendPageZoom(){const page=$("dafPage"),shell=$("pageZoomShell");page.style.transform="none";shell.style.width=`${page.offsetWidth}px`;shell.style.height=`${page.offsetHeight}px`;}
@@ -1272,14 +1359,24 @@ function decoratePunctuation(){
     for(const node of nodes){const parts=punctuationParts(node.data);if(!parts.some(isDisplayPunctuation))continue;const fragment=document.createDocumentFragment();for(const part of parts){if(isDisplayPunctuation(part)){const mark=document.createElement("span");mark.className="display-punctuation";mark.textContent=part;fragment.append(mark);}else fragment.append(part);}node.replaceWith(fragment);}
   }
 }
+// Keep dash glyph slots and source tokens so an approved layout never reflows.
+function isDisplayDash(text){return /^[\u2010-\u2015\u2212-]+$/u.test(String(text));}
+function decorateGemaraDashes(){
+  for(const word of $("dafPage").querySelectorAll('.word-token[data-stream="gemara"]')){
+    const walker=document.createTreeWalker(word,NodeFilter.SHOW_TEXT,{acceptNode:node=>node.parentElement.closest(".display-dash,.phrase-visual-icon")?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT}),nodes=[];
+    while(walker.nextNode())nodes.push(walker.currentNode);
+    for(const node of nodes){const parts=node.data.split(/([\u2010-\u2015\u2212-]+)/u).filter(Boolean);if(!parts.some(isDisplayDash))continue;const fragment=document.createDocumentFragment();for(const part of parts){if(isDisplayDash(part)){const mark=document.createElement("span");mark.className="display-dash";mark.textContent=part;fragment.append(mark);}else fragment.append(part);}node.replaceWith(fragment);}
+  }
+}
 function togglePunctuation(force){state.punctuationEnabled=typeof force==="boolean"?force:!state.punctuationEnabled;updateDisplayToggles();}
 function updateDisplayToggles(){
   $("dafPage").classList.toggle("punctuation-hidden",!state.punctuationEnabled);
+  $("dafPage").classList.toggle("gemara-dashes-hidden",state.agentSettings.stripGemaraDashes===true);
   $("punctuationToggle").setAttribute("aria-pressed",String(state.punctuationEnabled));$("punctuationToggle").textContent=`Punctuation: ${state.punctuationEnabled?"On":"Off"}`;
   $("nekudosToggle").setAttribute("aria-pressed",String(state.nekudosEnabled));$("nekudosToggle").textContent=`Nekudos: ${state.nekudosEnabled?"On":"Off"}`;
   $("lineNumbersToggle").setAttribute("aria-pressed",String(state.lineNumbersEnabled));$("lineNumbersToggle").textContent=`Gemara line numbers: ${state.lineNumbersEnabled?"On":"Off"}`;
 }
-async function toggleNekudos(force){if(state.dirty)capturePageEdits();state.nekudosEnabled=typeof force==="boolean"?force:!state.nekudosEnabled;updateDisplayToggles();await compose();}
+async function toggleNekudos(force){if(state.dirty)capturePageEdits();state.nekudosEnabled=typeof force==="boolean"?force:!state.nekudosEnabled;if(referenceProfile()?.physical)state.agentSettings.showNekudos=state.nekudosEnabled;updateDisplayToggles();await compose();}
 function toggleLineNumbers(force){state.lineNumbersEnabled=typeof force==="boolean"?force:!state.lineNumbersEnabled;updateDisplayToggles();requestAnimationFrame(renderGemaraLineNumbers);}
 function setInteractionMode(mode,{focus=true}={}){state.mode=mode==="edit"?"edit":"navigate";if(state.mode!=="edit")state.editSelectedWordIds=[];$("dafPage").classList.toggle("edit-mode",state.mode==="edit");for(const region of $("dafPage").querySelectorAll(".flow-region,.top-commentary"))region.contentEditable=state.mode==="edit"?"true":"false";for(const id of["navigateMode","editMode"]){const active=id==="navigateMode"?state.mode==="navigate":state.mode==="edit";$(id).setAttribute("aria-pressed",String(active));}updateEditTools();if(focus&&state.mode==="navigate"&&state.selectedWordId)document.querySelector(`[data-word-id="${CSS.escape(state.selectedWordId)}"]`)?.focus();}
 function selectedWordElement(){return state.selectedWordId?document.querySelector(`[data-word-id="${CSS.escape(state.selectedWordId)}"]`):null;}
@@ -1360,15 +1457,73 @@ function undoAnnotations(){if(!state.annotationUndo.length)return;state.annotati
 function redoAnnotations(){if(!state.annotationRedo.length)return;state.annotationUndo.push(cloneAnnotations());state.annotations=state.annotationRedo.pop();syncAnnotationCanvas();}
 function clearAnnotations(){if(!state.annotations.length)return;state.annotationUndo.push(cloneAnnotations());state.annotations=[];state.annotationRedo=[];syncAnnotationCanvas();}
 
-function projectPayload(){if(state.dirty)capturePageEdits();return{format:"vilna-daf-studio-project",version:1,build:BUILD_VERSION,savedAt:new Date().toISOString(),daf:{ref:state.ref,header:state.header,gemaraHtml:state.gemaraHtml,rashiHtml:state.rashiHtml,rashbamHtml:state.rashbamHtml,tosafotHtml:state.tosafotHtml,isSample:state.isSample},view:{typography:state.typography,mode:state.mode,navigationUnit:state.navigationUnit,selectedWordId:state.selectedWordId,wordFontScales:state.wordFontScales,whitedWordIds:state.whitedWordIds,focusEnabled:state.focusEnabled,focusWindow:state.focusWindow,notesEnabled:state.notesEnabled,nekudosEnabled:state.nekudosEnabled,punctuationEnabled:state.punctuationEnabled,lineNumbersEnabled:state.lineNumbersEnabled,pageZoom:state.pageZoom,noteWindowPosition:state.noteWindowPosition,selection:state.selection},lesson:{visualLinks:state.visualLinks},notes:state.notes,annotations:state.annotations,annotationSettings:{tool:state.annotationTool,color:state.annotationColor,width:state.strokeWidth}};}
+function projectPayload(){if(state.dirty)capturePageEdits();return{format:"vilna-daf-studio-project",version:1,build:BUILD_VERSION,savedAt:new Date().toISOString(),daf:{ref:state.ref,header:state.header,gemaraHtml:state.gemaraHtml,rashiHtml:state.rashiHtml,rashbamHtml:state.rashbamHtml,tosafotHtml:state.tosafotHtml,isSample:state.isSample,scanProfile:referenceProfile()},view:{agentSettings:structuredClone(state.agentSettings),typography:state.typography,mode:state.mode,navigationUnit:state.navigationUnit,selectedWordId:state.selectedWordId,wordFontScales:state.wordFontScales,whitedWordIds:state.whitedWordIds,focusEnabled:state.focusEnabled,focusWindow:state.focusWindow,notesEnabled:state.notesEnabled,nekudosEnabled:state.nekudosEnabled,punctuationEnabled:state.punctuationEnabled,lineNumbersEnabled:state.lineNumbersEnabled,pageZoom:state.pageZoom,noteWindowPosition:state.noteWindowPosition,selection:state.selection},lesson:{visualLinks:state.visualLinks},notes:state.notes,annotations:state.annotations,annotationSettings:{tool:state.annotationTool,color:state.annotationColor,width:state.strokeWidth}};}
 function downloadBlob(blob,name){const a=document.createElement("a"),url=URL.createObjectURL(blob);a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);}
 function saveProject(){const payload=projectPayload(),name=`${state.ref.replace(/\s+/g,"-")}.vds`;downloadBlob(new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),name);$("projectStatus").textContent=`Saved ${name}.`;}
-async function openProjectFile(file){const data=JSON.parse(await file.text());if(data?.format!=="vilna-daf-studio-project"||data.version!==1||!data.daf?.ref)throw new Error("This is not a supported Vilna Daf Studio project");const projectRef=String(data.daf.ref);Object.assign(state,{ref:projectRef,header:String(data.daf.header||""),gemaraHtml:normalizeGemaraForRef(cleanHtml(data.daf.gemaraHtml),projectRef),rashiHtml:normalizeCommentaryForRef(cleanHtml(data.daf.rashiHtml),projectRef,"inner"),rashbamHtml:cleanHtml(data.daf.rashbamHtml),tosafotHtml:cleanHtml(data.daf.tosafotHtml),isSample:Boolean(data.daf.isSample),typography:TYPOGRAPHY_PRESETS[data.view?.typography]?data.view.typography:"archival-open",mode:data.view?.mode==="edit"?"edit":"navigate",navigationUnit:data.view?.navigationUnit==="phrase"?"phrase":"word",selectedWordId:data.view?.selectedWordId||null,editSelectedWordIds:[],wordFontScales:data.view?.wordFontScales&&typeof data.view.wordFontScales==="object"?data.view.wordFontScales:{},whitedWordIds:data.view?.whitedWordIds&&typeof data.view.whitedWordIds==="object"?data.view.whitedWordIds:{},focusEnabled:Boolean(data.view?.focusEnabled),focusWindow:clamp(Number(data.view?.focusWindow)||1,1,12),visualLinks:data.lesson?.visualLinks&&typeof data.lesson.visualLinks==="object"?data.lesson.visualLinks:{},notesEnabled:Boolean(data.view?.notesEnabled),nekudosEnabled:data.view?.nekudosEnabled!==false,punctuationEnabled:data.view?.punctuationEnabled!==false,lineNumbersEnabled:Boolean(data.view?.lineNumbersEnabled),pageZoom:normalizedPageZoom(data.view?.pageZoom),noteWindowPosition:data.view?.noteWindowPosition||null,selection:data.view?.selection||null,notes:data.notes&&typeof data.notes==="object"?data.notes:{},annotations:Array.isArray(data.annotations)?data.annotations:[],annotationTool:["pen","highlighter","eraser"].includes(data.annotationSettings?.tool)?data.annotationSettings.tool:"pen",annotationColor:data.annotationSettings?.color||"#b32424",strokeWidth:Number(data.annotationSettings?.width)||3,annotationUndo:[],annotationRedo:[]});$("dafRef").value=state.ref;syncRegistrySelection(state.ref);$("focusWindowSize").value=[1,2,3].includes(state.focusWindow)?String(state.focusWindow):"custom";$("focusWindowCustom").value=state.focusWindow;$("focusWindowCustom").hidden=$("focusWindowSize").value!=="custom";$("annotationColor").value=state.annotationColor;$("strokeWidth").value=state.strokeWidth;$("strokeWidthValue").textContent=state.strokeWidth;updateDisplayToggles();selectAnnotationTool(state.annotationTool);setAnnotating(false);await applyTypography(state.typography,{recompose:false});await compose();toggleNotes(state.notesEnabled);if(state.selection){const b=$("selectionBox");b.hidden=false;Object.assign(b.style,{left:`${state.selection.x}px`,top:`${state.selection.y}px`,width:`${state.selection.width}px`,height:`${state.selection.height}px`});["downloadExactPng","copyExcerpt","downloadExcerpt","clearExcerpt"].forEach(id=>$(id).disabled=false);}$("projectStatus").textContent=`Opened ${file.name}.`;}
+async function openProjectFile(file){const data=JSON.parse(await file.text());if(data?.format!=="vilna-daf-studio-project"||data.version!==1||!data.daf?.ref)throw new Error("This is not a supported Vilna Daf Studio project");const projectRef=String(data.daf.ref);if(data.daf.scanProfile){if(auditReferenceProfile(data.daf.scanProfile).length)throw new Error("Invalid saved scan map");REFERENCE_PROFILES[projectRef.trim().toLowerCase()]=data.daf.scanProfile;}Object.assign(state,{agentSettings:safeAgentSettings(data.view?.agentSettings),agentSettingsRef:projectRef,ref:projectRef,header:String(data.daf.header||""),gemaraHtml:normalizeGemaraForRef(cleanHtml(data.daf.gemaraHtml),projectRef),rashiHtml:normalizeCommentaryForRef(cleanHtml(data.daf.rashiHtml),projectRef,"inner"),rashbamHtml:cleanHtml(data.daf.rashbamHtml),tosafotHtml:cleanHtml(data.daf.tosafotHtml),isSample:Boolean(data.daf.isSample),typography:TYPOGRAPHY_PRESETS[data.view?.typography]?data.view.typography:"archival-open",mode:data.view?.mode==="edit"?"edit":"navigate",navigationUnit:data.view?.navigationUnit==="phrase"?"phrase":"word",selectedWordId:data.view?.selectedWordId||null,editSelectedWordIds:[],wordFontScales:data.view?.wordFontScales&&typeof data.view.wordFontScales==="object"?data.view.wordFontScales:{},whitedWordIds:data.view?.whitedWordIds&&typeof data.view.whitedWordIds==="object"?data.view.whitedWordIds:{},focusEnabled:Boolean(data.view?.focusEnabled),focusWindow:clamp(Number(data.view?.focusWindow)||1,1,12),visualLinks:data.lesson?.visualLinks&&typeof data.lesson.visualLinks==="object"?data.lesson.visualLinks:{},notesEnabled:Boolean(data.view?.notesEnabled),nekudosEnabled:data.view?.nekudosEnabled!==false,punctuationEnabled:data.view?.punctuationEnabled!==false,lineNumbersEnabled:Boolean(data.view?.lineNumbersEnabled),pageZoom:normalizedPageZoom(data.view?.pageZoom),noteWindowPosition:data.view?.noteWindowPosition||null,selection:data.view?.selection||null,notes:data.notes&&typeof data.notes==="object"?data.notes:{},annotations:Array.isArray(data.annotations)?data.annotations:[],annotationTool:["pen","highlighter","eraser"].includes(data.annotationSettings?.tool)?data.annotationSettings.tool:"pen",annotationColor:data.annotationSettings?.color||"#b32424",strokeWidth:Number(data.annotationSettings?.width)||3,annotationUndo:[],annotationRedo:[]});$("dafRef").value=state.ref;syncRegistrySelection(state.ref);$("focusWindowSize").value=[1,2,3].includes(state.focusWindow)?String(state.focusWindow):"custom";$("focusWindowCustom").value=state.focusWindow;$("focusWindowCustom").hidden=$("focusWindowSize").value!=="custom";$("annotationColor").value=state.annotationColor;$("strokeWidth").value=state.strokeWidth;$("strokeWidthValue").textContent=state.strokeWidth;updateDisplayToggles();selectAnnotationTool(state.annotationTool);setAnnotating(false);await applyTypography(state.typography,{recompose:false});await compose();toggleNotes(state.notesEnabled);if(state.selection){const b=$("selectionBox");b.hidden=false;Object.assign(b.style,{left:`${state.selection.x}px`,top:`${state.selection.y}px`,width:`${state.selection.width}px`,height:`${state.selection.height}px`});["downloadExactPng","copyExcerpt","downloadExcerpt","clearExcerpt"].forEach(id=>$(id).disabled=false);}$("projectStatus").textContent=`Opened ${file.name}.`;}
 function wordCount(html){return htmlToPlain(html||"").trim().split(/\s+/u).filter(Boolean).length;}
+async function applyScanPack(pack,{cached=false}={}){
+  if(pack.ref!==state.ref)throw new Error("The page changed while the scan was being read.");
+  if(state.dirty||state.approvedSnapshotLoaded)throw new Error("Build an editable draft before applying a scan map.");
+  const key=state.ref.trim().toLowerCase(),before={profile:REFERENCE_PROFILES[key],settings:structuredClone(state.agentSettings),source:{gemaraHtml:state.gemaraHtml,rashiHtml:state.rashiHtml,rashbamHtml:state.rashbamHtml,tosafotHtml:state.tosafotHtml}};
+  try{
+    if(cached){Object.assign(state,{gemaraHtml:pack.source.gemaraHtml,rashiHtml:pack.source.rashiHtml,tosafotHtml:pack.source.tosafotHtml,rashbamHtml:""});}
+    REFERENCE_PROFILES[key]=pack.profile;
+    state.agentSettings=safeAgentSettings({stripGemaraDashes:true});
+    const audit=auditReferenceProfile(pack.profile);if(audit.length)throw new Error(audit.join(", "));
+    const result=await compose();await nextPaint();await nextPaint();
+    const failures=[...(result.failures||[])];validateRenderedSource(failures);
+    if(failures.length)throw new Error("Scan layout failed measured checks: "+[...new Set(failures)].join(", "));
+    syncRegistrySelection(state.ref);return {counts:currentRenderedLineCounts(),cached};
+  }catch(error){
+    if(before.profile)REFERENCE_PROFILES[key]=before.profile;else delete REFERENCE_PROFILES[key];
+    Object.assign(state,before.source);state.agentSettings=before.settings;setComposing(false);await compose();await nextPaint();await nextPaint();syncRegistrySelection(state.ref);
+    throw new Error(error.message+" Previous page restored.");
+  }
+}
+async function applyCachedScan(){
+  if(/^Pesachim\s+100b$/i.test(state.ref)){
+    if(!referenceProfile()?.physical)throw Error('Build Pesachim 100b before using its saved scan.');
+    const result=await compose();await nextPaint();await nextPaint();
+    if(result.failures.length)throw Error('Saved scan failed measured checks: '+result.failures.join(', '));
+    return {counts:currentRenderedLineCounts(),cached:true};
+  }
+  if(!/^Bava\s+Metzia\s+22a$/i.test(state.ref))throw new Error("No saved scan map for this amud.");
+  const response=await fetch("assets/guidance/bava-metzia-22a.json");if(!response.ok)throw new Error("The saved scan map could not be loaded.");
+  return applyScanPack(await response.json(),{cached:true});
+}
+async function applyScanReading(result){
+  const evidence=captureScanEvidence(),profile=VilnaScanContract.compile(result.reading,evidence,result.scanUrl);
+  return applyScanPack({ref:evidence.ref,profile});
+}
+function captureScanEvidence(){
+  const source={gemara:state.gemaraHtml,inner:innerHtml(),tosafot:state.tosafotHtml};
+  return {ref:state.ref,streams:Object.fromEntries(STREAMS.map(stream=>[stream,{tokens:normalizeMappedSourceTokens(tokenize(withoutBreaks(source[stream])),stream).filter(t=>!t.break).map(t=>t.text)}]))};
+}
+function captureAgentEvidence(){
+  const source={gemara:state.gemaraHtml,inner:innerHtml(),tosafot:state.tosafotHtml},page=$("dafPage").getBoundingClientRect();
+  const evidence={ref:state.ref,mode:state.mode,profile:referenceProfile()?.source||null,streams:{}};
+  for(const stream of STREAMS){
+    const plain=document.createElement('div');plain.innerHTML=source[stream];
+    const sourceText=plain.textContent.replace(/\s+/g,' ').trim(),lines=[];
+    for(const region of streamRegions(stream)){
+      const leading=parseFloat(getComputedStyle(region).lineHeight)||1,rows=[];
+      for(const token of region.querySelectorAll('.layout-token,.word-token')){
+        if(!token.textContent.trim())continue;
+        const rect=token.getBoundingClientRect(),center=rect.top+rect.height/2,last=rows.at(-1);
+        if(!last||Math.abs(center-last.center)>leading*.55)rows.push({center,left:rect.left,right:rect.right,top:rect.top,bottom:rect.bottom,words:[token.textContent]});
+        else{last.words.push(token.textContent);last.left=Math.min(last.left,rect.left);last.right=Math.max(last.right,rect.right);last.bottom=Math.max(last.bottom,rect.bottom);}
+      }
+      for(const row of rows)lines.push({line:lines.length+1,text:row.words.join(' ').trim(),x:Math.round(row.left-page.left),y:Math.round(row.top-page.top),width:Math.round(row.right-row.left),height:Math.round(row.bottom-row.top)});
+    }
+    evidence.streams[stream]={sourceText:sourceText.slice(0,24000),sourceTruncated:sourceText.length>24000,lines:lines.slice(0,200),linesTruncated:lines.length>200};
+  }
+  return evidence;
+}
 function postAgentDiagnostics(extraFailures=[]){
   if(window.parent===window)return;
   const final=state.composition,diagnostics={
-    ref:state.ref, patternName:final?.pattern?.name||"not composed", solverMode:final?.pattern?.eventDriven?"completion-event":referenceProfile()?"protected-map":"guided", regressionMode:SOLVER_REGRESSION_MODE,
+    ref:state.ref,scanStatus:referenceProfile()?.scanRead?"ai-read":referenceProfile()?"reference-map":"not-read", patternName:final?.pattern?.name||"not composed", solverMode:final?.pattern?.eventDriven?"completion-event":referenceProfile()?"protected-map":"guided", regressionMode:SOLVER_REGRESSION_MODE,
     failures:[...new Set([...(final?.failures||[]),...extraFailures])],
     textOverflow:Boolean(final?.overflow), rashbamPresent:Boolean(state.rashbamHtml),
     headingMode:state.rashbamHeadingMode, settings:{...state.agentSettings},
@@ -1379,6 +1534,7 @@ function postAgentDiagnostics(extraFailures=[]){
   window.parent.postMessage({type:"vilna-agent-diagnostics",diagnostics},location.origin);
 }
 function applyAgentRenderingRules(){
+  if(referenceProfile()?.physical){VilnaPhysicalPage.apply(state.agentSettings,$("dafPage"));return;}
   const settings=state.agentSettings||{},regions=[...$("dafPage").querySelectorAll('[data-stream="gemara"]')],mappedLines=[];
   regions.forEach(region=>{region.style.textAlignLast="";for(const line of region.querySelectorAll(":scope > .mapped-line")){line.style.width="";line.style.marginLeft="";line.style.marginRight="";line.style.textAlign="";line.style.textAlignLast="";if(line.textContent.trim()){line.dataset.gemaraLine=String(mappedLines.length+1);mappedLines.push(line);}}});
   const expansionLine=Number(settings.gemaraExpansionLine);
@@ -1409,8 +1565,9 @@ function applyAgentRenderingRules(){
       else regions.at(-1)?.style.setProperty("text-align-last",alignment);
     }
   }
+  applyReferenceRenderingRules();
 }
-function afterCompose(){activateWordNavigation();updateDisplayToggles();requestAnimationFrame(()=>{applyAgentRenderingRules();applyPageZoom();syncAnnotationCanvas();renderGemaraLineNumbers();postAgentDiagnostics();});updateNoteWindow();}
+function afterCompose(){activateWordNavigation();updateDisplayToggles();requestAnimationFrame(()=>{if($("dafPage").classList.contains("composing"))return;applyAgentRenderingRules();applyPageZoom();syncAnnotationCanvas();renderGemaraLineNumbers();postAgentDiagnostics();});updateNoteWindow();}
 
 function localPoint(e){const page=$("dafPage"),r=page.getBoundingClientRect(),zoom=normalizedPageZoom(state.pageZoom);return{x:Math.max(0,Math.min(page.clientWidth,(e.clientX-r.left)/zoom)),y:Math.max(0,Math.min(page.clientHeight,(e.clientY-r.top)/zoom))};}
 function beginExcerpt(){state.selecting=!state.selecting;if(state.selecting)setAnnotating(false);$("dafPage").classList.toggle("selecting",state.selecting);$("excerptMode").textContent=state.selecting?"Exit excerpt mode":"Select excerpt";}
@@ -1419,7 +1576,7 @@ function excerptForeignObjectSvg(){if(!state.selection)return null;const{x,y,wid
 const vectorFontCache={};
 function loadVectorFont(key,url){if(!vectorFontCache[key])vectorFontCache[key]=new Promise((resolve,reject)=>opentype.load(url,(error,font)=>error?reject(error):resolve(font)));return vectorFontCache[key];}
 async function vectorFonts(){return{gemara:await loadVectorFont("gemara","assets/fonts/DrugulinCLM-Bold.otf"),commentary:await loadVectorFont("commentary","assets/fonts/Mekorot-Regular.ttf"),commentaryBold:await loadVectorFont("commentaryBold","assets/fonts/Mekorot-Bold.ttf")};}
-function glyphRun(font,text,fontSize,hidePunctuation=false){const glyphs=font.stringToGlyphs(text),visual=/[\u0590-\u05ff]/u.test(text)?glyphs.reverse():glyphs,scale=fontSize/font.unitsPerEm,parts=[];let cursor=0,x1=Infinity,y1=Infinity,x2=-Infinity,y2=-Infinity;visual.forEach((glyph,index)=>{const path=glyph.getPath(cursor,0,fontSize),box=path.getBoundingBox();if(path.commands.length){if(!hidePunctuation||!isDisplayPunctuation(String.fromCodePoint(glyph.unicode||0)))parts.push(path.toPathData(3));x1=Math.min(x1,box.x1);y1=Math.min(y1,box.y1);x2=Math.max(x2,box.x2);y2=Math.max(y2,box.y2);}const next=visual[index+1];cursor+=(glyph.advanceWidth||font.unitsPerEm*.5)*scale+(next?font.getKerningValue(glyph,next)*scale:0);});if(!parts.length)return null;return{d:parts.join(""),advance:Math.max(.01,cursor),box:{x1,y1,x2,y2}};}
+function glyphRun(font,text,fontSize,hidePunctuation=false,hideDashes=false){const glyphs=font.stringToGlyphs(text),visual=/[\u0590-\u05ff]/u.test(text)?glyphs.reverse():glyphs,scale=fontSize/font.unitsPerEm,parts=[];let cursor=0,x1=Infinity,y1=Infinity,x2=-Infinity,y2=-Infinity;visual.forEach((glyph,index)=>{const path=glyph.getPath(cursor,0,fontSize),box=path.getBoundingBox();if(path.commands.length){if(!(hidePunctuation&&isDisplayPunctuation(String.fromCodePoint(glyph.unicode||0)))&&!(hideDashes&&isDisplayDash(String.fromCodePoint(glyph.unicode||0))))parts.push(path.toPathData(3));x1=Math.min(x1,box.x1);y1=Math.min(y1,box.y1);x2=Math.max(x2,box.x2);y2=Math.max(y2,box.y2);}const next=visual[index+1];cursor+=(glyph.advanceWidth||font.unitsPerEm*.5)*scale+(next?font.getKerningValue(glyph,next)*scale:0);});if(!parts.length)return null;return{d:parts.join(""),advance:Math.max(.01,cursor),box:{x1,y1,x2,y2}};}
 function intersects(a,b){return a.right>b.x&&a.left<b.x+b.width&&a.bottom>b.y&&a.top<b.y+b.height;}
 function exportTextRect(element){if(element.classList.contains("word-token"))return element.getBoundingClientRect();const range=document.createRange();range.selectNodeContents(element);const rects=[...range.getClientRects()].filter(rect=>rect.width>.1&&rect.height>.1);return rects.length===1?rects[0]:element.getBoundingClientRect();}
 function strokePath(points,offsetX,offsetY){if(!points.length)return"";return points.map((p,i)=>`${i?"L":"M"}${(p.x-offsetX).toFixed(2)} ${(p.y-offsetY).toFixed(2)}`).join(" ");}
@@ -1430,7 +1587,7 @@ async function canvaExcerptSvg(){
   for(const element of targets){
     const visualRect=exportTextRect(element),rect={left:(visualRect.left-pageRect.left)/zoom,right:(visualRect.right-pageRect.left)/zoom,top:(visualRect.top-pageRect.top)/zoom,bottom:(visualRect.bottom-pageRect.top)/zoom,width:visualRect.width/zoom,height:visualRect.height/zoom},local={left:rect.left,right:rect.right,top:rect.top,bottom:rect.bottom};
     if(!intersects(local,selection)||!element.textContent.trim())continue;
-    const cs=getComputedStyle(element),isGemara=element.classList.contains("gemara-line-number")||Boolean(element.closest(".gemara,.daf-header")),bold=Number(cs.fontWeight)>=600||Boolean(element.closest("strong,.tosafot-notice")),font=isGemara?fonts.gemara:bold?fonts.commentaryBold:fonts.commentary,run=glyphRun(font,element.textContent.trim(),parseFloat(cs.fontSize)||12,!state.punctuationEnabled&&element.classList.contains("word-token"));
+    const cs=getComputedStyle(element),isGemara=element.classList.contains("gemara-line-number")||Boolean(element.closest(".gemara,.daf-header")),bold=Number(cs.fontWeight)>=600||Boolean(element.closest("strong,.tosafot-notice")),font=isGemara?fonts.gemara:bold?fonts.commentaryBold:fonts.commentary,run=glyphRun(font,element.textContent.trim(),parseFloat(cs.fontSize)||12,!state.punctuationEnabled&&element.classList.contains("word-token"),state.agentSettings.stripGemaraDashes===true&&element.dataset.stream==="gemara");
     if(!run)continue;
     const inkHeight=Math.max(.01,run.box.y2-run.box.y1),scaleX=rect.width/run.advance,baseline=local.top+(rect.height-inkHeight)/2-run.box.y1,x=local.left-selection.x,y=baseline-selection.y;
     const faded=element.classList.contains("word-whited-out"),pathStyle=faded?'fill="none" stroke="#d3cfc6" stroke-width=".35"':'fill="#080706"';textPaths.push(`<g transform="translate(${x.toFixed(3)} ${y.toFixed(3)})"><g transform="scale(${scaleX.toFixed(5)} 1)"><path d="${run.d}" ${pathStyle}/></g></g>`);
@@ -1471,7 +1628,27 @@ function safeAgentSettings(value={}){
   if(value.targetLineCounts&&typeof value.targetLineCounts==="object"){const counts={};for(const stream of STREAMS){const count=Number(value.targetLineCounts[stream]);if(Number.isInteger(count)&&count>=1&&count<=200)counts[stream]=count;}if(Object.keys(counts).length)clean.targetLineCounts=counts;}
   if(value.streamAlignments&&typeof value.streamAlignments==="object"){const alignments={};for(const stream of ["inner","tosafot"]){const item=value.streamAlignments[stream];if(item&&["right","left","center","justify"].includes(item.alignment)){const line=Number(item.line);alignments[stream]={alignment:item.alignment,...(Number.isInteger(line)&&line>=1&&line<=200?{line}:{})};}}if(Object.keys(alignments).length)clean.streamAlignments=alignments;}
   if(value.innerSide==="left"||value.innerSide==="right")clean.innerSide=value.innerSide;
+  if(typeof value.showNekudos==="boolean")clean.showNekudos=value.showNekudos;
+  if(value.physicalEdits&&window.VilnaPhysicalPage)clean.physicalEdits=VilnaPhysicalPage.sanitizeEdits(value.physicalEdits);
   return clean;
+}
+async function updateAgentSettings(value,replace=false){
+  const previous=state.agentSettings||{},clean=safeAgentSettings(value),next=replace?clean:{...previous,...clean};
+  if(referenceProfile()?.physical){
+    const fixed=['pageHeight','openingLines','innerSide','forceCascade','completedStream','continuationLines','preferredSurvivor','expansionLine','expansionStream','expansionIntoStream','gemaraExpansionLine','targetLineCounts','lineAnchors','finalGemaraGutterLines'];
+    if(fixed.some(key=>key in clean&&JSON.stringify(clean[key])!==JSON.stringify(previous[key]))){
+      const reason='Saved scan mode preserves the measured line breaks and column boundaries. Alignment, type size, notes and lesson links can be edited; changing the measured layout needs a revised page map.';
+      status(reason,true);postAgentDiagnostics([reason]);return;
+    }
+  }
+  const layoutKey=settings=>JSON.stringify(Object.entries(settings).filter(([key])=>key!=="stripGemaraDashes").sort(([a],[b])=>a.localeCompare(b)));
+  state.agentSettings=next;
+  if(typeof next.showNekudos==="boolean")state.nekudosEnabled=next.showNekudos;
+  if(state.composition&&layoutKey(previous)===layoutKey(next)){
+    decorateGemaraDashes();updateDisplayToggles();postAgentDiagnostics();return;
+  }
+  state.approvedSnapshotLoaded=false;
+  try{await compose();}catch(error){setComposing(false);status(`Adjustment failed: ${error.message}`,true);postAgentDiagnostics([`adjustment failed: ${error.message}`]);}
 }
 window.addEventListener("message",async event=>{
   if(event.origin!==location.origin||event.source!==window.parent)return;
@@ -1479,12 +1656,15 @@ window.addEventListener("message",async event=>{
   if(data.type==="vilna-agent-load"){
     state.approvedSnapshotLoaded=false;state.teacherApproved=data.approved===true;state.agentSettings=safeAgentSettings(data.settings);state.agentSettingsRef=String(data.ref||"").trim();state.rashbamHeadingMode=data.rashbamHeadingMode||"unresolved";state.rashbamAllowed=data.rashbamAllowed!==false;$("dafRef").value=String(data.ref||"").trim();await loadDaf();
   }else if(data.type==="vilna-agent-replace-settings"){
-    state.approvedSnapshotLoaded=false;state.agentSettings=safeAgentSettings(data.settings);try{await compose();}catch(error){setComposing(false);status(`Adjustment failed: ${error.message}`,true);postAgentDiagnostics([`adjustment failed: ${error.message}`]);}
+    await updateAgentSettings(data.settings,true);
   }else if(data.type==="vilna-agent-adjust"){
-    state.agentSettings={...state.agentSettings,...safeAgentSettings(data.settings)};try{await compose();}catch(error){setComposing(false);status(`Adjustment failed: ${error.message}`,true);postAgentDiagnostics([`adjustment failed: ${error.message}`]);}
+    await updateAgentSettings(data.settings);
   }else if(data.type==="vilna-agent-set-rashbam-policy"){
     const next=["full","short","none","unresolved"].includes(data.headingMode)?data.headingMode:"unresolved";
     if(next!==state.rashbamHeadingMode){state.rashbamHeadingMode=next;await compose();}
   }
 });
 $("dafPage").addEventListener("input",e=>{if(!e.target.closest(".flow-region,.top-commentary"))return;state.dirty=true;status("Page edited directly. Choose Reflow page edits when ready.");requestAnimationFrame(renderGemaraLineNumbers);});window.addEventListener("resize",()=>{syncAnnotationCanvas();renderGemaraLineNumbers();if(!state.approvedSnapshotLoaded&&!state.dirty&&!$("dafPage").classList.contains("composing"))requestAnimationFrame(()=>compose());});document.fonts.ready.then(async()=>{updateDisplayToggles();await applyTypography(state.typography,{recompose:false});if(new URLSearchParams(location.search).has("builder"))window.parent.postMessage({type:"vilna-agent-ready"},location.origin);else{const requested=new URLSearchParams(location.search).get("ref");if(requested&&registryEntry(requested))$("dafRef").value=requested;await loadDaf({automatic:true});}});
+
+
+function reviewPreparedCorrection(note,target){return referenceProfile()?.physical?VilnaPhysicalPage.review(note,target,state.agentSettings):null;}

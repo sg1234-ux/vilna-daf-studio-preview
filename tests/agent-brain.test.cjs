@@ -48,10 +48,14 @@ assert.equal(brain.worse([1,0,0],[0,1,5]),true);
 assert.equal(brain.worse([0,0,1],[0,0,4]),false);
 // Exercise repair state transitions: improvement, worsening/rollback, retry limit, explicit undo.
 let sent=[];const nodes={};
-const repairContext={diagnostics:structuredClone(d),pendingAdjustment:null,lastAdjustment:null,structuredClone,Set,JSON,VilnaAgentBrain:brain,frame:{contentWindow:{postMessage(data){sent.push(data)}}},location:{origin:'https://test'},$:id=>nodes[id]||(nodes[id]={}),renderDiagnostics(){},message(){}};
-vm.createContext(repairContext);vm.runInContext(source.slice(source.indexOf('function sendAdjustment'),source.indexOf('$("applyAgent").addEventListener')),repairContext);
+let renderedAttempt={ref:d.ref,streams:{gemara:{lines:[{line:1,text:'failed line ending',x:1,y:2,width:90,height:16}]}}};const outcomes=[];
+const repairContext={diagnostics:structuredClone(d),reviewing:false,pendingAdjustment:null,lastAdjustment:null,structuredClone,Set,JSON,VilnaAgentBrain:brain,VilnaAgentConnection:{outcome(...args){outcomes.push(args);}},frame:{contentWindow:{captureAgentEvidence:()=>renderedAttempt,postMessage(data){sent.push(data)}}},location:{origin:'https://test'},$:id=>nodes[id]||(nodes[id]={}),renderDiagnostics(){},message(){}};
+vm.createContext(repairContext);vm.runInContext(source.slice(source.indexOf('function captureAdjustmentEvidence'),source.indexOf('$("applyAgent").addEventListener')),repairContext);
 repairContext.sendAdjustment({openingLines:4});repairContext.finishAdjustment({...d,failures:['new failure']});assert.equal(sent.at(-1).type,'vilna-agent-replace-settings');assert.equal(repairContext.pendingAdjustment.restoring,true);
+renderedAttempt.streams.gemara.lines[0].text='restored line ending';
 repairContext.finishAdjustment(d);assert.equal(repairContext.pendingAdjustment,null);
+assert(nodes.agentResult.textContent.includes('new failure'),'Show the rejected attempt failures after restoring the successful baseline');
+assert.equal(outcomes.at(-1)[2].attemptedEvidence.streams.gemara.lines[0].text,'failed line ending','Failed rendering is cloned before rollback replaces the page.');
 repairContext.diagnostics={...d,failures:['text overflow'],textOverflow:true,settings:{pageHeight:1030}};
 repairContext.sendAdjustment({pageHeight:1078},{repair:true});
 for(const height of [1078,1126,1174])repairContext.finishAdjustment({...repairContext.diagnostics,settings:{pageHeight:height}});
@@ -69,3 +73,4 @@ vm.createContext(gutterContext);vm.runInContext(engine.slice(gutterStart,gutterE
 bottom=0;vm.runInContext(engine.slice(gutterStart,gutterEnd),gutterContext);assert.equal(gutterContext.failures[0],'Gemara top/bottom gutter');
 assert(engine.includes('postAgentDiagnostics([`adjustment failed: ${error.message}`])'));
 console.log('PASS: gutter validator runtime scope and missing-bottom-wall rejection.');
+

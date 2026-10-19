@@ -14,7 +14,7 @@
       }
     } catch {}
   </script>
-  <link rel="stylesheet" href="styles.css?ui=60.10&build=62.53">
+  <link rel="stylesheet" href="styles.css?ui=60.19&build=62.66">
 </head>
 <body>
   <header class="builder-header">
@@ -27,6 +27,27 @@
 
   <main class="builder-layout">
     <aside class="builder-panel">
+      <details id="agentConnectionPanel">
+        <summary>Connect the AI agent</summary>
+        <div id="hostedAgentControls">
+        <label for="agentHost">Agent host address</label>
+        <input id="agentHost" type="url" placeholder="https://your-agent-host.vercel.app" autocomplete="off">
+        <label for="agentPassword">Agent access password</label>
+        <input id="agentPassword" type="password" autocomplete="off">
+        <button id="connectAgent" class="secondary">Connect AI agent</button>
+        </div>
+        <div id="localAgentControls" hidden>
+          <p>Use the ChatGPT allowance available to your account. This personal builder does not use your paid API key.</p>
+          <label for="chatgptAccount">ChatGPT account</label>
+          <select id="chatgptAccount"><option value="">Add a ChatGPT account</option></select>
+          <button id="chatgptSignIn" type="button" class="secondary">Continue with ChatGPT</button>
+          <label for="chatgptModel">AI model</label>
+          <select id="chatgptModel" disabled><option value="">Sign in to see available models</option></select>
+          <p>Requests count toward your ChatGPT usage limits. To avoid additional charges, keep credit use turned off in <a href="https://chatgpt.com/#settings/Usage" target="_blank" rel="noopener">ChatGPT Settings → Usage</a>.</p>
+        </div>
+        <button id="disconnectAgent" class="secondary">Disconnect</button>
+        <p id="connectionResult" class="status">Enter your hosted agent address and its access password. AI reviews on this hosted connection use paid OpenAI API credits.</p>
+      </details>
       <nav class="build-steps" aria-label="Build progress">
         <span data-step="source" class="active">1 Source</span>
         <span data-step="compose">2 Compose</span>
@@ -96,7 +117,10 @@
         </select>
         <label for="feedback">What looks wrong?</label>
         <textarea id="feedback" rows="4" placeholder="For example: Keep four opening commentary lines; surround the Gemara with a gutter on all sides."></textarea>
+        <button id="applyExactLines" class="secondary" disabled>Apply exact line instructions</button>
         <button id="askAgent" class="secondary" disabled>Ask agent to diagnose</button>
+        <button id="readScan" class="secondary" disabled>Build from the real daf scan</button>
+        <p id="scanResult" class="status">Saved 22a guidance is free. Reading a new scan uses your connected AI account; hosted API requests use API credits.</p>
         <p id="agentResult" class="status">The page's measured diagnostics will be sent with your region-specific correction.</p>
         <button id="applyAgent" class="secondary" disabled>Apply agent's proposed adjustment</button>
         <button id="autoRepair" class="secondary" disabled>Diagnose and repair measured failures</button>
@@ -114,11 +138,15 @@
     </aside>
 
     <section class="preview-wrap" aria-label="New amud preview">
-      <iframe id="draftFrame" src="../draft-engine/index.html?builder=1&ui=60.10&build=62.53" title="New amud draft" allow="microphone"></iframe>
+      <iframe id="draftFrame" src="../draft-engine/index.html?builder=1&ui=60.19&build=62.66" title="New amud draft" allow="microphone"></iframe>
     </section>
   </main>
-  <script src="../approved-store.js?ui=60.10"></script>
-  <script src="agent-brain.js?ui=60.10"></script>
-  <script src="app.js?ui=60.10&build=62.53"></script>
+  <script src="../approved-store.js?ui=60.19"></script>
+  <script src="agent-brain.js?ui=60.19"></script>
+  <script src="agent-capabilities.js?ui=60.19"></script>
+  <script src="scan-contract.js?ui=60.19"></script>
+  <script src="agent-connection.js?ui=60.19"></script>
+  <script src="app.js?ui=60.19&build=62.66"></script>
 </body>
 </html>
+

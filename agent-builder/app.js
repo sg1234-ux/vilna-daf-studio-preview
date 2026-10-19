@@ -4,12 +4,17 @@ const frame = $("draftFrame");
 let diagnostics = null;
 let policy = null;
 let proposedReview = null;
+let proposedReviewState = null;
 let aiReady = false;
+let reviewing = false;
 let frameReady = false;
 let pendingAdjustment=null,lastAdjustment=null;
 let migratingApprovedPage = null;
 let migrationSaving = false;
 const snapshotRequests = new Map();
+function reviewStateKey() {
+  return JSON.stringify({ref:diagnostics?.ref,settings:diagnostics?.settings,wordCounts:diagnostics?.wordCounts,unplacedCounts:diagnostics?.unplacedCounts,geometry:diagnostics?.geometry,failures:diagnostics?.failures});
+}
 
 function requestApprovedSnapshot() {
   return new Promise((resolve, reject) => {
@@ -63,7 +68,20 @@ function approvalFailures() {
   return [...new Set(failures)];
 }
 
+function exactLinePlan(){
+  if(!diagnostics||reviewing||pendingAdjustment)return null;
+  try{
+    const body={diagnostics,feedback:{targetRegion:$("targetRegion").value,note:$("feedback").value},evidence:frame.contentWindow.captureAgentEvidence()};
+    const changes=VilnaAgentCapabilities.preserveInstructions({changes:{},clarifications:[]},body).changes;
+    return changes.targetLineCounts?.gemara&&changes.expansionLine&&changes.expansionIntoStream&&changes.lineAnchors?.some(anchor=>anchor.stream==="gemara"&&anchor.line===1)?changes:null;
+  }catch{return null;}
+}
+function updateExactLineButton(){
+  $("applyExactLines").disabled=!exactLinePlan();
+  $("applyExactLines").title="Apply the typed Gemara line counts and Hebrew endpoints locally. No AI request or API charge.";
+}
 function renderDiagnostics() {
+  updateExactLineButton();
   $("patternValue").textContent = diagnostics?.patternName || "—";
   const missing = diagnostics?.unplacedCounts || {};
   $("textValue").textContent = diagnostics ? `${diagnostics.wordCounts?.gemara || 0} Gemara${missing.gemara ? ` (${missing.gemara} unplaced)` : ""} · ${diagnostics.wordCounts?.inner || 0} inner${missing.inner ? ` (${missing.inner} unplaced)` : ""} · ${diagnostics.wordCounts?.tosafot || 0} Tosafos${missing.tosafot ? ` (${missing.tosafot} unplaced)` : ""}` : "—";
@@ -78,17 +96,24 @@ function renderDiagnostics() {
   $("failureList").innerHTML = diagnostics ? (failures.length ? failures.map(item => `<li>${item}</li>`).join("") : "<li>All current hard rules passed.</li>") : "<li>Build a draft to see its exact rule checks.</li>";
   $("approvalValue").textContent = diagnostics ? (failures.length ? "Blocked" : "Eligible for teacher approval") : "Not tested";
   $("approveDraft").disabled = !diagnostics || failures.length > 0;
-  $("buildDraft").disabled = Boolean(pendingAdjustment);
-  $("askAgent").disabled = !diagnostics || Boolean(pendingAdjustment);
-  $("autoRepair").disabled = !diagnostics || Boolean(pendingAdjustment) || !approvalFailures().length;
-  $("undoAgent").disabled = !lastAdjustment || Boolean(pendingAdjustment);
-  $("approveDraft").disabled ||= Boolean(pendingAdjustment);
-  $("applyMeasuredCorrection").disabled = !diagnostics || !$("completedStream").value;
+  $("buildDraft").disabled = Boolean(pendingAdjustment) || reviewing;
+  const savedScan=/^(?:Bava Metzia 22a|Pesachim 100b)$/i.test(diagnostics?.ref||"");
+  $("readScan").disabled=!diagnostics||reviewing||Boolean(pendingAdjustment)||(!savedScan&&!aiReady);
+  $("readScan").textContent=savedScan?`Build from saved ${diagnostics.ref.split(' ').at(-1)} scan (free)`:"Build from the real daf scan (AI)";
+  $("askAgent").disabled = !diagnostics || Boolean(pendingAdjustment) || reviewing;
+  $("chatgptSignIn").disabled=reviewing||Boolean(pendingAdjustment);
+  $("chatgptAccount").disabled=reviewing||Boolean(pendingAdjustment);
+  if(VilnaAgentConnection.isLocal)$("chatgptModel").disabled=!aiReady||reviewing||Boolean(pendingAdjustment);
+  $("autoRepair").disabled = !diagnostics || Boolean(pendingAdjustment) || reviewing || !approvalFailures().length;
+  $("undoAgent").disabled = !lastAdjustment || Boolean(pendingAdjustment) || reviewing;
+  $("approveDraft").disabled ||= Boolean(pendingAdjustment) || reviewing;
+  $("applyMeasuredCorrection").disabled = !diagnostics || !$("completedStream").value || reviewing;
   if(diagnostics&&!pendingAdjustment&&!proposedReview)$("agentResult").textContent=VilnaAgentBrain.diagnose(diagnostics).notes.join(" ");
   setBuildStep(!diagnostics ? "compose" : failures.length ? "validate" : "approve");
 }
 
 async function resolvePolicy(ref, rashbamPresent) {
+  if(/^Pesachim\s+100b$/i.test(ref))return {ref,resolved:true,rashbam:"present",headingMode:"short",confidence:"prepared-scan",reason:"Prepared Rashi-to-Rashbam transition."};
   const query = new URLSearchParams({ ref });
   if (typeof rashbamPresent === "boolean") query.set("rashbamPresent", String(rashbamPresent));
   query.set("perekRashbamStatus", $("perekRashbamStatus").value);
@@ -110,6 +135,7 @@ function localCommentaryPolicy(ref, rashbamPresent) {
 }
 
 async function build(ref, saved = null) {
+  VilnaAgentConnection.reset();
   pendingAdjustment=null;lastAdjustment=null;
   diagnostics = null; proposedReview = null; renderDiagnostics();
   $("applyAgent").disabled = true;
@@ -141,24 +167,63 @@ $("buildDraft").addEventListener("click", async () => {
   try { await build(ref); } catch (error) { message(error.message, true); }
 });
 
+$("feedback").addEventListener("input",updateExactLineButton);
+$("targetRegion").addEventListener("change",updateExactLineButton);
+$("applyExactLines").addEventListener("click",()=>{
+  const changes=exactLinePlan();if(!changes)return;
+  sendAdjustment(changes);
+  $("agentResult").textContent="Applying your typed line counts and Hebrew endpoints locally. No AI request was sent.";
+});
+
+$("readScan").addEventListener("click",async()=>{
+  if(!diagnostics||reviewing||pendingAdjustment)return;
+  reviewing=true;proposedReview=null;proposedReviewState=null;$("applyAgent").disabled=true;renderDiagnostics();
+  const ref=diagnostics.ref,cached=/^(?:Bava Metzia 22a|Pesachim 100b)$/i.test(ref),stateKey=reviewStateKey();
+  const evidence=frame.contentWindow.captureScanEvidence(),sourceKey=JSON.stringify(Object.values(evidence.streams).map(s=>s.tokens));
+  $("scanResult").textContent=cached?"Loading the saved scan map. No AI request…":"Retrieving the real daf and reading its Hebrew lines with your connected AI account…";
+  try{
+    let result;
+    if(cached)result=await frame.contentWindow.applyCachedScan();
+    else{
+      const reading=await VilnaAgentConnection.scan({ref,evidence});
+      if(stateKey!==reviewStateKey()||sourceKey!==JSON.stringify(Object.values(frame.contentWindow.captureScanEvidence().streams).map(s=>s.tokens)))throw Error("The page changed while the scan was being read. Build again for the current page.");
+      result=await frame.contentWindow.applyScanReading(reading);
+    }
+    lastAdjustment=null;
+    $("scanResult").textContent=`${cached?"Saved scan map composed without an AI charge":"AI-read scan composed; inspect it before teacher approval"}. ${result.counts.gemara} Gemara, ${result.counts.inner} inner commentary and ${result.counts.tosafot} Tosafos lines. All source and layout checks passed.`;
+  }catch(error){$("scanResult").textContent=error.message;}
+  finally{reviewing=false;renderDiagnostics();}
+});
+
 $("askAgent").addEventListener("click", async () => {
-  $("askAgent").disabled = true;
+  if (!diagnostics || reviewing || pendingAdjustment) return;
+  reviewing = true;
+  proposedReview = null;
+  proposedReviewState = null;
+  $("applyAgent").disabled = true;
+  renderDiagnostics();
   $("agentResult").classList.remove("error");
   $("agentResult").textContent = "The agent is reading the specification and reviewing this region…";
   try {
     const body = { ref: diagnostics.ref, diagnostics, rules: VilnaAgentBrain.rules, feedback: { targetRegion: $("targetRegion").value, note: $("feedback").value.trim(), perekHint: $("perekHint").value.trim(), perekRashbamStatus: $("perekRashbamStatus").value } };
-    if (aiReady) {
-      const result = await jsonFetch("../api/agent/review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      proposedReview = result.review;
+    const requestState = reviewStateKey();
+    body.evidence = frame.contentWindow.captureAgentEvidence();
+    const preparedProposal=frame.contentWindow.reviewPreparedCorrection?.(body.feedback.note,body.feedback.targetRegion);
+    if(preparedProposal){proposedReview=preparedProposal;}
+    else if (aiReady) {
+      proposedReview = await VilnaAgentConnection.review(body);
     } else {
       proposedReview = VilnaAgentBrain.review(body,localAgentReview);
     }
-    $("agentResult").textContent = `${proposedReview.summary}${proposedReview.reason ? ` — ${proposedReview.reason}` : ""}`;
+    if (requestState !== reviewStateKey()) { proposedReview=null; throw new Error('The page changed during review. Ask the agent again for the current layout.'); }
+    proposedReview = VilnaAgentCapabilities.preserveInstructions(proposedReview,body);
+    proposedReviewState = requestState;
+    $("agentResult").textContent = `${preparedProposal ? 'Local scan proposal: ' : aiReady ? 'AI proposal: ' : 'Local rule proposal: '}${proposedReview.summary}${proposedReview.reason ? ` — ${proposedReview.reason}` : ""}${proposedReview.clarifications?.length ? ` Clarification needed: ${proposedReview.clarifications.join(' ')}` : ''}`;
     $("applyAgent").disabled = !Object.keys(proposedReview.changes || {}).length;
   } catch (error) {
     $("agentResult").textContent = error.message;
     $("agentResult").classList.add("error");
-  } finally { $("askAgent").disabled = !diagnostics; }
+  } finally { const text=$("agentResult").textContent; reviewing = false; renderDiagnostics(); $("agentResult").textContent=text; }
 });
 
 function teacherCommandStream(note, targetRegion) {
@@ -426,8 +491,17 @@ function localAgentReview(body) {
   return { summary, reason, targetRegion, changes, hardFailures: approvalFailures() };
 }
 
+function captureAdjustmentEvidence(){
+  try{return structuredClone(frame.contentWindow.captureAgentEvidence());}catch{return null;}
+}
+function failedAdjustmentMessage(job){
+  const attempted=job.failedDiagnostics||{},actual=job.failedEvidence?.streams?.gemara?.lines?.length,target=attempted.settings?.targetLineCounts?.gemara;
+  const count=Number.isInteger(actual)?` Gemara: ${actual} rendered lines${target?`, requested ${target}`:""}.`:"";
+  const failures=(attempted.failures||[]).join("; ")||"Source coverage changed";
+  return `Correction rejected (Build ${frame.contentWindow.VILNA_DAF_BUILD||"unknown"}).${count} Failed checks: ${failures}. The previous layout is restored.`;
+}
 function sendAdjustment(changes,{repair=false,replace=false,userRestore=false}={}) {
-  if (!diagnostics||pendingAdjustment||(!replace&&!Object.keys(changes).length)) return;
+  if (!diagnostics||reviewing||pendingAdjustment||(!replace&&!Object.keys(changes).length)) return;
   lastAdjustment=structuredClone(diagnostics.settings||{});
   pendingAdjustment={before:structuredClone(diagnostics),repair,userRestore,attempt:1,tried:new Set([JSON.stringify(changes)]),restoring:false};
   frame.contentWindow.postMessage({type:replace?"vilna-agent-replace-settings":"vilna-agent-adjust",settings:changes},location.origin);
@@ -436,26 +510,32 @@ function sendAdjustment(changes,{repair=false,replace=false,userRestore=false}={
 }
 function finishAdjustment(next) {
   const job=pendingAdjustment;if(!job)return;
-  if(job.restoring){pendingAdjustment=null;message("Restored the previous layout settings after the adjustment worsened measured checks.",true);return;}
+  if(job.restoring){$("agentResult").textContent=failedAdjustmentMessage(job);pendingAdjustment=null;VilnaAgentConnection.outcome(next,true,{before:job.before,attempted:job.failedDiagnostics,attemptedEvidence:job.failedEvidence});message("Restored the previous layout settings after the adjustment worsened measured checks.",true);return;}
   const sourceChanged=JSON.stringify(next.wordCounts)!==JSON.stringify(job.before.wordCounts);
   if(!job.userRestore&&(sourceChanged||VilnaAgentBrain.worse(VilnaAgentBrain.score(next),VilnaAgentBrain.score(job.before)))){
-    job.restoring=true;
+    job.failedDiagnostics=structuredClone(next);job.failedEvidence=captureAdjustmentEvidence();job.restoring=true;
     frame.contentWindow.postMessage({type:"vilna-agent-replace-settings",settings:job.before.settings||{}},location.origin);
-    $("agentResult").textContent="The adjustment worsened source coverage or measured checks. Restoring the prior settings.";return;
+    $("agentResult").textContent=failedAdjustmentMessage(job);return;
   }
   if(job.repair&&next.failures?.length&&job.attempt<3){
     const plan=VilnaAgentBrain.diagnose(next),key=JSON.stringify(plan.changes);
     if(Object.keys(plan.changes).length&&!job.tried.has(key)){
+      VilnaAgentConnection.outcome(next,false,{attemptedEvidence:captureAdjustmentEvidence()});
       job.before=structuredClone(next);job.attempt++;job.tried.add(key);
       frame.contentWindow.postMessage({type:"vilna-agent-adjust",settings:plan.changes},location.origin);
       $("agentResult").textContent=`Repair attempt ${job.attempt}: ${plan.notes.join(" ")}`;return;
     }
   }
   pendingAdjustment=null;
+  VilnaAgentConnection.outcome(next,false);
   $("agentResult").textContent=next.failures?.length?`Checked ${job.attempt} adjustment(s). Remaining measured failures: ${next.failures.join(", ")}.`:"The adjustment passed measured checks. Review the intended layout before approval.";
   message(next.failures?.length?"Repair stopped at its limit or needs more specific layout evidence.":"Measured checks passed; ready for teacher review.",Boolean(next.failures?.length));
 }
-$("applyAgent").addEventListener("click",()=>{if(proposedReview)sendAdjustment(proposedReview.changes);});
+$("applyAgent").addEventListener("click",()=>{
+  if (!proposedReview) return;
+  if (proposedReviewState !== reviewStateKey()) { proposedReview=null; $("applyAgent").disabled=true; $("agentResult").textContent='The page changed after this proposal. Ask the agent to review the current layout.'; return; }
+  sendAdjustment(proposedReview.changes);
+});
 $("autoRepair").addEventListener("click",()=>{
   if(!diagnostics)return;
   const plan=VilnaAgentBrain.diagnose(diagnostics);$("agentResult").textContent=plan.notes.join(" ");
@@ -520,6 +600,12 @@ window.addEventListener("message", async event => {
       }
       migratingApprovedPage = saved;
       await build(saved.ref, saved);
+    } else {
+      const requested=new URLSearchParams(location.search).get('ref');
+      if(requested&&requested.length<100&&/\d+[ab]$/i.test(requested.trim())){
+        $("dafRef").value=requested.trim();
+        await build(requested.trim());
+      }
     }
     return;
   }
@@ -555,17 +641,78 @@ async function start() {
   $("agentRules").textContent=VilnaAgentBrain.rules.map((rule,index)=>`${index+1}. ${rule}`).join("\n");
   renderApproved(); renderDiagnostics();
   if (document.documentElement.classList.contains("approved-view")) return;
-  try {
-    const status = await jsonFetch("../api/agent/status");
-    aiReady = status.aiReady;
-    $("agentStatus").textContent = aiReady ? `AI agent ready · ${status.model}` : "Deterministic builder ready · AI key not configured";
-    $("agentStatus").classList.toggle("ready", aiReady);
-  } catch {
-    aiReady = false;
-    $("agentStatus").textContent = "Layout rule agent ready · optional AI review unavailable";
+  if (VilnaAgentConnection.isLocal) {
+    $("hostedAgentControls").hidden=true;$("localAgentControls").hidden=false;
+    $("agentConnectionPanel").open=true;
+    $("disconnectAgent").textContent='Sign out of ChatGPT';
+    await connectAgent();
+    const signinError=new URLSearchParams(location.search).get('signinError');
+    if(signinError){$("connectionResult").textContent=signinError;history.replaceState(null,'',location.pathname);}
+    renderDiagnostics();return;
   }
+  const config = VilnaAgentConnection.configuration();
+  $("agentHost").value = config.base || '';
+  if (config.base) await connectAgent();
+  else $("agentStatus").textContent = "Local rule agent ready · AI host not connected";
   renderDiagnostics();
 }
+
+async function connectAgent() {
+  aiReady = false;
+  $("connectAgent").disabled = true;
+  $("agentStatus").classList.remove("ready");
+  proposedReview = null; $("applyAgent").disabled = true;
+  try {
+    const status = await VilnaAgentConnection.request('status');
+    aiReady = status.aiReady === true;
+    if (VilnaAgentConnection.isLocal) {
+      const accounts=$("chatgptAccount"),models=$("chatgptModel");
+      accounts.replaceChildren();
+      for(const account of status.accounts||[]){const option=document.createElement('option');option.value=account.id;option.textContent=account.label;option.selected=account.active;accounts.append(option);}
+      const add=document.createElement('option');add.value='';add.textContent='Add a ChatGPT account';accounts.append(add);
+      if(!(status.accounts||[]).some(account=>account.active))accounts.value='';
+      models.replaceChildren();
+      for(const model of status.models||[]){const option=document.createElement('option');option.value=model.id;option.textContent=model.name;models.append(option);}
+      models.value=status.model||'';models.disabled=!aiReady;
+      VilnaAgentConnection.setModel(models.value);
+      $("agentStatus").textContent=aiReady?`ChatGPT connected · ${status.email||'personal account'}`:'Continue with ChatGPT to connect the AI';
+      $("agentStatus").classList.toggle('ready',aiReady);
+      $("connectionResult").textContent=status.error||(aiReady?'Connected through your ChatGPT allowance. Your paid API key is not used.':'Choose Continue with ChatGPT. Availability depends on your account and workspace settings.');
+      return;
+    }
+    $("agentStatus").textContent = aiReady ? `AI agent connected · ${status.model}` : "AI host connected · API key still needed";
+    $("agentStatus").classList.toggle("ready", aiReady);
+    $("connectionResult").textContent = aiReady ? "Connected for this browser session. Each AI review uses paid OpenAI API credits." : "Add the OpenAI API key to your host, then reconnect.";
+  } catch(error) {
+    $("agentStatus").textContent = "Local rule agent ready · AI connection failed";
+    $("connectionResult").textContent = error.message;
+  } finally { $("connectAgent").disabled = false; }
+}
+$("connectAgent").addEventListener('click', async () => {
+  if(reviewing || pendingAdjustment) return;
+  try { VilnaAgentConnection.configure($("agentHost").value.trim(),$("agentPassword").value); $("agentPassword").value=''; await connectAgent(); }
+  catch(error) { $("connectionResult").textContent=error.message; }
+});
+$("chatgptSignIn").addEventListener('click',()=>{
+  if(!VilnaAgentConnection.isLocal||reviewing||pendingAdjustment)return;
+  const account=$("chatgptAccount").value;
+  location.assign(`/auth/chatgpt${account?`?account=${encodeURIComponent(account)}`:''}`);
+});
+$("chatgptModel").addEventListener('change',()=>{
+  VilnaAgentConnection.setModel($("chatgptModel").value);proposedReview=null;$("applyAgent").disabled=true;
+});
+$("disconnectAgent").addEventListener('click', async () => {
+  if(reviewing || pendingAdjustment) return;
+  if(VilnaAgentConnection.isLocal){
+    try{const result=await VilnaAgentConnection.signOut();await connectAgent();$("connectionResult").textContent=result.message;renderDiagnostics();}
+    catch(error){$("connectionResult").textContent=error.message;}
+    return;
+  }
+  VilnaAgentConnection.disconnect(); aiReady=false; proposedReview=null;
+  $("applyAgent").disabled=true; $("agentPassword").value='';
+  $("agentStatus").textContent="Local rule agent ready · AI host not connected";
+  $("agentStatus").classList.remove('ready'); $("connectionResult").textContent='Disconnected.';
+});
 
 $("perekRashbamStatus").addEventListener("change", async () => {
   if (!diagnostics) return;
@@ -574,3 +721,4 @@ $("perekRashbamStatus").addEventListener("change", async () => {
   renderDiagnostics();
 });
 start();
+

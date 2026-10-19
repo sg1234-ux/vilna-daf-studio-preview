@@ -1,0 +1,11 @@
+# Build 62.58: real-daf scan reader
+
+The builder's **Build from the real daf scan** button retrieves E-Daf's actual image, sends it with all indexed Hebrew source tokens to the connected vision model, validates a complete map for Gemara / inner commentary / Tosafos, and composes it locally. The response includes observed line endpoints, region counts, widths and typography. Incomplete, uncertain, out-of-order or mismatched results are rejected. Source words cannot be rewritten by the model. A failed local composition restores the previous source, map and settings.
+
+Bava Metzia 22a uses its bundled, manually checked scan map and source reconciliation without an AI call. Other pages use exactly one inference request per click. The hosted Vercel connection uses the user's configured API account; the local ChatGPT connection uses its selected account token and never falls back to the paid API. Plain Build draft and local composition do not invoke this reader.
+
+The new reader labels accepted results **AI-read scan — awaiting teacher verification**. Source and geometry checks do not prove that the model read every printed boundary correctly. Teacher approval remains separate. Maps are retained in project downloads and approved snapshots.
+
+Known limitations: pages requiring a source carry word, reordered commentary, special title or blank lines are held for review rather than silently altered. The manually checked 22a pack handles its specific carry word and Tosafos ordering. Retrieval verifies the provider's title and image ID against the requested daf. Scan IDs derive from E-Daf's public picker and metadata, checked on 2026-10-11. Scan input uses original detail on model families documented to support it and high detail otherwise. New-page visual accuracy has not been tested with a live paid model request.
+
+Validation: scan-reader.test.cjs checks image input, full source coverage/endpoints, uncertain or malformed maps, wrong scan identity, one inference, and no API fallback using mocked responses. scan-builder-browser.test.cjs exercises the actual builder button with bundled fonts and public-domain Hebrew fixtures, confirms zero AI requests for 22a, all source/layout checks, profile saving and malformed-map rejection. bm22a-reference-browser.test.cjs verifies the existing 22a page and recomposition.

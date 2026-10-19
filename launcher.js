@@ -1,18 +1,19 @@
 const COMBINED_BUILD = 60;
 const APPROVED_KEY = "vilna-daf-agent-approved-v57";
 const PAGES = {
-  "pesachim-100a": { path: "draft-engine/index.html?ref=Pesachim%20100a&ui=60.10&build=62.53", title: "Pesachim 100a" },
+  "bava-metzia-22a": {path:"draft-engine/index.html?ref=Bava%20Metzia%2022a&ui=60.19&build=62.58",title:"Bava Metzia 22a"},
+  "pesachim-100a": { path: "draft-engine/index.html?ref=Pesachim%20100a&ui=60.11&build=62.53", title: "Pesachim 100a" },
   "agent-builder": {
-    path: "agent-builder/index.html?ui=60.10",
+    path: "agent-builder/index.html?ui=60.11",
     title: "Build a New Amud — Agent"
   },
   "pesachim-99b": {
-    path: "pesachim-99b/index.html?ui=60.10",
-    title: "Pesachim 99b — Build 44"
+    path: "pesachim-99b/index.html?ui=60.21&build=44.1",
+    title: "Pesachim 99b — Build 44.1"
   },
   "bava-metzia-21a": {
-    path: "bava-metzia-21a/index.html?ui=60.10",
-    title: "Bava Metzia 21a — Build 51"
+    path: "bava-metzia-21a/index.html?ui=60.21&build=51.1",
+    title: "Bava Metzia 21a — Build 51.1"
   }
 };
 
@@ -25,7 +26,7 @@ function refreshApprovedOptions() {
   select.querySelectorAll("option[data-approved]").forEach(option => option.remove());
   for (const page of approvedPages()) {
     const key = `approved-${page.id}`;
-    PAGES[key] = { path: `agent-builder/index.html?approved=${encodeURIComponent(page.id)}&ui=60.10`, title: `${page.ref} — Approved Draft` };
+    PAGES[key] = { path: `agent-builder/index.html?approved=${encodeURIComponent(page.id)}&ui=60.11`, title: `${page.ref} — Approved Draft` };
     const option = document.createElement("option");
     option.value = key;
     option.dataset.approved = "true";

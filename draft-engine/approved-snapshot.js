@@ -43,6 +43,7 @@ function restoreApprovedRegion(element, saved) {
 async function restoreApprovedSnapshot(snapshot) {
   if (snapshot?.version !== 1 || !snapshot.ref || snapshot.project?.daf?.ref !== snapshot.ref || !snapshot.layout?.body?.html) throw new Error("The saved approved page is incomplete.");
   const project = snapshot.project, view = project.view || {}, layout = snapshot.layout;
+  if(project.daf.scanProfile){if(auditReferenceProfile(project.daf.scanProfile).length)throw new Error("Invalid saved scan profile.");REFERENCE_PROFILES[snapshot.ref.trim().toLowerCase()]=project.daf.scanProfile;}
   // Validate all rendered markup before replacing any visible page region.
   for (const region of [layout.body, layout.right, layout.left]) {
     safeApprovedHtml(region.html);
@@ -111,3 +112,4 @@ window.addEventListener("message", async event => {
     status(data.message, true);
   }
 });
+

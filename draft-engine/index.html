@@ -10,7 +10,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;600;700&family=Noto+Rashi+Hebrew:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?ui=60.10&build=62.53">
+  <link rel="stylesheet" href="styles.css?build=62.66">
+  <link rel="stylesheet" href="lesson-deck.css?build=62.62">
 </head>
 <body>
   <header class="app-header">
@@ -87,7 +88,7 @@
 
       <section class="panel-section visual-panel">
         <h2>Lesson visuals</h2>
-        <p class="status">Attach a Google Slides or Canva link to the currently selected phrase. The icon opens it only when needed.</p>
+        <p class="status">Click any word in the Gemara, paste a Google Slides or Canva link, then choose Attach. The link opens from the icon beside that phrase.</p>
         <label for="visualUrl">Visual link</label>
         <input id="visualUrl" type="url" placeholder="https://…">
         <div class="visual-actions">
@@ -95,7 +96,8 @@
           <button id="openVisual" class="button secondary" disabled>Open</button>
           <button id="removeVisual" class="button ghost" disabled>Remove</button>
         </div>
-        <p id="visualStatus" class="status">Select a Gemara phrase to attach a visual.</p>
+        <p id="visualStatus" class="status">Click a word in the Gemara, paste your slide link, then choose Attach.</p>
+
       </section>
 
       <section class="panel-section">
@@ -242,8 +244,15 @@
   </section>
 
   <script src="assets/vendor/opentype.min.js?build=51"></script>
-  <script src="approved-snapshot.js?ui=60.10"></script>
-  <script src="../phrase-parser.js?ui=60.10"></script>
-  <script src="app.js?ui=60.10&build=62.53"></script>
+  <script src="approved-snapshot.js?ui=60.19"></script>
+  <script src="../phrase-parser.js?ui=60.19"></script>
+  <script src="../agent-builder/scan-contract.js?ui=60.19"></script>
+  <script src="lesson-deck-controls.js?build=62.64"></script>
+  <script src="lesson-deck.js?build=62.64"></script>
+  <script src="physical-page.js?build=62.66"></script>
+  <script src="prepared-library.js?build=62.66"></script>
+  <script src="app.js?ui=60.21&build=62.66"></script>
+  <script src="lesson-deck-ui.js?build=62.64"></script>
 </body>
 </html>
+
