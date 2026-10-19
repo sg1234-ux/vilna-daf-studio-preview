@@ -2,8 +2,8 @@
   "format": "vilna-physical-page-specification",
   "version": 1,
   "ref": "Pesachim 100b",
-  "status": "preparation-complete-renderer-adapter-pending",
-  "engineReady": false,
+  "status": "renderer-connected",
+  "engineReady": true,
   "scan": {
     "url": "https://images.e-daf.com/DafImg.asp?ID=842&size=2",
     "sha256": "81106e7adce3e071e526c6de6e10d2c537003ced05df875d15fac875b03649e1",
@@ -24393,9 +24393,7 @@
     ]
   },
   "preparationComplete": true,
-  "pendingIntegration": [
-    "The current renderer uses three-stream cascade profiles. It needs an adapter for these physical blocks before this specification can be loaded as a complete rendering pack."
-  ],
+  "pendingIntegration": [],
   "verification": {
     "method": "Direct reading of enlarged E-Daf scan regions, sequential word-span reconciliation against pinned complete Hebrew snapshots, and structural source-coverage validation. No inference or builder run.",
     "scanSha256": "81106e7adce3e071e526c6de6e10d2c537003ced05df875d15fac875b03649e1",
@@ -24427,5 +24425,6 @@
       "This completes preparation; compatibility with the current renderer is explicitly pending and has not been claimed as tested."
     ],
     "reviewedOn": "2026-10-11"
-  }
+  },
+  "rendererAdapter": "physical-page-v1"
 }

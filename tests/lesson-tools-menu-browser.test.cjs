@@ -24,9 +24,9 @@ const handler=reader.createHandler({fetchImpl:async()=>new Response(`<section cl
    }return route.abort();
   });
   await page.goto(`http://127.0.0.1:${server.address().port}/?amud=bava-metzia-21a`,{waitUntil:'networkidle'});
-  for(const [key,ref,build]of [['bava-metzia-21a','Bava Metzia 21a','51.1'],['pesachim-99b','Pesachim 99b','44.1'],['pesachim-100a','Pesachim 100a','62.62'],['bava-metzia-22a','Bava Metzia 22a','62.62']]){
+  for(const [key,ref,build]of [['bava-metzia-21a','Bava Metzia 21a','51.1'],['pesachim-99b','Pesachim 99b','44.1'],['pesachim-100a','Pesachim 100a','62.65'],['bava-metzia-22a','Bava Metzia 22a','62.65']]){
    await page.locator('#amudSelect').selectOption(key);const frame=await(await page.locator('#studioFrame').elementHandle()).contentFrame();
-   await frame.waitForFunction(ref=>state.ref===ref&&phraseNavigationAvailable&&!document.getElementById('dafPage').classList.contains('composing'),ref,{timeout:60000});
+   await frame.waitForFunction(ref=>typeof state!=='undefined'&&state.ref===ref&&phraseNavigationAvailable&&!document.getElementById('dafPage').classList.contains('composing'),ref,{timeout:60000});
    assert.equal(await frame.locator('#importLessonDeck').count(),1,key);assert.equal(await frame.locator('#importLessonDeck').isVisible(),true,key);assert.equal(await frame.evaluate(()=>String(window.VILNA_DAF_BUILD)),build,key);
    const selected=await frame.evaluate(()=>activePhraseProfile.map((text,index)=>({text,index})).find(p=>p.text.split(/\s+/).length>=3));assert(selected,key);quote=selected.text;
    const before=await frame.evaluate(()=>({html:state.gemaraHtml,boxes:[...document.querySelectorAll('.geometry-band,.mapped-line')].map(e=>[e.offsetLeft,e.offsetTop,e.offsetWidth,e.offsetHeight])}));

@@ -25,7 +25,7 @@ function validate(file){
  }
  for(const b of model.blocks){assert.equal(model.streams[b.stream].lines.filter(l=>l.block===b.id).length,b.lineCount);}
  const footer=model.blocks.find(b=>b.id==='tosafot-footer');assert.equal(footer.box[0],model.coreBox[0]);assert.equal(footer.box[2],model.coreBox[2]);assert.equal(model.titles[0].sourceWordCount,0);
- assert.equal(spec.engineReady,false);assert(spec.pendingIntegration.length>0,'Do not claim current renderer compatibility before its adapter is implemented.');
+ if(spec.engineReady){assert.equal(spec.rendererAdapter,'physical-page-v1');assert.deepEqual(spec.pendingIntegration,[]);assert.deepEqual(require('../draft-engine/physical-page.js').audit(model),[]);}else assert(spec.pendingIntegration.length>0,'An unconnected page must retain its integration gate.');
  return {ref:spec.ref,lines:expectedCounts,sourceWords:Object.fromEntries(Object.entries(model.streams).map(([k,v])=>[k,v.sourceWordCount]))};
 }
 module.exports={validate};if(require.main===module){const file=process.argv[2]||path.resolve(__dirname,'../preparation/pages/pesachim-100b.json');console.log('PASS complete prepared page:',JSON.stringify(validate(file)));}

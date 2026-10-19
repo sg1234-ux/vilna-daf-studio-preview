@@ -131,3 +131,21 @@ Berachos 29b has Rashi on the left and Tosafos on the right. Gemara has 34 narro
 BM 26a has Rashi on the right and Tosafos on the left. Gemara has 32 narrow rows. Rashi has four opening, 39 side and 13 wider rows below Gemara; Tosafos has four opening, 39 side, 15 wider and nine full-width footer rows. The isolated שנפל, קידושא and בפחות previews are excluded.
 
 Pesachim 104a has 47 narrow Gemara rows and two widened left. Rashi has four opening and 17 side rows; a separate Rashbam title precedes 39 side rows and eight full-width footer rows. Tosafos has four opening and 54 side rows. Rashi and Rashbam whole comments are explicitly reordered to match the scan. The complete canonical four-word Rashbam prefix על שבע — מפרשינן לקמיה is preserved in `previousSourceSpan: [0,4]` and verified against its original source identities already printed on 103b. It is not printed twice. The short printed Rashbam gloss חתימה — סוף הברכה חותם בברוך is absent from the canonical snapshot; rows 6–7 explicitly retain the additional display words and documented insertion variants. Isolated ולית previews are omitted. The compiler checks the prior page reference, exact prefix length, text and canonical identities before accepting the previously printed prefix. Builder integration remains paused.
+
+
+## First connected rendering test — Pesachim 100b
+
+Pesachim 100b is now `engineReady: true` with the `physical-page-v1` adapter.
+The builder loads its saved physical blocks and all four text streams automatically,
+without calling an AI service or fetching new Hebrew source. The other 23 new
+preparation-complete records remain gated pending their own adapter validation.
+
+The 100b browser regression checks every displayed line, every measured block,
+initial composition, local Ask/Apply alignment, preservation of next-page previews,
+free saved-scan rebuilding, and project Save/Open. Appearance settings are saved.
+Unimplemented requests to alter measured line breaks or column boundaries are
+rejected rather than silently ignored. Existing slide and PDF tools remain shared.
+
+Open `agent-builder/index.html?ref=Pesachim%20100b` to build the test page directly,
+or enter `Pesachim 100b` in the New Amud builder. No scan-reading AI call is needed.
+Run `node tests/pes100b-prepared-browser.test.cjs` with Playwright/Chromium installed.

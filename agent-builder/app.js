@@ -97,9 +97,10 @@ function renderDiagnostics() {
   $("approvalValue").textContent = diagnostics ? (failures.length ? "Blocked" : "Eligible for teacher approval") : "Not tested";
   $("approveDraft").disabled = !diagnostics || failures.length > 0;
   $("buildDraft").disabled = Boolean(pendingAdjustment) || reviewing;
-  $("readScan").disabled=!diagnostics||reviewing||Boolean(pendingAdjustment)||(!/^Bava Metzia 22a$/i.test(diagnostics.ref)&&!aiReady);
-  $("readScan").textContent=/^Bava Metzia 22a$/i.test(diagnostics?.ref||"")?"Build from saved 22a scan (free)":"Build from the real daf scan (AI)";
-  $("askAgent").disabled = !diagnostics || Boolean(pendingAdjustment) || reviewing || (VilnaAgentConnection.isLocal && !aiReady);
+  const savedScan=/^(?:Bava Metzia 22a|Pesachim 100b)$/i.test(diagnostics?.ref||"");
+  $("readScan").disabled=!diagnostics||reviewing||Boolean(pendingAdjustment)||(!savedScan&&!aiReady);
+  $("readScan").textContent=savedScan?`Build from saved ${diagnostics.ref.split(' ').at(-1)} scan (free)`:"Build from the real daf scan (AI)";
+  $("askAgent").disabled = !diagnostics || Boolean(pendingAdjustment) || reviewing;
   $("chatgptSignIn").disabled=reviewing||Boolean(pendingAdjustment);
   $("chatgptAccount").disabled=reviewing||Boolean(pendingAdjustment);
   if(VilnaAgentConnection.isLocal)$("chatgptModel").disabled=!aiReady||reviewing||Boolean(pendingAdjustment);
@@ -112,6 +113,7 @@ function renderDiagnostics() {
 }
 
 async function resolvePolicy(ref, rashbamPresent) {
+  if(/^Pesachim\s+100b$/i.test(ref))return {ref,resolved:true,rashbam:"present",headingMode:"short",confidence:"prepared-scan",reason:"Prepared Rashi-to-Rashbam transition."};
   const query = new URLSearchParams({ ref });
   if (typeof rashbamPresent === "boolean") query.set("rashbamPresent", String(rashbamPresent));
   query.set("perekRashbamStatus", $("perekRashbamStatus").value);
@@ -176,7 +178,7 @@ $("applyExactLines").addEventListener("click",()=>{
 $("readScan").addEventListener("click",async()=>{
   if(!diagnostics||reviewing||pendingAdjustment)return;
   reviewing=true;proposedReview=null;proposedReviewState=null;$("applyAgent").disabled=true;renderDiagnostics();
-  const ref=diagnostics.ref,cached=/^Bava Metzia 22a$/i.test(ref),stateKey=reviewStateKey();
+  const ref=diagnostics.ref,cached=/^(?:Bava Metzia 22a|Pesachim 100b)$/i.test(ref),stateKey=reviewStateKey();
   const evidence=frame.contentWindow.captureScanEvidence(),sourceKey=JSON.stringify(Object.values(evidence.streams).map(s=>s.tokens));
   $("scanResult").textContent=cached?"Loading the saved scan map. No AI request…":"Retrieving the real daf and reading its Hebrew lines with your connected AI account…";
   try{
@@ -596,6 +598,12 @@ window.addEventListener("message", async event => {
       }
       migratingApprovedPage = saved;
       await build(saved.ref, saved);
+    } else {
+      const requested=new URLSearchParams(location.search).get('ref');
+      if(requested&&requested.length<100&&/\d+[ab]$/i.test(requested.trim())){
+        $("dafRef").value=requested.trim();
+        await build(requested.trim());
+      }
     }
     return;
   }
