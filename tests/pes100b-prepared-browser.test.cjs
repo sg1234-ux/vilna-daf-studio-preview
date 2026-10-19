@@ -59,6 +59,34 @@ const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json
       return r;
     });
 
+    const draftFrame=page.frames().find(f=>f.url().includes('/draft-engine/'));
+    const geometry=()=>draftFrame.evaluate(()=>{
+      const line=(s,n)=>document.querySelector(`[data-commentator="${s}"] > .mapped-line[data-prepared-line="${n}"]`),gem1=line('gemara',1),rashi6=line('rashi',6),gem14=line('gemara',14),gem15=line('gemara',15),tos70=line('tosafot',70),tos71=line('tosafot',71),zoom=state.pageZoom;
+      return {baselineDelta:Math.abs(VilnaPhysicalPage.baseline(gem1)-VilnaPhysicalPage.baseline(rashi6))/zoom,previewGap:(gem15.getBoundingClientRect().top-gem14.getBoundingClientRect().bottom)/zoom,footerPitch:(VilnaPhysicalPage.baseline(tos71)-VilnaPhysicalPage.baseline(tos70))/zoom,normalPitch:tos70.getBoundingClientRect().height/zoom,pointed:/[\u05b0-\u05bc]/.test(document.querySelector('[data-stream="gemara"][data-band]').textContent),counts:currentRenderedLineCounts(),failures:state.composition.failures};
+    });
+    const initialGeometry=await geometry();assert(initialGeometry.baselineDelta<.5);assert(initialGeometry.previewGap>=-.5);assert(Math.abs(initialGeometry.footerPitch-initialGeometry.normalPitch)<.5);assert(initialGeometry.pointed);
+    // These exact teacher requests must work locally even with a model connected.
+    await page.evaluate(()=>{aiReady=true;window.testModelReviews=0;VilnaAgentConnection.review=async()=>{testModelReviews++;throw Error('A local scan correction must not call the model');};renderDiagnostics();});
+    for(const [note,target,setting]of [
+      ['line 1 of gemara should be parralel to line 6 of rashi','whole-page','physicalEdits'],
+      ['line 15 is overlapping line 14','gemara','physicalEdits'],
+      ['The last line of tosafos needs to flow continuosly from the second last line no large linebreaks','tosafos','physicalEdits']
+    ]){
+      await page.locator('#targetRegion').selectOption(target);await page.locator('#feedback').fill(note);await page.locator('#askAgent').click();
+      await page.waitForFunction(()=>proposedReview&&!reviewing);assert.equal(await page.evaluate(k=>Boolean(proposedReview.changes[k]),setting),true,note);
+      assert.match(await page.locator('#agentResult').textContent(),/Local scan proposal/);
+      await page.locator('#applyAgent').click();await page.waitForFunction(()=>!pendingAdjustment&&document.getElementById('agentResult').textContent.includes('passed measured checks'));
+      const g=await geometry();assert.deepEqual(g.failures,[]);assert(g.baselineDelta<.5);assert(g.previewGap>=-.5);assert(Math.abs(g.footerPitch-g.normalPitch)<.5);
+    }
+    await draftFrame.locator('#nekudosToggle').click();await draftFrame.waitForFunction(()=>!state.nekudosEnabled&&!document.getElementById('dafPage').classList.contains('composing'));
+    assert.equal((await geometry()).pointed,false);
+    await page.locator('#feedback').fill('add nekudos');await page.locator('#askAgent').click();await page.waitForFunction(()=>proposedReview&&!reviewing);assert.equal(await page.evaluate(()=>proposedReview.changes.showNekudos),true);
+    await page.locator('#applyAgent').click();await page.waitForFunction(()=>!pendingAdjustment&&document.getElementById('agentResult').textContent.includes('passed measured checks'));assert.equal((await geometry()).pointed,true);
+    assert.equal(await page.evaluate(()=>testModelReviews),0);
+    const restoredEdits=await draftFrame.evaluate(async()=>{const project=projectPayload();await openProjectFile({name:'corrections.vds',text:async()=>JSON.stringify(project)});await nextPaint();await nextPaint();return {edits:state.agentSettings.physicalEdits,nekudos:state.nekudosEnabled};});
+    assert.equal(restoredEdits.edits.baselineAnchors[0].referenceLine,6);assert.equal(restoredEdits.nekudos,true);
+    assert((await geometry()).baselineDelta<.5);assert((await geometry()).previewGap>=-.5);
+    await page.evaluate(()=>{aiReady=false;renderDiagnostics();});
     const blocked=await page.evaluate(async()=>{
       const w=document.getElementById('draftFrame').contentWindow,before=w.projectPayload();
       await w.updateAgentSettings({targetLineCounts:{gemara:10}});

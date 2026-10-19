@@ -208,7 +208,9 @@ $("askAgent").addEventListener("click", async () => {
     const body = { ref: diagnostics.ref, diagnostics, rules: VilnaAgentBrain.rules, feedback: { targetRegion: $("targetRegion").value, note: $("feedback").value.trim(), perekHint: $("perekHint").value.trim(), perekRashbamStatus: $("perekRashbamStatus").value } };
     const requestState = reviewStateKey();
     body.evidence = frame.contentWindow.captureAgentEvidence();
-    if (aiReady) {
+    const preparedProposal=frame.contentWindow.reviewPreparedCorrection?.(body.feedback.note,body.feedback.targetRegion);
+    if(preparedProposal){proposedReview=preparedProposal;}
+    else if (aiReady) {
       proposedReview = await VilnaAgentConnection.review(body);
     } else {
       proposedReview = VilnaAgentBrain.review(body,localAgentReview);
@@ -216,7 +218,7 @@ $("askAgent").addEventListener("click", async () => {
     if (requestState !== reviewStateKey()) { proposedReview=null; throw new Error('The page changed during review. Ask the agent again for the current layout.'); }
     proposedReview = VilnaAgentCapabilities.preserveInstructions(proposedReview,body);
     proposedReviewState = requestState;
-    $("agentResult").textContent = `${aiReady ? 'AI proposal: ' : 'Local rule proposal: '}${proposedReview.summary}${proposedReview.reason ? ` — ${proposedReview.reason}` : ""}${proposedReview.clarifications?.length ? ` Clarification needed: ${proposedReview.clarifications.join(' ')}` : ''}`;
+    $("agentResult").textContent = `${preparedProposal ? 'Local scan proposal: ' : aiReady ? 'AI proposal: ' : 'Local rule proposal: '}${proposedReview.summary}${proposedReview.reason ? ` — ${proposedReview.reason}` : ""}${proposedReview.clarifications?.length ? ` Clarification needed: ${proposedReview.clarifications.join(' ')}` : ''}`;
     $("applyAgent").disabled = !Object.keys(proposedReview.changes || {}).length;
   } catch (error) {
     $("agentResult").textContent = error.message;

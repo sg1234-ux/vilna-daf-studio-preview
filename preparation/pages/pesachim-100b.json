@@ -24390,7 +24390,21 @@
         "alignment": "center",
         "role": "page-heading"
       }
-    ]
+    ],
+    "displayCorrections": {
+      "baselineAnchors": [
+        {
+          "stream": "gemara",
+          "line": 1,
+          "referenceStream": "rashi",
+          "referenceLine": 6
+        }
+      ],
+      "continuousStreams": [
+        "tosafot"
+      ],
+      "reason": "Teacher visual review: align the first Gemara baseline with Rashi row 6; continue the full-width Tosafos footer at a normal baseline interval. Original measured scan boxes and all source spans remain unchanged."
+    }
   },
   "preparationComplete": true,
   "pendingIntegration": [],

@@ -489,3 +489,9 @@ body { height: 100vh; display: grid; grid-template-rows: auto minmax(0, 1fr); ov
 .prepared-physical .physical-band .gemara { font-family:var(--gemara-font); }
 .prepared-physical .physical-band .commentary { font-family:var(--commentary-font); }
 .prepared-physical .physical-title { position:absolute; font-family:var(--commentary-font); font-weight:bold; text-align:center; }
+
+/* Physical boxes already include scan gutters. Generic first-band padding must
+   never be added a second time inside the measured Gemara block. */
+.daf-page.prepared-physical .body-geometry .physical-band > .flow-region {
+  padding: 0; margin: 0;
+}

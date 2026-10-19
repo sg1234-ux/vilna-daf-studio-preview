@@ -149,3 +149,24 @@ rejected rather than silently ignored. Existing slide and PDF tools remain share
 Open `agent-builder/index.html?ref=Pesachim%20100b` to build the test page directly,
 or enter `Pesachim 100b` in the New Amud builder. No scan-reading AI call is needed.
 Run `node tests/pes100b-prepared-browser.test.cjs` with Playwright/Chromium installed.
+
+
+## Visual corrections — Build 62.66
+
+Teacher review exposed generic first-band padding being added inside the measured
+Gemara box. Physical regions now explicitly clear that padding. The renderer
+checks adjacent line cells for overlap, including the next-amud preview. Saved
+100b display corrections align Gemara line 1 with Rashi line 6 and continue the
+last full-width Tosafos line at the preceding line's normal baseline interval.
+Original scan boxes, source spans, and printed word boundaries are preserved.
+
+Prepared pages also support local requests to align two named stream baselines,
+separate adjacent overlapping lines, reconnect a stream's final line, and show
+or hide source nekudos. These requests are recognized before a connected model
+is called and their settings survive project Save/Open. The Gemara's existing
+source nekudos are transferred only to matching printed word forms; no vowels
+are invented for unpointed commentary or edition variants. Nekudos On/Off is
+tested through both the viewer toggle and the local Ask/Apply path.
+
+The browser test includes the teacher's exact three correction requests,
+measured baselines and gaps, and zero connected-model review calls.

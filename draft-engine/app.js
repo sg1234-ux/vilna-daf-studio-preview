@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.65";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.66";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -1095,10 +1095,11 @@ async function compose(){
   const prepared=referenceProfile()?.physical;
   if(prepared){
     await document.fonts.ready;
-    VilnaPhysicalPage.render(prepared,{page:$("dafPage"),body:$("bodyGeometry"),topLeft:$("topLeft"),topRight:$("topRight"),settings:state.agentSettings,mode:state.mode});
+    VilnaPhysicalPage.render(prepared,{page:$("dafPage"),body:$("bodyGeometry"),topLeft:$("topLeft"),topRight:$("topRight"),settings:state.agentSettings,mode:state.mode,nekudos:state.nekudosEnabled});
     await document.fonts.ready;VilnaPhysicalPage.fit($("dafPage"));
     await nextPaint();
-    const failures=VilnaPhysicalPage.validate(prepared,$("dafPage")),final={pattern:{name:"Saved scan instructions — Pesachim 100b",mapped:true,physical:true,bands:[]},overflow:failures.some(f=>f.includes("clipping")),failures,blankRatio:0,minOccupancy:1,transitionGap:0,scale:1};
+    const placementFailures=VilnaPhysicalPage.settle(prepared,$("dafPage"),state.agentSettings);
+    const failures=[...placementFailures,...VilnaPhysicalPage.validate(prepared,$("dafPage"))],final={pattern:{name:"Saved scan instructions — Pesachim 100b",mapped:true,physical:true,bands:[]},overflow:failures.some(f=>f.includes("clipping")),failures,blankRatio:0,minOccupancy:1,transitionGap:0,scale:1};
     state.composition=final;state.dirty=false;$("patternReport").textContent=final.pattern.name;$("fillReport").textContent="Prepared amud";$("rulesReport").textContent=failures.length?failures.join(", "):"Prepared source and line checks passed";setComposing(false);afterCompose();status(failures.length?failures.join(", "):"100b composed from saved instructions — no AI call.",Boolean(failures.length));return final;
   }
   $("dafPage").classList.remove("prepared-physical");$("bodyGeometry").style.height="";
@@ -1375,7 +1376,7 @@ function updateDisplayToggles(){
   $("nekudosToggle").setAttribute("aria-pressed",String(state.nekudosEnabled));$("nekudosToggle").textContent=`Nekudos: ${state.nekudosEnabled?"On":"Off"}`;
   $("lineNumbersToggle").setAttribute("aria-pressed",String(state.lineNumbersEnabled));$("lineNumbersToggle").textContent=`Gemara line numbers: ${state.lineNumbersEnabled?"On":"Off"}`;
 }
-async function toggleNekudos(force){if(state.dirty)capturePageEdits();state.nekudosEnabled=typeof force==="boolean"?force:!state.nekudosEnabled;updateDisplayToggles();await compose();}
+async function toggleNekudos(force){if(state.dirty)capturePageEdits();state.nekudosEnabled=typeof force==="boolean"?force:!state.nekudosEnabled;if(referenceProfile()?.physical)state.agentSettings.showNekudos=state.nekudosEnabled;updateDisplayToggles();await compose();}
 function toggleLineNumbers(force){state.lineNumbersEnabled=typeof force==="boolean"?force:!state.lineNumbersEnabled;updateDisplayToggles();requestAnimationFrame(renderGemaraLineNumbers);}
 function setInteractionMode(mode,{focus=true}={}){state.mode=mode==="edit"?"edit":"navigate";if(state.mode!=="edit")state.editSelectedWordIds=[];$("dafPage").classList.toggle("edit-mode",state.mode==="edit");for(const region of $("dafPage").querySelectorAll(".flow-region,.top-commentary"))region.contentEditable=state.mode==="edit"?"true":"false";for(const id of["navigateMode","editMode"]){const active=id==="navigateMode"?state.mode==="navigate":state.mode==="edit";$(id).setAttribute("aria-pressed",String(active));}updateEditTools();if(focus&&state.mode==="navigate"&&state.selectedWordId)document.querySelector(`[data-word-id="${CSS.escape(state.selectedWordId)}"]`)?.focus();}
 function selectedWordElement(){return state.selectedWordId?document.querySelector(`[data-word-id="${CSS.escape(state.selectedWordId)}"]`):null;}
@@ -1627,6 +1628,8 @@ function safeAgentSettings(value={}){
   if(value.targetLineCounts&&typeof value.targetLineCounts==="object"){const counts={};for(const stream of STREAMS){const count=Number(value.targetLineCounts[stream]);if(Number.isInteger(count)&&count>=1&&count<=200)counts[stream]=count;}if(Object.keys(counts).length)clean.targetLineCounts=counts;}
   if(value.streamAlignments&&typeof value.streamAlignments==="object"){const alignments={};for(const stream of ["inner","tosafot"]){const item=value.streamAlignments[stream];if(item&&["right","left","center","justify"].includes(item.alignment)){const line=Number(item.line);alignments[stream]={alignment:item.alignment,...(Number.isInteger(line)&&line>=1&&line<=200?{line}:{})};}}if(Object.keys(alignments).length)clean.streamAlignments=alignments;}
   if(value.innerSide==="left"||value.innerSide==="right")clean.innerSide=value.innerSide;
+  if(typeof value.showNekudos==="boolean")clean.showNekudos=value.showNekudos;
+  if(value.physicalEdits&&window.VilnaPhysicalPage)clean.physicalEdits=VilnaPhysicalPage.sanitizeEdits(value.physicalEdits);
   return clean;
 }
 async function updateAgentSettings(value,replace=false){
@@ -1640,6 +1643,7 @@ async function updateAgentSettings(value,replace=false){
   }
   const layoutKey=settings=>JSON.stringify(Object.entries(settings).filter(([key])=>key!=="stripGemaraDashes").sort(([a],[b])=>a.localeCompare(b)));
   state.agentSettings=next;
+  if(typeof next.showNekudos==="boolean")state.nekudosEnabled=next.showNekudos;
   if(state.composition&&layoutKey(previous)===layoutKey(next)){
     decorateGemaraDashes();updateDisplayToggles();postAgentDiagnostics();return;
   }
@@ -1662,3 +1666,5 @@ window.addEventListener("message",async event=>{
 });
 $("dafPage").addEventListener("input",e=>{if(!e.target.closest(".flow-region,.top-commentary"))return;state.dirty=true;status("Page edited directly. Choose Reflow page edits when ready.");requestAnimationFrame(renderGemaraLineNumbers);});window.addEventListener("resize",()=>{syncAnnotationCanvas();renderGemaraLineNumbers();if(!state.approvedSnapshotLoaded&&!state.dirty&&!$("dafPage").classList.contains("composing"))requestAnimationFrame(()=>compose());});document.fonts.ready.then(async()=>{updateDisplayToggles();await applyTypography(state.typography,{recompose:false});if(new URLSearchParams(location.search).has("builder"))window.parent.postMessage({type:"vilna-agent-ready"},location.origin);else{const requested=new URLSearchParams(location.search).get("ref");if(requested&&registryEntry(requested))$("dafRef").value=requested;await loadDaf({automatic:true});}});
 
+
+function reviewPreparedCorrection(note,target){return referenceProfile()?.physical?VilnaPhysicalPage.review(note,target,state.agentSettings):null;}
