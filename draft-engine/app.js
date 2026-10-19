@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.60";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.61";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -1289,7 +1289,7 @@ function addVisualLink(){
   setNavigationUnit("phrase");
   const links=visualLinksFor(index),value=url.toString();if(!links.includes(value))state.visualLinks[index]=[...links,value];$("visualUrl").value="";renderPhraseVisualMarkers();updateVisualControls();
 }
-function openPhraseVisual(index=selectedPhraseIndex()){const links=visualLinksFor(index);if(links.length)window.open(links.at(-1),"_blank","noopener,noreferrer");}
+function openPhraseVisual(index=selectedPhraseIndex()){const links=visualLinksFor(index);if(links.length>1&&window.VilnaLessonDeckUI)return window.VilnaLessonDeckUI.openLinks(index);if(links.length){try{const url=new URL(links[0]);if(/^https?:$/.test(url.protocol))window.open(url.href,"_blank","noopener,noreferrer");}catch{}}}
 function removeVisualLink(){const index=selectedPhraseIndex(),links=visualLinksFor(index);if(index==null||!links.length)return;const next=links.slice(0,-1);if(next.length)state.visualLinks[index]=next;else delete state.visualLinks[index];renderPhraseVisualMarkers();updateVisualControls();}
 function clearSelectionAppearance(){$("dafPage").querySelectorAll(".selected-word,.selected-phrase").forEach(word=>word.classList.remove("selected-word","selected-phrase"));}
 function applySelectionAppearance(){clearSelectionAppearance();const selected=selectedWordElement();if(!selected)return;if(state.navigationUnit==="phrase"&&selected.dataset.stream==="gemara"&&selected.dataset.phraseIndex!=null)phraseElements(selected.dataset.phraseIndex).forEach(word=>word.classList.add("selected-phrase"));else selected.classList.add("selected-word");}

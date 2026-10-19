@@ -47,6 +47,7 @@ async function createLocalServer({root=path.resolve(__dirname,'..'),directory,fe
         }
         res.setHeader('Set-Cookie','vilna_signin=; HttpOnly; SameSite=Lax; Path=/auth; Max-Age=0');res.writeHead(302,{Location:'/agent-builder/'});res.end();return;
       }
+      if(url.pathname==='/api/lesson-slides/read'){await require('./lesson-slides.cjs').createHandler({fetchImpl})(req,res);return;}
       if(url.pathname.startsWith('/api/local/')){
         const route=url.pathname.slice('/api/local/'.length);
         if(route==='status'){

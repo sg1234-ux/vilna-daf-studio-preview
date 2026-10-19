@@ -481,3 +481,16 @@ body { height: 100vh; display: grid; grid-template-rows: auto minmax(0, 1fr); ov
 .body-geometry.teacher-gemara-gutter-box { --daf-side-gutter: var(--daf-gutter); }
 .body-geometry.teacher-gemara-gutter-box .geometry-band:first-child .gemara:not(.transition-continuity-bridge) { padding-top: var(--daf-gutter); }
 
+
+/* Deck review stays in the tools panel and never changes daf geometry. */
+#lessonDeckRows { max-height: 65vh; overflow-y: auto; margin-block: 12px; }
+.lesson-slide-row { border: 1px solid #d3c9b7; border-radius: 6px; padding: 10px; margin-block: 8px; background: #fffdf7; }
+.lesson-slide-row .slide-include { display: flex; align-items: center; gap: 8px; }
+.lesson-slide-row input[type="checkbox"] { width: auto; }
+.lesson-slide-row select { width: 100%; min-height: 60px; font-size: 13px; }
+.lesson-slide-row p { overflow-wrap: anywhere; margin-block: 7px; }
+.lesson-slide-row .slide-quote { font-size: 15px; }
+#lessonDeckFile { max-width: 100%; font-size: 12px; }
+#lessonVisualDialog { width: min(520px,85vw); border: 1px solid #b6a78e; border-radius: 8px; }
+#lessonVisualDialog::backdrop { background: #0007; }
+#lessonVisualLinks a { display: block; margin-block: 12px; overflow-wrap: anywhere; }
