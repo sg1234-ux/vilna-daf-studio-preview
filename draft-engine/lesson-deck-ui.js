@@ -54,10 +54,12 @@
    show({...data,title:String(data.title||'Google Slides')},stamp);
   }catch(e){if(request===current)message(e.name==='AbortError'?'Deck reading stopped. Try again or load a saved slide view.':e.message);}finally{clearTimeout(timer);if(request===current){request=null;el('importLessonDeck').disabled=false;}}
  });
+ el('lessonDeckFile').addEventListener('click',e=>{e.target.value='';});
  el('lessonDeckFile').addEventListener('change',async e=>{
   const file=e.target.files?.[0];if(!file)return;
+  el('lessonDeckFileStatus').textContent=`Reading: ${file.name}`;
   request?.abort();request=null;el('importLessonDeck').disabled=false;clear();
-  try{const {deck,stamp}=ready();if(file.size>api.MAX_HTML)throw Error('The saved slide view is too large (maximum 8 MB).');show(api.parseHtml(await file.text(),deck.url),stamp);}catch(error){message(error.message);}finally{e.target.value='';}
+  try{const {deck,stamp}=ready();if(file.size>api.MAX_HTML)throw Error('The saved slide view is too large (maximum 8 MB).');const text=await file.text();if(text.startsWith('PK'))throw Error('This is a PowerPoint or ZIP file. Choose the saved HTML text view instead.');show(api.parseHtml(text,deck.url),stamp);el('lessonDeckFileStatus').textContent=`Loaded: ${file.name}`;}catch(error){el('lessonDeckFileStatus').textContent=`Could not load ${file.name}: ${error.message}`;message(error.message);}
  });
  el('lessonDeckTextView').addEventListener('click',e=>{try{e.currentTarget.href=api.deckUrl(el('visualUrl').value.trim()).readUrl;}catch(error){e.preventDefault();message(error.message);}});
  el('applyLessonDeck').addEventListener('click',()=>{
