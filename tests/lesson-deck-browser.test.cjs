@@ -26,11 +26,11 @@ function html(slides){return '<html><title>BM 21a lesson</title>'+slides.map((te
    if(u.hostname==='docs.google.com')return route.fulfill({contentType:'text/html',body:'Offline slide destination'});
    return route.abort();
   });
-  await page.goto(`http://127.0.0.1:${server.address().port}/draft-engine/index.html?ref=Bava%20Metzia%2021a`,{waitUntil:'networkidle'});
+  await page.goto(`http://127.0.0.1:${server.address().port}${process.env.LESSON_VIEWER_ENTRY||'/draft-engine/index.html?ref=Bava%20Metzia%2021a'}`,{waitUntil:'networkidle'});
   await page.waitForFunction(()=>state.ref==='Bava Metzia 21a'&&phraseNavigationAvailable&&!document.getElementById('dafPage').classList.contains('composing'),null,{timeout:60000});
   const phrases=await page.evaluate(()=>activePhraseProfile.map((text,index)=>({text,index})).filter(p=>p.text.split(/\s+/).length>=4).slice(0,2));assert.equal(phrases.length,2);
   const [first,second]=phrases;fixture=html([first.text,'Explain this illustration','',first.text,second.text,'זברה פיל ארנבת שועל']);
-  const layout=await page.evaluate(()=>({html:state.gemaraHtml,counts:currentRenderedLineCounts(),boxes:[...document.querySelectorAll('.mapped-line')].map(l=>[l.offsetLeft,l.offsetTop,l.offsetWidth,l.offsetHeight])}));
+  const layout=await page.evaluate(()=>({html:state.gemaraHtml,counts:typeof currentRenderedLineCounts==='function'?currentRenderedLineCounts():document.querySelectorAll('.mapped-line').length,boxes:[...document.querySelectorAll('.mapped-line')].map(l=>[l.offsetLeft,l.offsetTop,l.offsetWidth,l.offsetHeight])}));
   const row=n=>page.locator(`.lesson-slide-row[data-slide-number="${n}"]`);
   const importDeck=async()=>{await page.locator('#visualUrl').fill(deckUrl);await page.locator('#importLessonDeck').click();await page.locator('#lessonDeckReview').waitFor({state:'visible'});};
   await importDeck();assert.equal(await page.locator('.lesson-slide-row').count(),6);assert.deepEqual(await page.evaluate(()=>state.visualLinks),{},'Import is review-only until applied');
@@ -40,7 +40,7 @@ function html(slides){return '<html><title>BM 21a lesson</title>'+slides.map((te
   await row(5).locator('input').uncheck();await page.locator('#applyLessonDeck').click();
   const savedLinks=await page.evaluate(()=>structuredClone(state.visualLinks));assert.deepEqual(savedLinks[first.index],[deckUrl+'#slide=id.gfixture0',deckUrl+'#slide=id.gfixture3']);assert.deepEqual(savedLinks[second.index],[deckUrl+'#slide=id.gfixture1']);
   assert.match(await page.locator('#lessonDeckStatus').textContent(),/3 slide links added/);
-  assert.deepEqual(await page.evaluate(()=>({html:state.gemaraHtml,counts:currentRenderedLineCounts(),boxes:[...document.querySelectorAll('.mapped-line')].map(l=>[l.offsetLeft,l.offsetTop,l.offsetWidth,l.offsetHeight])})),layout,'Import must not recompose or change the daf');
+  assert.deepEqual(await page.evaluate(()=>({html:state.gemaraHtml,counts:typeof currentRenderedLineCounts==='function'?currentRenderedLineCounts():document.querySelectorAll('.mapped-line').length,boxes:[...document.querySelectorAll('.mapped-line')].map(l=>[l.offsetLeft,l.offsetTop,l.offsetWidth,l.offsetHeight])})),layout,'Import must not recompose or change the daf');
   // All linked slides remain accessible when two slides share a phrase.
   await page.locator(`.word-token[data-stream="gemara"][data-phrase-index="${first.index}"]`).first().click();await page.locator('#openVisual').click();await page.locator('#lessonVisualDialog').waitFor({state:'visible'});
   assert.deepEqual(await page.locator('#lessonVisualLinks a').evaluateAll(a=>a.map(x=>x.href)),savedLinks[first.index]);

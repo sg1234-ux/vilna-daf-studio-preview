@@ -11,6 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;600;700&family=Noto+Rashi+Hebrew:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?ui=60.19&build=62.61">
+  <link rel="stylesheet" href="lesson-deck.css?build=62.62">
 </head>
 <body>
   <header class="app-header">
@@ -96,24 +97,7 @@
           <button id="removeVisual" class="button ghost" disabled>Remove</button>
         </div>
         <p id="visualStatus" class="status">Click a word in the Gemara, paste your slide link, then choose Attach.</p>
-        <hr>
-        <h3>Match a whole deck</h3>
-        <p class="status">Paste a Google Slides deck link above. Match Hebrew quotes to this daf, review the assignments, then add them. No paid AI calls.</p>
-        <button id="importLessonDeck" class="button secondary wide-button">Match Google Slides deck</button>
-        <p id="lessonDeckStatus" class="status" role="status" aria-live="polite"></p>
-        <details>
-          <summary>Deck needs sign-in?</summary>
-          <p class="status">Keep its sharing settings. <a id="lessonDeckTextView" href="#" target="_blank" rel="noopener noreferrer">Open the deck’s text view</a>, save that page as HTML only, then load the saved file here. Its text is read on this device.</p>
-          <label class="button ghost" for="lessonDeckFile">Load saved slide view</label>
-          <input id="lessonDeckFile" type="file" accept=".html,.htm,text/html">
-        </details>
-        <div id="lessonDeckReview" hidden>
-          <h3 id="lessonDeckTitle">Review slide matches</h3>
-          <p class="status">Each checked slide will link to the phrases shown. Choose a proposed match, or click a Gemara word and choose Use selected phrase. Image-only and English-only slides need a manual choice.</p>
-          <div id="lessonDeckRows"></div>
-          <button id="applyLessonDeck" class="button wide-button">Add reviewed slide links</button>
-          <button id="cancelLessonDeck" class="button ghost wide-button">Cancel import</button>
-        </div>
+
       </section>
 
       <section class="panel-section">
@@ -263,14 +247,10 @@
   <script src="approved-snapshot.js?ui=60.19"></script>
   <script src="../phrase-parser.js?ui=60.19"></script>
   <script src="../agent-builder/scan-contract.js?ui=60.19"></script>
-  <dialog id="lessonVisualDialog" aria-labelledby="lessonVisualTitle">
-    <h2 id="lessonVisualTitle">Linked visuals</h2>
-    <div id="lessonVisualLinks"></div>
-    <button id="closeLessonVisualDialog" class="button secondary">Close</button>
-  </dialog>
-  <script src="lesson-deck.js?build=62.61"></script>
-  <script src="app.js?ui=60.19&build=62.61"></script>
-  <script src="lesson-deck-ui.js?build=62.61"></script>
+  <script src="lesson-deck-controls.js?build=62.62"></script>
+  <script src="lesson-deck.js?build=62.62"></script>
+  <script src="app.js?ui=60.21&build=62.62"></script>
+  <script src="lesson-deck-ui.js?build=62.62"></script>
 </body>
 </html>
 

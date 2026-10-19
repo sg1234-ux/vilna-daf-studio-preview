@@ -8,12 +8,12 @@ const PAGES = {
     title: "Build a New Amud — Agent"
   },
   "pesachim-99b": {
-    path: "pesachim-99b/index.html?ui=60.11",
-    title: "Pesachim 99b — Build 44"
+    path: "pesachim-99b/index.html?ui=60.21&build=44.1",
+    title: "Pesachim 99b — Build 44.1"
   },
   "bava-metzia-21a": {
-    path: "bava-metzia-21a/index.html?ui=60.11",
-    title: "Bava Metzia 21a — Build 51"
+    path: "bava-metzia-21a/index.html?ui=60.21&build=51.1",
+    title: "Bava Metzia 21a — Build 51.1"
   }
 };
 
