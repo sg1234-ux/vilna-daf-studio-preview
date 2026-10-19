@@ -25,7 +25,7 @@
   if(!slides.length)throw Error('The deck could not be read. It may require sign-in. Open its text view, save that page as HTML, and use Load saved slide view. You can keep the deck’s current sharing settings.');
   return {title:plain(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]||'Google Slides'),url:deck.url,slides};
  }
- function norm(s){return String(s).normalize('NFD').replace(/[\u0591-\u05c7]/g,'').replace(/[^א-ת]/g,'');}
+ function norm(s){return String(s).normalize('NFKD').replace(/[\u0591-\u05c7]/g,'').replace(/[^א-ת]/g,'');}
  function words(s){return String(s).replace(/[־–—]/g,' ').split(/\s+/).map(norm).filter(Boolean);}
  function matchSlides(slides,source){
   const tokens=source.map(t=>({...t,value:norm(t.text)})).filter(t=>t.value&&Number.isInteger(t.phraseIndex)),grams=new Map();

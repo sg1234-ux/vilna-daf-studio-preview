@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),http=require('node:http'),path=require('node:path');
 const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?path.join(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES,'playwright'):'playwright');
 const service=require('../server/lesson-slides.cjs'),root=path.resolve(__dirname,'..');
-const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.woff2':'font/woff2','.ttf':'font/ttf','.otf':'font/otf'};
+const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.woff2':'font/woff2','.ttf':'font/ttf','.otf':'font/otf'};
 const deckUrl='https://docs.google.com/presentation/d/fixture_deck_12345/edit';
 function escape(s){return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');}
 function html(slides){return '<html><title>BM 21a lesson</title>'+slides.map((text,i)=>`<section class="slide-content" style="background-image:url(https://docs.google.com/presentation/d/fixture_deck_12345/viewpage?pageid=gfixture${i}&amp;rev=1)"><p>${escape(text)}</p></section>`).join('')+'</html>';}
@@ -66,6 +66,26 @@ function html(slides){return '<html><title>BM 21a lesson</title>'+slides.map((te
   await page.locator('#lessonDeckFile').setInputFiles({name:'Deck.pptx',mimeType:'application/vnd.openxmlformats-officedocument.presentationml.presentation',buffer:Buffer.from('PK fake pptx test')});
   await page.waitForFunction(()=>document.getElementById('lessonDeckFileStatus').textContent.includes('PowerPoint or ZIP file'));assert.match(await page.locator('#lessonDeckFile').inputValue(),/Deck\.pptx$/);assert.equal(fetchCalls,callsBefore);
   await page.locator('#visualUrl').fill('https://www.canva.com/design/fixture/view');await page.locator('#importLessonDeck').click();await page.waitForFunction(()=>document.getElementById('lessonDeckStatus').textContent.includes('currently supports Google Slides'));assert.equal(fetchCalls,callsBefore);
+  if(process.env.LESSON_PDF_FIXTURE){
+   await page.locator('#visualUrl').fill(''); // PDF import must not require a public or Google link.
+   await page.locator('#lessonDeckFile').setInputFiles(process.env.LESSON_PDF_FIXTURE);
+   await page.waitForFunction(()=>document.getElementById('lessonDeckFileStatus').textContent.startsWith('Loaded:')&&document.getElementById('lessonDeckFileStatus').textContent.includes('PDF pages'),null,{timeout:120000});
+   const total=await page.locator('.lesson-slide-row').count();assert(total>0);assert(await page.locator('.lesson-slide-row input:checked').count()>0,'Real PDF Hebrew must produce phrase proposals');
+   const pdfBefore=await page.evaluate(()=>state.gemaraHtml);
+   const pdfRow=page.locator('.lesson-slide-row').first();await page.locator(`.word-token[data-stream="gemara"][data-phrase-index="${first.index}"]`).first().click();await pdfRow.getByRole('button',{name:'Use selected phrase'}).click();
+   for(let n=2;n<=total;n++){const c=page.locator(`.lesson-slide-row[data-slide-number="${n}"] input`);if(await c.isEnabled())await c.uncheck();}
+   await page.locator('#applyLessonDeck').click();const pdfLinks=await page.evaluate(i=>visualLinksFor(i),first.index);assert(pdfLinks.some(v=>/^vilna-pdf:[a-f0-9]{64}:1$/.test(v)));
+   assert.equal(await page.evaluate(()=>state.gemaraHtml),pdfBefore);
+   await page.locator('#openVisual').click();await page.locator('#lessonVisualDialog').waitFor({state:'visible'});
+   await page.evaluate(()=>{window.realOpenForPDFTest=window.open;window.open=(url)=>{window.lastOpenedPDFURL=url;return null;};});await page.locator('#lessonVisualLinks button').first().click();assert.match(await page.evaluate(()=>window.lastOpenedPDFURL),/blob:.*#page=1$/);const openedPDF=await page.evaluate(async()=>{const r=await fetch(window.lastOpenedPDFURL.split('#')[0]);const b=await r.blob();return {type:b.type,size:b.size,header:await b.slice(0,5).text()};});assert.equal(openedPDF.type,'application/pdf');assert.equal(openedPDF.header,'%PDF-');await page.locator('#closeLessonVisualDialog').click();
+   const dlPromise=page.waitForEvent('download');await page.locator('#saveProject').click();const dl=await dlPromise;
+   const saved=await dl.path(),payload=JSON.parse(fs.readFileSync(saved,'utf8'));assert.equal(Object.keys(payload.lesson.pdfDocuments).length,1);const doc=Object.values(payload.lesson.pdfDocuments)[0];assert.equal(doc.pageCount,total);assert(doc.dataUrl.startsWith('data:application/pdf;base64,JVBERi0'));
+   // Save/Open carries the original PDF, rather than retaining an expiring blob URL.
+   const tmp=require('node:os').tmpdir(),savedProject=path.join(tmp,'PDF-linked.vds');await dl.saveAs(savedProject);await page.locator('#projectFile').setInputFiles(savedProject);
+   await page.waitForFunction(()=>document.getElementById('projectStatus').textContent==='Opened PDF-linked.vds.',null,{timeout:120000});
+   await page.locator('#openVisual').click();await page.evaluate(()=>window.lastOpenedPDFURL='');await page.locator('#lessonVisualLinks button').first().click();assert.match(await page.evaluate(()=>window.lastOpenedPDFURL),/blob:.*#page=1$/);assert.equal(await page.evaluate(async()=>{const r=await fetch(window.lastOpenedPDFURL.split('#')[0]);return (await r.blob()).size;}),openedPDF.size);await page.evaluate(()=>window.open=window.realOpenForPDFTest);await page.locator('#closeLessonVisualDialog').click();fs.unlinkSync(savedProject);
+   console.log('PASS actual PDF:',total,'pages, Hebrew phrase proposals, selected-page viewing, source preserved and original PDF included in saved/reopened project.');
+  }
   assert.deepEqual(errors,[]);assert.deepEqual(modelRequests,[]);console.log('PASS BM 21a deck review: quoted Hebrew matching, manual image/English targets, exact slide links, multiple slides per phrase, Save/Open, deduplication, cancellation, stale-page rejection, private HTML fallback and unchanged layout. Zero AI requests.');
  }finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}
 })().catch(e=>{console.error(e);process.exitCode=1});

@@ -1,7 +1,7 @@
 // Exercise the actual launcher routes, including both preserved older compositors.
 const assert=require('node:assert/strict'),fs=require('node:fs'),http=require('node:http'),path=require('node:path');
 const {chromium}=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES?path.join(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES,'playwright'):'playwright');
-const reader=require('../server/lesson-slides.cjs'),root=path.resolve(__dirname,'..'),mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.otf':'font/otf','.ttf':'font/ttf','.woff2':'font/woff2'};
+const reader=require('../server/lesson-slides.cjs'),root=path.resolve(__dirname,'..'),mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.otf':'font/otf','.ttf':'font/ttf','.woff2':'font/woff2'};
 const deck='https://docs.google.com/presentation/d/fixture_deck_12345/edit';
 let quote='אלו מציאות שלו';const escape=s=>s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
 const handler=reader.createHandler({fetchImpl:async()=>new Response(`<section class="slide-content" style="background-image:url(https://docs.google.com/presentation/d/fixture_deck_12345/viewpage?pageid=gmenu01)"><p>${escape(quote)}</p></section>`)});
