@@ -5,7 +5,7 @@ const path=require('node:path');
 const {spawn}=require('node:child_process');
 const {ChatGPTAuth}=require('./chatgpt-auth.cjs');
 const service=require('./agent-service.cjs');
-const MIME={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.woff2':'font/woff2','.ttf':'font/ttf','.otf':'font/otf','.txt':'text/plain; charset=utf-8'};
+const MIME={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.wasm':'application/wasm','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.woff2':'font/woff2','.ttf':'font/ttf','.otf':'font/otf','.txt':'text/plain; charset=utf-8'};
 const PUBLIC=new Set(['agent-builder','draft-engine','bava-metzia-21a','bava-metzia-21b','pesachim-99b','pesachim-100a','assets']);
 const PUBLIC_FILES=new Set(['approved-store.js','phrase-parser.js','launcher.css','launcher.js']);
 function problem(status,message){return Object.assign(new Error(message),{status});}
