@@ -1,0 +1,1074 @@
+{
+ "format": "vds-teacher-key",
+ "version": 1,
+ "daf": "Pesachim 99b",
+ "createdAt": "2026-10-22T22:38:53.376Z",
+ "source": "the rebbe's reading of Pesachim 99b (voice note, Oct 22, 2026, 3 listener passes)",
+ "listener": {
+  "model": "ivrit-ai/whisper-large-v3-turbo-onnx",
+  "runtime": "transformers.js 4.3.1",
+  "hint": "prev",
+  "chunking": "cut at pauses, 5–12 s, merged up to 28 s when behind",
+  "device": "CPU (WASM)"
+ },
+ "transcript": "ערב פסחם, סמוך למנחה, לא יאכל אדם עד שתחשך. אפילו עני שבישראל לא יאכל עד שיסיב, ולא יבחסו לו מארבע קולסות של יים ואפילו מנהטם חוי. מהי אירייה ארבע פסחם אפילו ארבע שבו סוס וימים טובים נמי. דתניא לא יאכל אדם בארבע שבו סוס וימים טובים מנהמנכה ולמילא כדי שיכנס לשעבס כשור תאווה. דתבי רבי יהודה. רבי יוסי אומר, אוכל ואהוליך עד שתחשך. אמר רב הונא, לא צריכה אלא רבי יוסי, דאמר אוכל ואהוליך עד שתחשך. הנמילי בערבי שבתות וימים טובים, אבל בערב הפסח משמחי ודמצא מודא. רב פבא אמר, אפילו תמר רבי יהודה, הסם בערבי שבתות וימים טובים מן המנחה ולמילא הודא אסיר סמוך למנחה שרי, אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שעבס סמוך למנחה שרי, ותניא לא יאכל אדם בערבי שבתות וימים טובים מתשעה שעוס ולמעלה כדי שייכנס לשעבס כשהוא תאבה דאבי רבי יהודה. רבי יוסי אומר אוכל והולך עד שתחשך, על ממשת שאומן למלן דמיטריצטאי.",
+ "words": [
+  {
+   "t": "ערב",
+   "page": "gemara:0",
+   "pageWord": "ערב",
+   "kind": "same"
+  },
+  {
+   "t": "פסחם",
+   "page": "gemara:1",
+   "pageWord": "פסחים",
+   "kind": "same"
+  },
+  {
+   "t": "סמוך",
+   "page": "gemara:2",
+   "pageWord": "סמוך",
+   "kind": "same"
+  },
+  {
+   "t": "למנחה",
+   "page": "gemara:3",
+   "pageWord": "למנחה",
+   "kind": "same"
+  },
+  {
+   "t": "לא",
+   "page": "gemara:4",
+   "pageWord": "לא",
+   "kind": "same"
+  },
+  {
+   "t": "יאכל",
+   "page": "gemara:5",
+   "pageWord": "יאכל",
+   "kind": "same"
+  },
+  {
+   "t": "אדם",
+   "page": "gemara:6",
+   "pageWord": "אדם",
+   "kind": "same"
+  },
+  {
+   "t": "עד",
+   "page": "gemara:7",
+   "pageWord": "עד",
+   "kind": "same"
+  },
+  {
+   "t": "שתחשך",
+   "page": "gemara:8",
+   "pageWord": "שתחשך.",
+   "kind": "same"
+  },
+  {
+   "t": "אפילו",
+   "page": "gemara:9",
+   "pageWord": "אפילו",
+   "kind": "same"
+  },
+  {
+   "t": "עני",
+   "page": "gemara:10",
+   "pageWord": "עני",
+   "kind": "same"
+  },
+  {
+   "t": "שבישראל",
+   "page": "gemara:11",
+   "pageWord": "שבישראל",
+   "kind": "same"
+  },
+  {
+   "t": "לא",
+   "page": "gemara:12",
+   "pageWord": "לא",
+   "kind": "same"
+  },
+  {
+   "t": "יאכל",
+   "page": "gemara:13",
+   "pageWord": "יאכל",
+   "kind": "same"
+  },
+  {
+   "t": "עד",
+   "page": "gemara:14",
+   "pageWord": "עד",
+   "kind": "same"
+  },
+  {
+   "t": "שיסיב",
+   "page": "gemara:15",
+   "pageWord": "שיסב,",
+   "kind": "same",
+   "alt": [
+    "שיסיד"
+   ]
+  },
+  {
+   "t": "ולא",
+   "page": "gemara:16",
+   "pageWord": "ולא",
+   "kind": "same"
+  },
+  {
+   "t": "יבחסו",
+   "page": "gemara:17",
+   "pageWord": "יפחתו",
+   "kind": "differs"
+  },
+  {
+   "t": "לו",
+   "page": "gemara:18",
+   "pageWord": "לו",
+   "kind": "same"
+  },
+  {
+   "t": "מארבע",
+   "page": "gemara:19",
+   "pageWord": "מארבע",
+   "kind": "same"
+  },
+  {
+   "t": "קולסות",
+   "page": "gemara:20",
+   "pageWord": "כוסות",
+   "kind": "differs",
+   "alt": [
+    "כוסות"
+   ]
+  },
+  {
+   "t": "של",
+   "page": "gemara:21",
+   "pageWord": "של",
+   "kind": "same"
+  },
+  {
+   "t": "יים",
+   "page": "gemara:22",
+   "pageWord": "יין",
+   "kind": "differs",
+   "alt": [
+    "ים"
+   ]
+  },
+  {
+   "t": "ואפילו",
+   "page": "gemara:23",
+   "pageWord": "ואפילו",
+   "kind": "same"
+  },
+  {
+   "t": "מנהטם",
+   "page": "gemara:24",
+   "pageWord": "מן",
+   "kind": "differs",
+   "alt": [
+    "מן"
+   ]
+  },
+  {
+   "t": "חוי",
+   "page": "gemara:25",
+   "pageWord": "התמחוי.",
+   "kind": "differs",
+   "alt": [
+    "הדם"
+   ]
+  },
+  {
+   "t": "מהי",
+   "page": "gemara:27",
+   "pageWord": "מאי",
+   "kind": "differs",
+   "alt": [
+    "מה"
+   ]
+  },
+  {
+   "t": "אירייה",
+   "page": "gemara:28",
+   "pageWord": "איריא",
+   "kind": "same",
+   "alt": [
+    "יאריה"
+   ]
+  },
+  {
+   "t": "ארבע",
+   "page": "gemara:29",
+   "pageWord": "ערבי",
+   "kind": "differs",
+   "alt": [
+    "הרבה"
+   ]
+  },
+  {
+   "t": "פסחם",
+   "page": "gemara:30",
+   "pageWord": "פסחים?",
+   "kind": "same"
+  },
+  {
+   "t": "אפילו",
+   "page": "gemara:31",
+   "pageWord": "אפילו",
+   "kind": "same"
+  },
+  {
+   "t": "ארבע",
+   "page": "gemara:32",
+   "pageWord": "ערבי",
+   "kind": "differs",
+   "alt": [
+    "הרבה"
+   ]
+  },
+  {
+   "t": "שבו",
+   "page": "gemara:32",
+   "kind": "extra"
+  },
+  {
+   "t": "סוס",
+   "page": "gemara:33",
+   "pageWord": "שבתות",
+   "kind": "differs",
+   "alt": [
+    "שבסוס",
+    "שבווס"
+   ]
+  },
+  {
+   "t": "וימים",
+   "page": "gemara:34",
+   "pageWord": "וימים",
+   "kind": "same",
+   "alt": [
+    "בימים"
+   ]
+  },
+  {
+   "t": "טובים",
+   "page": "gemara:35",
+   "pageWord": "טובים",
+   "kind": "same"
+  },
+  {
+   "t": "נמי",
+   "page": "gemara:36",
+   "pageWord": "נמי.",
+   "kind": "same"
+  },
+  {
+   "t": "דתניא",
+   "page": "gemara:37",
+   "pageWord": "דתניא:",
+   "kind": "same",
+   "alt": [
+    "דתניה"
+   ]
+  },
+  {
+   "t": "לא",
+   "page": "gemara:38",
+   "pageWord": "לא",
+   "kind": "same"
+  },
+  {
+   "t": "יאכל",
+   "page": "gemara:39",
+   "pageWord": "יאכל",
+   "kind": "same"
+  },
+  {
+   "t": "אדם",
+   "page": "gemara:40",
+   "pageWord": "אדם",
+   "kind": "same"
+  },
+  {
+   "t": "בארבע",
+   "page": "gemara:41",
+   "pageWord": "בערבי",
+   "kind": "differs"
+  },
+  {
+   "t": "שבו",
+   "page": "gemara:41",
+   "kind": "extra"
+  },
+  {
+   "t": "סוס",
+   "page": "gemara:42",
+   "pageWord": "שבתות",
+   "kind": "differs",
+   "alt": [
+    "שבסוס",
+    "שבווס"
+   ]
+  },
+  {
+   "t": "וימים",
+   "page": "gemara:43",
+   "pageWord": "וימים",
+   "kind": "same",
+   "alt": [
+    "בימים"
+   ]
+  },
+  {
+   "t": "טובים",
+   "page": "gemara:44",
+   "pageWord": "טובים",
+   "kind": "same"
+  },
+  {
+   "t": "מנהמנכה",
+   "page": "gemara:46",
+   "pageWord": "המנחה",
+   "kind": "differs",
+   "also": [
+    "gemara:45"
+   ],
+   "alt": [
+    "המנחה"
+   ]
+  },
+  {
+   "t": "ולמילא",
+   "page": "gemara:47",
+   "pageWord": "ולמעלה",
+   "kind": "differs"
+  },
+  {
+   "t": "כדי",
+   "page": "gemara:48",
+   "pageWord": "כדי",
+   "kind": "same"
+  },
+  {
+   "t": "שיכנס",
+   "page": "gemara:49",
+   "pageWord": "שיכנס",
+   "kind": "same"
+  },
+  {
+   "t": "לשעבס",
+   "page": "gemara:50",
+   "pageWord": "לשבת",
+   "kind": "differs",
+   "alt": [
+    "לשבת"
+   ]
+  },
+  {
+   "t": "כשור",
+   "page": "gemara:51",
+   "pageWord": "כשהוא",
+   "kind": "differs",
+   "alt": [
+    "כשעות"
+   ]
+  },
+  {
+   "t": "תאווה",
+   "page": "gemara:52",
+   "pageWord": "תאוה,",
+   "kind": "same",
+   "alt": [
+    "אבה"
+   ]
+  },
+  {
+   "t": "דתבי",
+   "page": "gemara:53",
+   "pageWord": "דברי",
+   "kind": "differs",
+   "alt": [
+    "דברי"
+   ]
+  },
+  {
+   "t": "רבי",
+   "page": "gemara:54",
+   "pageWord": "רבי",
+   "kind": "same"
+  },
+  {
+   "t": "יהודה",
+   "page": "gemara:55",
+   "pageWord": "יהודה.",
+   "kind": "same"
+  },
+  {
+   "t": "רבי",
+   "page": "gemara:56",
+   "pageWord": "רבי",
+   "kind": "same"
+  },
+  {
+   "t": "יוסי",
+   "page": "gemara:57",
+   "pageWord": "יוסי",
+   "kind": "same"
+  },
+  {
+   "t": "אומר",
+   "page": "gemara:58",
+   "pageWord": "אומר:",
+   "kind": "same"
+  },
+  {
+   "t": "אוכל",
+   "page": "gemara:59",
+   "pageWord": "אוכל",
+   "kind": "same"
+  },
+  {
+   "t": "ואהוליך",
+   "page": "gemara:60",
+   "pageWord": "והולך",
+   "kind": "differs",
+   "alt": [
+    "והולך"
+   ]
+  },
+  {
+   "t": "עד",
+   "page": "gemara:61",
+   "pageWord": "עד",
+   "kind": "same"
+  },
+  {
+   "t": "שתחשך",
+   "page": "gemara:62",
+   "pageWord": "שתחשך.",
+   "kind": "same"
+  },
+  {
+   "t": "אמר",
+   "page": "gemara:63",
+   "pageWord": "אמר",
+   "kind": "same"
+  },
+  {
+   "t": "רב",
+   "page": "gemara:64",
+   "pageWord": "רב",
+   "kind": "same"
+  },
+  {
+   "t": "הונא",
+   "page": "gemara:65",
+   "pageWord": "הונא:",
+   "kind": "same"
+  },
+  {
+   "t": "לא",
+   "page": "gemara:66",
+   "pageWord": "לא",
+   "kind": "same"
+  },
+  {
+   "t": "צריכה",
+   "page": "gemara:67",
+   "pageWord": "צריכא",
+   "kind": "same"
+  },
+  {
+   "t": "אלא",
+   "page": "gemara:68",
+   "pageWord": "אלא",
+   "kind": "same"
+  },
+  {
+   "t": "רבי",
+   "page": "gemara:69",
+   "pageWord": "לרבי",
+   "kind": "differs"
+  },
+  {
+   "t": "יוסי",
+   "page": "gemara:70",
+   "pageWord": "יוסי,",
+   "kind": "same"
+  },
+  {
+   "t": "דאמר",
+   "page": "gemara:71",
+   "pageWord": "דאמר:",
+   "kind": "same",
+   "alt": [
+    "תאמר"
+   ]
+  },
+  {
+   "t": "אוכל",
+   "page": "gemara:72",
+   "pageWord": "אוכל",
+   "kind": "same"
+  },
+  {
+   "t": "ואהוליך",
+   "page": "gemara:73",
+   "pageWord": "והולך",
+   "kind": "differs",
+   "alt": [
+    "והולך"
+   ]
+  },
+  {
+   "t": "עד",
+   "page": "gemara:74",
+   "pageWord": "עד",
+   "kind": "same"
+  },
+  {
+   "t": "שתחשך",
+   "page": "gemara:75",
+   "pageWord": "שתחשך",
+   "kind": "same"
+  },
+  {
+   "t": "הנמילי",
+   "page": "gemara:78",
+   "pageWord": "מילי",
+   "kind": "differs",
+   "also": [
+    "gemara:77"
+   ],
+   "alt": [
+    "הנמילא",
+    "הנימילי"
+   ]
+  },
+  {
+   "t": "בערבי",
+   "page": "gemara:79",
+   "pageWord": "בערבי",
+   "kind": "same"
+  },
+  {
+   "t": "שבתות",
+   "page": "gemara:80",
+   "pageWord": "שבתות",
+   "kind": "same"
+  },
+  {
+   "t": "וימים",
+   "page": "gemara:81",
+   "pageWord": "וימים",
+   "kind": "same"
+  },
+  {
+   "t": "טובים",
+   "page": "gemara:82",
+   "pageWord": "טובים,",
+   "kind": "same"
+  },
+  {
+   "t": "אבל",
+   "page": "gemara:83",
+   "pageWord": "אבל",
+   "kind": "same"
+  },
+  {
+   "t": "בערב",
+   "page": "gemara:84",
+   "pageWord": "בערב",
+   "kind": "same"
+  },
+  {
+   "t": "הפסח",
+   "page": "gemara:85",
+   "pageWord": "הפסח,",
+   "kind": "same"
+  },
+  {
+   "t": "משמחי",
+   "page": "gemara:86",
+   "pageWord": "משום",
+   "kind": "differs",
+   "alt": [
+    "משמחיו"
+   ]
+  },
+  {
+   "t": "ודמצא",
+   "page": "gemara:88",
+   "pageWord": "דמצה",
+   "kind": "differs"
+  },
+  {
+   "t": "מודא",
+   "page": "gemara:89",
+   "pageWord": "מודה.",
+   "kind": "same"
+  },
+  {
+   "t": "רב",
+   "page": "gemara:90",
+   "pageWord": "רב",
+   "kind": "same"
+  },
+  {
+   "t": "פבא",
+   "page": "gemara:91",
+   "pageWord": "פפא",
+   "kind": "differs"
+  },
+  {
+   "t": "אמר",
+   "page": "gemara:92",
+   "pageWord": "אמר:",
+   "kind": "same"
+  },
+  {
+   "t": "אפילו",
+   "page": "gemara:93",
+   "pageWord": "אפילו",
+   "kind": "same"
+  },
+  {
+   "t": "תמר",
+   "page": "gemara:94",
+   "pageWord": "תימא",
+   "kind": "differs"
+  },
+  {
+   "t": "רבי",
+   "page": "gemara:95",
+   "pageWord": "רבי",
+   "kind": "same"
+  },
+  {
+   "t": "יהודה",
+   "page": "gemara:96",
+   "pageWord": "יהודה,",
+   "kind": "same"
+  },
+  {
+   "t": "הסם",
+   "page": "gemara:97",
+   "pageWord": "התם",
+   "kind": "same"
+  },
+  {
+   "t": "בערבי",
+   "page": "gemara:98",
+   "pageWord": "בערבי",
+   "kind": "same",
+   "alt": [
+    "בערב"
+   ]
+  },
+  {
+   "t": "שבתות",
+   "page": "gemara:99",
+   "pageWord": "שבתות",
+   "kind": "same",
+   "alt": [
+    "סוס"
+   ]
+  },
+  {
+   "t": "וימים",
+   "page": "gemara:100",
+   "pageWord": "וימים",
+   "kind": "same"
+  },
+  {
+   "t": "טובים",
+   "page": "gemara:101",
+   "pageWord": "טובים",
+   "kind": "same"
+  },
+  {
+   "t": "מן",
+   "page": "gemara:102",
+   "pageWord": "מן",
+   "kind": "same"
+  },
+  {
+   "t": "המנחה",
+   "page": "gemara:103",
+   "pageWord": "המנחה",
+   "kind": "same",
+   "alt": [
+    "מנהמנכה"
+   ]
+  },
+  {
+   "t": "ולמילא",
+   "page": "gemara:104",
+   "pageWord": "ולמעלה",
+   "kind": "differs"
+  },
+  {
+   "t": "הודא",
+   "page": "gemara:105",
+   "pageWord": "הוא",
+   "kind": "differs"
+  },
+  {
+   "t": "אסיר",
+   "page": "gemara:106",
+   "pageWord": "דאסיר,",
+   "kind": "differs"
+  },
+  {
+   "t": "סמוך",
+   "page": "gemara:107",
+   "pageWord": "סמוך",
+   "kind": "same"
+  },
+  {
+   "t": "למנחה",
+   "page": "gemara:108",
+   "pageWord": "למנחה",
+   "kind": "same"
+  },
+  {
+   "t": "שרי",
+   "page": "gemara:109",
+   "pageWord": "שרי.",
+   "kind": "same"
+  },
+  {
+   "t": "אבל",
+   "page": "gemara:110",
+   "pageWord": "אבל",
+   "kind": "same"
+  },
+  {
+   "t": "בערב",
+   "page": "gemara:111",
+   "pageWord": "בערב",
+   "kind": "same"
+  },
+  {
+   "t": "הפסח",
+   "page": "gemara:112",
+   "pageWord": "הפסח,",
+   "kind": "same"
+  },
+  {
+   "t": "אפילו",
+   "page": "gemara:113",
+   "pageWord": "אפילו",
+   "kind": "same"
+  },
+  {
+   "t": "סמוך",
+   "page": "gemara:114",
+   "pageWord": "סמוך",
+   "kind": "same"
+  },
+  {
+   "t": "למנחה",
+   "page": "gemara:115",
+   "pageWord": "למנחה",
+   "kind": "same"
+  },
+  {
+   "t": "נמי",
+   "page": "gemara:116",
+   "pageWord": "נמי",
+   "kind": "same"
+  },
+  {
+   "t": "אסור",
+   "page": "gemara:117",
+   "pageWord": "אסור.",
+   "kind": "same"
+  },
+  {
+   "t": "ובערב",
+   "page": "gemara:118",
+   "pageWord": "ובערב",
+   "kind": "same"
+  },
+  {
+   "t": "שעבס",
+   "page": "gemara:119",
+   "pageWord": "שבת",
+   "kind": "differs",
+   "alt": [
+    "שעבד"
+   ]
+  },
+  {
+   "t": "סמוך",
+   "page": "gemara:120",
+   "pageWord": "סמוך",
+   "kind": "same"
+  },
+  {
+   "t": "למנחה",
+   "page": "gemara:121",
+   "pageWord": "למנחה",
+   "kind": "same",
+   "alt": [
+    "למנכה"
+   ]
+  },
+  {
+   "t": "שרי",
+   "page": "gemara:122",
+   "pageWord": "שרי?",
+   "kind": "same"
+  },
+  {
+   "t": "ותניא",
+   "page": "gemara:123",
+   "pageWord": "והתניא:",
+   "kind": "differs",
+   "alt": [
+    "בתניא"
+   ]
+  },
+  {
+   "t": "לא",
+   "page": "gemara:124",
+   "pageWord": "לא",
+   "kind": "same"
+  },
+  {
+   "t": "יאכל",
+   "page": "gemara:125",
+   "pageWord": "יאכל",
+   "kind": "same"
+  },
+  {
+   "t": "אדם",
+   "page": "gemara:126",
+   "pageWord": "אדם",
+   "kind": "same"
+  },
+  {
+   "t": "בערבי",
+   "page": "gemara:127",
+   "pageWord": "בערב",
+   "kind": "differs",
+   "alt": [
+    "בארבע"
+   ]
+  },
+  {
+   "t": "שבתות",
+   "page": "gemara:128",
+   "pageWord": "שבת",
+   "kind": "differs"
+  },
+  {
+   "t": "וימים",
+   "page": "gemara:129",
+   "pageWord": "וימים",
+   "kind": "same"
+  },
+  {
+   "t": "טובים",
+   "page": "gemara:130",
+   "pageWord": "טובים",
+   "kind": "same"
+  },
+  {
+   "t": "מתשעה",
+   "page": "gemara:131",
+   "pageWord": "מתשע",
+   "kind": "differs"
+  },
+  {
+   "t": "שעוס",
+   "page": "gemara:132",
+   "pageWord": "שעות",
+   "kind": "same",
+   "alt": [
+    "שעוז"
+   ]
+  },
+  {
+   "t": "ולמעלה",
+   "page": "gemara:133",
+   "pageWord": "ולמעלה,",
+   "kind": "same",
+   "alt": [
+    "ולמילא"
+   ]
+  },
+  {
+   "t": "כדי",
+   "page": "gemara:134",
+   "pageWord": "כדי",
+   "kind": "same"
+  },
+  {
+   "t": "שייכנס",
+   "page": "gemara:135",
+   "pageWord": "שיכנס",
+   "kind": "same",
+   "alt": [
+    "שיכנס"
+   ]
+  },
+  {
+   "t": "לשעבס",
+   "page": "gemara:136",
+   "pageWord": "לשבת",
+   "kind": "differs",
+   "alt": [
+    "לשעבד"
+   ]
+  },
+  {
+   "t": "כשהוא",
+   "page": "gemara:137",
+   "pageWord": "כשהוא",
+   "kind": "same"
+  },
+  {
+   "t": "תאבה",
+   "page": "gemara:138",
+   "pageWord": "תאוה,",
+   "kind": "differs"
+  },
+  {
+   "t": "דאבי",
+   "page": "gemara:139",
+   "pageWord": "דברי",
+   "kind": "differs",
+   "alt": [
+    "דברי"
+   ]
+  },
+  {
+   "t": "רבי",
+   "page": "gemara:140",
+   "pageWord": "רבי",
+   "kind": "same"
+  },
+  {
+   "t": "יהודה",
+   "page": "gemara:141",
+   "pageWord": "יהודה.",
+   "kind": "same"
+  },
+  {
+   "t": "רבי",
+   "page": "gemara:142",
+   "pageWord": "רבי",
+   "kind": "same"
+  },
+  {
+   "t": "יוסי",
+   "page": "gemara:143",
+   "pageWord": "יוסי",
+   "kind": "same",
+   "alt": [
+    "יהודה"
+   ]
+  },
+  {
+   "t": "אומר",
+   "page": "gemara:144",
+   "pageWord": "אומר:",
+   "kind": "same",
+   "alt": [
+    "אמר"
+   ]
+  },
+  {
+   "t": "אוכל",
+   "page": "gemara:145",
+   "pageWord": "אוכל",
+   "kind": "same"
+  },
+  {
+   "t": "והולך",
+   "page": "gemara:146",
+   "pageWord": "והולך",
+   "kind": "same"
+  },
+  {
+   "t": "עד",
+   "page": "gemara:147",
+   "pageWord": "עד",
+   "kind": "same"
+  },
+  {
+   "t": "שתחשך",
+   "page": "gemara:148",
+   "pageWord": "שתחשך.",
+   "kind": "same"
+  },
+  {
+   "t": "על",
+   "page": "gemara:149",
+   "pageWord": "אמר",
+   "kind": "differs",
+   "alt": [
+    "הממר"
+   ]
+  },
+  {
+   "t": "ממשת",
+   "page": "gemara:150",
+   "pageWord": "מר",
+   "kind": "differs",
+   "alt": [
+    "זאת"
+   ]
+  },
+  {
+   "t": "שאומן",
+   "page": "gemara:151",
+   "pageWord": "זוטרא:",
+   "kind": "differs"
+  },
+  {
+   "t": "למלן",
+   "page": "gemara:152",
+   "pageWord": "מאן",
+   "kind": "differs"
+  },
+  {
+   "t": "דמיטריצטאי",
+   "page": "gemara:153",
+   "pageWord": "לימא",
+   "kind": "differs",
+   "alt": [
+    "דמיטריצ"
+   ]
+  }
+ ],
+ "skippedPageIds": [
+  "gemara:26",
+  "gemara:87"
+ ],
+ "passes": [
+  {
+   "createdAt": "2026-10-22T22:38:53.376Z",
+   "source": "the rebbe's reading of Pesachim 99b (voice note, Oct 22, 2026)",
+   "transcript": "ערב פסחם, סמוך למנחה, לא יאכל אדם עד שתחשך. אפילו עני שבישראל לא יאכל עד שיסיב, ולא יבחסו לו מארבע קולסות של יים ואפילו מנהטם חוי. מהי אירייה ארבע פסחם אפילו ארבע שבו סוס וימים טובים נמי. דתניא לא יאכל אדם בארבע שבו סוס וימים טובים מנהמנכה ולמילא כדי שיכנס לשעבס כשור תאווה. דתבי רבי יהודה. רבי יוסי אומר, אוכל ואהוליך עד שתחשך. אמר רב הונא, לא צריכה אלא רבי יוסי, דאמר אוכל ואהוליך עד שתחשך. הנמילי בערבי שבתות וימים טובים, אבל בערב הפסח משמחי ודמצא מודא. רב פבא אמר, אפילו תמר רבי יהודה, הסם בערבי שבתות וימים טובים מן המנחה ולמילא הודא אסיר סמוך למנחה שרי, אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שעבס סמוך למנחה שרי, ותניא לא יאכל אדם בערבי שבתות וימים טובים מתשעה שעוס ולמעלה כדי שייכנס לשעבס כשהוא תאבה דאבי רבי יהודה. רבי יוסי אומר אוכל והולך עד שתחשך, על ממשת שאומן למלן דמיטריצטאי."
+  },
+  {
+   "createdAt": "2026-10-22T22:38:53.376Z",
+   "source": "pass 2: voice note through the microphone path",
+   "transcript": "ערב פסחם סמוך למנחה, לא יאכל אדם עד שתחשך. אפילו עני שבישראל לא יאכל עד שיסיד ולא יבחסו לו מארבע קולסות של ים ואפילו מן הדם חוי. מה יאריה הרבה פסחם אפילו הרבה שב׳סוס בימים טובים נמי. דתניה לא יאכל אדם בארבע שב׳סוס בימים טובים מן המנחה ולמילא כדי שיכנס לשבת כשעות אבה. דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך אמר רב הונא לא צריכה אלא רבי יוסי תאמר אוכל והולך עד שתחשך הנמילא בערב הפסח משמחיו ודמצא מודא רב פבא אמר אפילו תמר רבי יהודה הסם בערב שבו סוס וימים טובים מנהמנכה ולמילא הודא אסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור ובערב שעבד סמוך למנכה שרי בתניא לא יאכל אדם בארבע שבתות וימים טובים מתשעה שעוז ולמילא כדי שיכנס לשעבד כשהוא תאבה דברי רבי יהודה רבי יהודה אמר אוכל והולך עד שתחשך הממר זאת שאומן למלן דמיטריצ דהי"
+  },
+  {
+   "createdAt": "2026-10-22T22:38:53.376Z",
+   "source": "pass 3: voice note through the microphone path",
+   "transcript": "ערב פסחם סמוך למנחה, לא יאכל אדם עד שתחשך. אפילו עני שבישראל לא יאכל עד שיסיב ולא יבחסו לו מארבע כוסות של ים ואפילו מן הדם חווה. מה אירייה ארבע פסחם אפילו ארבע שבווס בימים טובים נמי. דתניה לא יאכל אדם בארבע שבווס בימים טובים מן המנחה ולמילא כדי שיכנס לשבת כשעות אבה. דברי רבי יהודה. רבי יוסי אומר, אוכל והולך עד שתחשך. אמר רב הונא, לא צריכה אלא רבי יוסי, דאמר אוכל והולך עד שתחשך. הנימילי בערבי שבתות וימים טובים. אבל בערב הפסח משמחיו ודמצא מודא. רב פבא אמר, אפילו תמר רבי יהודה, הסם בערבי שבתות וימים טובים מן המנחה ולמילא הודא אסיר סמוך למנחה שרי. אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שעבד סמוך למנחה שרי, בתניא לא יאכל אדם בערבי שבתות וימים טובים מתשעה שעוז ולמעלה כדי שייכנס לשעבד כשהוא תאבה דברי רבי יהודה. רבי יוסי אומר אוכל והולך עד שתחשך. הממר זאת שאומן למלן דמיטריצ דהי."
+  }
+ ]
+}

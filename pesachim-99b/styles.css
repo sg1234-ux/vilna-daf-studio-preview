@@ -428,3 +428,21 @@ body { height: 100vh; display: grid; grid-template-rows: auto minmax(0, 1fr); ov
 
 /* Hide punctuation without changing word widths, line breaks, or source text. */
 .daf-page.punctuation-hidden .display-punctuation { visibility: hidden; }
+
+/* Hebrew Whisper listener (TEST build) */
+.whisper-test-badge{display:inline-block;margin:.2rem 0 .5rem;padding:.15rem .5rem;border-radius:999px;background:#fff3cd;color:#7a5200;font-size:.78rem;font-weight:600}
+.reading-listener-label{display:block;font-size:.8rem;font-weight:600;margin-top:.25rem}
+#readingListener{width:100%;margin:.2rem 0 .6rem}
+.reading-file{display:block;font-size:.8rem;margin:.5rem 0}
+.reading-file input{max-width:100%;font-size:.8rem}
+.model-progress{margin:.5rem 0;padding:.5rem .6rem;border:1px solid rgba(0,0,0,.12);border-radius:8px;background:rgba(0,0,0,.025)}
+.model-progress progress{width:100%;height:.7rem}
+.model-progress .status{margin:.25rem 0}
+
+/* Teacher answer key (whisper test build) */
+.teacher-key-panel{margin-top:.75rem;border:1px solid rgba(0,0,0,.12);border-radius:8px;padding:.5rem .75rem;}
+.teacher-key-panel summary{cursor:pointer;font-weight:600;}
+.teacher-key-actions{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem;}
+.teacher-key-load{cursor:pointer;display:inline-flex;align-items:center;}
+#readingKeyMode{width:100%;margin-bottom:.5rem;}
+.teacher-merge{display:flex;gap:.4rem;align-items:flex-start;font-size:.85rem;margin:.35rem 0;}

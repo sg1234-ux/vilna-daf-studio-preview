@@ -6,11 +6,13 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Vilna Daf Studio</title>
+  <title>Vilna Daf Studio — 99b Hebrew Whisper listener (test)</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta property="og:title" content="Pesachim 99b — Hebrew Whisper reading checker (test)">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;600;700&family=Noto+Rashi+Hebrew:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?ui=60.10&build=44">
+  <link rel="stylesheet" href="styles.css?ui=60.10&build=44-whisper-test-2-teacher-key">
 </head>
 <body>
   <header class="app-header">
@@ -118,11 +120,30 @@
       <section class="panel-section reading-panel">
         <h2>Reading accuracy</h2>
         <p class="status">Click the first Gemara word the student will read, then start the microphone.</p>
+        <p class="whisper-test-badge">TEST build: on-device Hebrew Whisper listener</p>
+        <label class="reading-listener-label" for="readingListener">Listener</label>
+        <select id="readingListener">
+          <option value="whisper" selected>Hebrew Whisper (ivrit.ai, runs on this computer)</option>
+          <option value="browser">Browser speech recognition (previous)</option>
+        </select>
+        <label class="reading-listener-label" for="readingKeyMode">Answer key</label>
+        <select id="readingKeyMode">
+          <option value="teacher">Teacher's recording (as the listener heard him)</option>
+          <option value="page">Printed page text</option>
+        </select>
+        <label class="teacher-merge"><input id="readingAcceptPrint" type="checkbox"> Also accept the printed word (for a student with a different accent; this also accepts the print where the teacher reads differently)</label>
         <p id="readingStartLabel" class="reading-start" dir="rtl">Starting word: not selected</p>
         <div class="reading-actions">
           <button id="startReading" class="button" disabled>Start reading</button>
           <button id="stopReading" class="button secondary" disabled>Stop</button>
           <button id="resetReading" class="button ghost" disabled>Reset</button>
+        </div>
+        <label class="reading-file"><span>Or grade a recording:</span> <input id="readingFile" type="file" accept="audio/*" disabled></label>
+        <div id="modelProgress" class="model-progress" hidden>
+          <p id="modelProgressLabel" class="status">Preparing the Hebrew model…</p>
+          <progress id="modelProgressBar" max="100" value="0"></progress>
+          <p id="modelDevice" class="status"></p>
+          <p id="modelTiming" class="status"></p>
         </div>
         <p id="readingStatus" class="status" role="status">Select a Gemara word to begin.</p>
         <dl class="reading-report" aria-label="Reading results">
@@ -137,7 +158,25 @@
           <span class="key-review">Review</span>
           <span class="key-missed">Missed</span>
         </div>
-        <p class="status">“Review” can mean either a reading error or a speech-recognition error; the teacher makes the final decision.</p>
+        <p class="status">“Review” can mean either a reading error or a speech-recognition error; the teacher makes the final decision. Page words the teacher did not read are left unmarked.</p>
+        <p id="readingKeySource" class="status">Answer key: the words printed on this page.</p>
+        <details class="teacher-key-panel" id="teacherKeyPanel">
+          <summary>Teacher: make the answer key from your own reading</summary>
+          <p class="status">Read the daf once (or upload a recording). The same listener the students get transcribes you, and that transcript becomes the answer key, so its quirks with Ashkenazi Aramaic cancel out. Click your first Gemara word first, or it starts from the top of the page.</p>
+          <div class="reading-actions">
+            <button id="teacherRecord" class="button">Record teacher reading</button>
+            <button id="teacherStop" class="button secondary" disabled>Stop &amp; save key</button>
+          </div>
+          <label class="reading-file"><span>Or upload a recording:</span> <input id="teacherFile" type="file" accept="audio/*"></label>
+          <label class="teacher-merge"><input id="teacherMerge" type="checkbox"> Add this as another pass to the current key (the listener hears the same voice a little differently each time; extra passes teach the key its other spellings)</label>
+          <p id="teacherKeyStatus" class="status" role="status"></p>
+          <div class="teacher-key-actions">
+            <button id="teacherDownload" class="button ghost" disabled>Download key (.json)</button>
+            <label class="button ghost teacher-key-load">Load key file<input id="teacherKeyFile" type="file" accept=".json,application/json" hidden></label>
+            <button id="teacherReset" class="button ghost">Use built-in key</button>
+          </div>
+          <p class="status">Still words, not sound: a wrong vowel that spells the same word is not caught.</p>
+        </details>
       </section>
 
       <section class="panel-section">
@@ -243,6 +282,7 @@
 
   <script src="assets/vendor/opentype.min.js?build=44"></script>
   <script src="../phrase-parser.js?ui=60.10"></script>
-  <script src="app.js?ui=60.10&build=44"></script>
+  <script src="whisper-listener.js?build=whisper-test-1"></script>
+  <script src="app.js?ui=60.10&build=44-whisper-test-2-teacher-key"></script>
 </body>
 </html>
