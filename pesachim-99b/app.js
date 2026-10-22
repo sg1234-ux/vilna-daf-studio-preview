@@ -1,4 +1,4 @@
-const BUILD_VERSION=44;window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION=44;/* whisper test + teacher key */window.VILNA_DAF_BUILD=BUILD_VERSION;
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
 rashiHtml:`<strong>סמוך למנחה.</strong> מעט קודם למנחה: <strong>לא יאכל.</strong> כדי שיאכל מצה של מצוה לתיאבון משום הידור מצוה: <strong>ואפילו עני שבישראל.</strong> לא יאכל עד שיסב כדרך בני חורין זכר לחירות במטה ועל השלחן: <strong>ארבע כוסות.</strong> כנגד ארבעה לשוני גאולה האמורים בגלות מצרים והוצאתי והצלתי וגאלתי ולקחתי:`,
@@ -14,7 +14,7 @@ const TYPOGRAPHY_PRESETS={
 };
 const savedTypography="archival-open";
 const state={...sample,selection:null,selecting:false,composition:null,typography:TYPOGRAPHY_PRESETS[savedTypography]?savedTypography:"archival-open",focusEnabled:false,focusWindow:1,visualLinks:{},punctuationEnabled:true,mode:"navigate",navigationUnit:"word",selectedWordId:null,editSelectedWordIds:[],wordFontScales:{},whitedWordIds:{},notesEnabled:false,nekudosEnabled:true,lineNumbersEnabled:false,pageZoom:1.5,notes:{},noteWindowPosition:null,annotating:false,annotationTool:"pen",annotationColor:"#b32424",strokeWidth:3,annotations:[],annotationUndo:[],annotationRedo:[]};
-const readingState={recognition:null,active:false,stopping:false,startId:null,targetIds:[],finalTranscript:"",interimTranscript:"",lastAlignment:null,error:null};
+const readingState={whisperSession:null,whisperLog:[],whisperQueue:null,recognition:null,active:false,stopping:false,startId:null,targetIds:[],finalTranscript:"",interimTranscript:"",lastAlignment:null,error:null};
 $("buildBadge").textContent=`Build ${BUILD_VERSION}`;document.title=`Vilna Daf Studio - Build ${BUILD_VERSION}`;
 
 async function localFontAvailable(names){
@@ -462,7 +462,16 @@ $("wordNote").addEventListener("input",e=>{if(!state.selectedWordId)return;const
 function normalizeReadWord(value){return String(value||"").normalize("NFKD").replace(/[\u0591-\u05c7]/gu,"").replace(/[ךםןףץ]/gu,char=>({ך:"כ",ם:"מ",ן:"נ",ף:"פ",ץ:"צ"})[char]).replace(/[^\u05d0-\u05ea]/gu,"");}
 function readingWords(value){return String(value||"").split(/\s+/u).map(normalizeReadWord).filter(Boolean);}
 function editDistance(a,b){const previous=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let diagonal=previous[0];previous[0]=i;for(let j=1;j<=b.length;j++){const above=previous[j],cost=a[i-1]===b[j-1]?0:1;previous[j]=Math.min(previous[j]+1,previous[j-1]+1,diagonal+cost);diagonal=above;}}return previous[b.length];}
-function readingMatch(target,spoken){if(target===spoken)return{kind:"correct",cost:0};const distance=editDistance(target,spoken),longest=Math.max(target.length,spoken.length);if(longest>=4&&distance===1)return{kind:"review",cost:.45};return{kind:"review",cost:1};}
+// Whisper test build — looser matching for how the listener spells what it hears (scoring otherwise unchanged):
+//  • Ashkenazi sav: ת and ס count as the same letter (nikkud is stripped, so a dagesh tav folds too).
+//  • Aramaic endings: a final ה and a final א count as the same (Whisper writes צריכה for צריכא).
+//  • A first-letter ו and ב count as the same (Ashkenazi vav and veis are both "v": וימים / בימים).
+//  • Modern "full" spelling: a ו or י added or dropped INSIDE a word is ignored (דיברי = דברי); first and last letters must still match (רב ≠ רבי).
+// Each rule was checked against shimshon's own reading of 99b and against a test reading with deliberate mistakes.
+function readingSavFold(value){return String(value||"").replace(/ת/gu,"ס");}
+function readingMedialFold(value){return value.length<3?value:value[0]+value.slice(1,-1).replace(/[וי]/gu,"")+value.at(-1);}
+function readingLooseKey(value){let v=readingSavFold(value);if(v.length>1)v=v.replace(/ה$/u,"א").replace(/^ב/u,"ו");return readingMedialFold(v);}
+function readingMatch(target,spoken){if(target.includes("|")){let best=null;for(const alt of target.split("|")){const m=readingMatch(alt,spoken);if(!best||m.cost<best.cost)best=m;}return best;}if(target===spoken||readingLooseKey(target)===readingLooseKey(spoken))return{kind:"correct",cost:0};const distance=editDistance(readingLooseKey(target),readingLooseKey(spoken)),longest=Math.max(target.length,spoken.length);if(longest>=4&&distance===1)return{kind:"review",cost:.45};return{kind:"review",cost:1};}
 function alignReadingWords(targetWords,spokenWords){
   if(!spokenWords.length)return{operations:[],correct:0,review:0,missed:0,extra:0,evaluated:0,accuracy:0};
   const target=targetWords.slice(0,Math.min(targetWords.length,spokenWords.length+12)),n=target.length,m=spokenWords.length,dp=Array.from({length:n+1},()=>Array(m+1).fill(0)),back=Array.from({length:n+1},()=>Array(m+1).fill(null));
@@ -477,32 +486,234 @@ function clearReadingMarks(){$("dafPage").querySelectorAll(".read-correct,.read-
 function selectedGemaraWord(){const word=selectedWordElement();return word?.dataset.stream==="gemara"?word:null;}
 function setReadingStatus(text,error=false){$("readingStatus").textContent=text;$("readingStatus").classList.toggle("error",error);}
 function updateReadingControls(){
-  const selected=selectedGemaraWord(),supported=Boolean(speechRecognitionClass());
+  const selected=selectedGemaraWord(),supported=readingListenerKind()==="whisper"?Boolean(window.WhisperListener?.isSupported()):Boolean(speechRecognitionClass());
   const phrase=selected&&state.navigationUnit==="phrase"&&selected.dataset.phraseIndex!=null?phraseElements(selected.dataset.phraseIndex).map(word=>word.textContent).join(" "):null;
   $("readingStartLabel").textContent=selected?(phrase?`Starting phrase: ${phrase}`:`Starting word: ${selected.textContent}`):"Starting word: not selected";
   $("startReading").disabled=readingState.active||!selected||!supported;$("stopReading").disabled=!readingState.active;$("resetReading").disabled=!readingState.startId&&!readingState.finalTranscript&&!readingState.interimTranscript;
-  if(!supported)setReadingStatus("Hebrew microphone recognition is unavailable in this browser. Open the project in current Chrome or Edge.",true);else if(!selected&&!readingState.active&&!readingState.startId)setReadingStatus("Select a Gemara word to begin.");
+  $("readingFile").disabled=readingState.active||!selected||readingListenerKind()!=="whisper";const whisperOk=readingListenerKind()==="whisper"&&Boolean(window.WhisperListener?.isSupported());if($("teacherRecord")){$("teacherRecord").disabled=readingState.active||!whisperOk;$("teacherFile").disabled=readingState.active||!whisperOk;$("teacherStop").disabled=!(readingState.active&&readingState.teacherRun);}if($("readingKeyMode"))$("readingKeyMode").disabled=readingState.active;if($("readingAcceptPrint"))$("readingAcceptPrint").disabled=readingState.active||readingAnswerKey.source!=="teacher";$("readingListener").disabled=readingState.active;
+  if(!supported)setReadingStatus(readingListenerKind()==="whisper"?"This browser cannot run the on-device Hebrew listener. Open the page in current Chrome or Edge on a laptop or desktop.":"Hebrew microphone recognition is unavailable in this browser. Open the project in current Chrome or Edge.",true);else if(!selected&&!readingState.active&&!readingState.startId)setReadingStatus("Select a Gemara word to begin.");
 }
 function showReadingResult(transcript,{final=false}={}){
-  const spoken=readingWords(transcript),targets=readingState.targetIds.map(id=>normalizeReadWord(document.querySelector(`[data-word-id="${CSS.escape(id)}"]`)?.textContent)),alignment=alignReadingWords(targets,spoken);readingState.lastAlignment=alignment;clearReadingMarks();
-  for(const item of alignment.operations){if(item.targetIndex==null)continue;const element=document.querySelector(`[data-word-id="${CSS.escape(readingState.targetIds[item.targetIndex])}"]`);element?.classList.add(item.op==="correct"?"read-correct":item.op==="missed"?"read-missed":"read-review");}
-  const consumed=alignment.operations.reduce((max,item)=>item.targetIndex==null?max:Math.max(max,item.targetIndex+1),0),nextId=readingState.targetIds[consumed],next=nextId?document.querySelector(`[data-word-id="${CSS.escape(nextId)}"]`):null;next?.classList.add("reading-current");
+  const targets=readingState.targets||[],spoken=readingWords(transcript),alignment=alignReadingWords(targets.map(t=>t.w),spoken);readingState.lastAlignment=alignment;clearReadingMarks();
+  // A page word can carry several key words (or one key word several page words): green only if all of them were read right.
+  const marks=new Map();for(const item of alignment.operations){if(item.targetIndex==null)continue;for(const id of targets[item.targetIndex].ids){if(!marks.has(id))marks.set(id,[]);marks.get(id).push(item.op);}}
+  for(const [id,ops] of marks){const element=document.querySelector(`[data-word-id="${CSS.escape(id)}"]`);element?.classList.add(ops.every(op=>op==="correct")?"read-correct":ops.every(op=>op==="missed")?"read-missed":"read-review");}
+  const consumed=alignment.operations.reduce((max,item)=>item.targetIndex==null?max:Math.max(max,item.targetIndex+1),0),nextId=targets[consumed]?.ids[0],next=nextId?document.querySelector(`[data-word-id="${CSS.escape(nextId)}"]`):null;next?.classList.add("reading-current");
   $("readingAccuracy").textContent=alignment.evaluated?`${alignment.accuracy}%`:"—";$("readingCorrect").textContent=alignment.correct;$("readingReview").textContent=alignment.review+alignment.extra;$("readingMissed").textContent=alignment.missed;$("readingTranscript").textContent=transcript.trim()||"Listening…";
-  if(next&&spoken.length)next.scrollIntoView({block:"nearest",inline:"nearest"});if(final&&alignment.evaluated)setReadingStatus(`Session complete: ${alignment.correct} of ${alignment.evaluated} evaluated Gemara words matched exactly. Review the marked words with the student.`);
+  if(next&&spoken.length)next.scrollIntoView({block:"nearest",inline:"nearest"});
+  if(final&&alignment.evaluated){const against=readingState.teacherRun?"the printed page (preview only — this reading is becoming the key)":readingAnswerKey.source==="teacher"?"the teacher's reading":"the printed page";setReadingStatus(`Session complete: ${alignment.correct} of ${alignment.evaluated} words matched ${against}. Review the marked words with the student.`);}
 }
 function resetReadingSession({keepSelection=false}={}){
   if(readingState.recognition){readingState.stopping=true;try{readingState.recognition.abort();}catch{}}
-  Object.assign(readingState,{recognition:null,active:false,stopping:false,startId:null,targetIds:[],finalTranscript:"",interimTranscript:"",lastAlignment:null,error:null});clearReadingMarks();$("readingAccuracy").textContent="—";$("readingCorrect").textContent="0";$("readingReview").textContent="0";$("readingMissed").textContent="0";$("readingTranscript").textContent="Recognized words will appear here.";if(!keepSelection&&selectedGemaraWord())state.selectedWordId=null;updateReadingControls();
+  if(readingState.whisperSession){readingState.whisperSession.abort();readingState.whisperSession=null;}readingState.whisperLog=[];
+  Object.assign(readingState,{recognition:null,active:false,stopping:false,startId:null,targetIds:[],targets:[],teacherRun:false,finalTranscript:"",interimTranscript:"",lastAlignment:null,error:null});clearReadingMarks();$("readingAccuracy").textContent="—";$("readingCorrect").textContent="0";$("readingReview").textContent="0";$("readingMissed").textContent="0";$("readingTranscript").textContent="Recognized words will appear here.";if(!keepSelection&&selectedGemaraWord())state.selectedWordId=null;updateReadingControls();
 }
-function finishReading(){if(!readingState.active)return;readingState.stopping=true;setReadingStatus("Finishing the reading sample…");try{readingState.recognition?.stop();}catch{readingState.active=false;updateReadingControls();}}
-function startReading(){
-  const start=selectedGemaraWord(),Recognition=speechRecognitionClass();if(!start||!Recognition){updateReadingControls();return;}resetReadingSession({keepSelection:true});const gemaraWords=[...$("dafPage").querySelectorAll('.word-token[data-stream="gemara"]')],at=gemaraWords.indexOf(start);readingState.startId=start.dataset.wordId;readingState.targetIds=gemaraWords.slice(at).map(word=>word.dataset.wordId);const recognition=new Recognition();readingState.recognition=recognition;recognition.lang="he-IL";recognition.continuous=true;recognition.interimResults=true;recognition.maxAlternatives=1;
+function finishReading(){if(readingState.whisperSession){finishWhisperReading();return;}if(!readingState.active)return;readingState.stopping=true;setReadingStatus("Finishing the reading sample…");try{readingState.recognition?.stop();}catch{readingState.active=false;updateReadingControls();}}
+function startBrowserSpeechReading(){
+  const start=selectedGemaraWord(),Recognition=speechRecognitionClass();if(!start||!Recognition){updateReadingControls();return;}resetReadingSession({keepSelection:true});const gemaraWords=[...$("dafPage").querySelectorAll('.word-token[data-stream="gemara"]')],at=gemaraWords.indexOf(start);readingState.startId=start.dataset.wordId;readingState.targets=buildReadingTargets(start);readingState.targetIds=readingState.targets.map(t=>t.ids[0]);const recognition=new Recognition();readingState.recognition=recognition;recognition.lang="he-IL";recognition.continuous=true;recognition.interimResults=true;recognition.maxAlternatives=1;
   recognition.onstart=()=>{readingState.active=true;readingState.stopping=false;setInteractionMode("navigate",{focus:false});setAnnotating(false);if(state.selecting)beginExcerpt();setReadingStatus("Listening in Hebrew… Read from the highlighted Gemara word.");clearReadingMarks();start.classList.add("reading-current");updateReadingControls();};
   recognition.onresult=event=>{const finalParts=[],interimParts=[];for(let i=0;i<event.results.length;i++){const text=event.results[i][0]?.transcript||"";(event.results[i].isFinal?finalParts:interimParts).push(text);}readingState.finalTranscript=finalParts.join(" ");readingState.interimTranscript=interimParts.join(" ");showReadingResult(`${readingState.finalTranscript} ${readingState.interimTranscript}`);};
   recognition.onerror=event=>{readingState.error=event.error;const messages={"not-allowed":"Microphone permission was denied. Allow microphone access and try again.","audio-capture":"No microphone was found.","no-speech":"No speech was detected. Try again and begin reading after Listening appears.",network:"The browser speech service could not connect."};setReadingStatus(messages[event.error]||`Speech recognition stopped: ${event.error}.`,true);};
   recognition.onend=()=>{readingState.active=false;showReadingResult(readingState.finalTranscript||readingState.interimTranscript,{final:!readingState.error});readingState.recognition=null;updateReadingControls();};
   try{readingState.active=true;updateReadingControls();recognition.start();setReadingStatus("Requesting microphone access…");}catch(error){readingState.active=false;readingState.recognition=null;setReadingStatus(`Could not start the microphone: ${error.message}.`,true);updateReadingControls();}
 }
+
+// ───────────── Hebrew Whisper listener (TEST build for Pesachim 99b) ─────────────
+// Replaces only the listener. Scoring (normalizeReadWord, alignReadingWords, readingMatch) and the
+// correct/review/missed display are unchanged; each graded chunk's words are appended to the transcript
+// and showReadingResult() re-scores the whole reading, exactly as the browser listener did.
+function readingListenerKind(){return $("readingListener")?.value==="browser"?"browser":"whisper";}
+function startReading(){if(readingListenerKind()==="browser"){startBrowserSpeechReading();return;}startWhisperReading();}
+
+// ───────────── Answer key: the TEACHER'S RECORDING (falls back to the printed page) ─────────────
+// The rebbe reads the daf once; the same on-device listener the students get transcribes him, and that
+// transcript is the answer key. Because the same listener hears teacher and student, its consistent
+// mishearings of Ashkenazi Aramaic (פפא→"פבא", ערבי→"הרבה", …) line up with each other instead of counting
+// as errors. The page text stays on screen for the student to read; only the scoring target changes.
+// Each key word is aligned once to a page word, so the right word on the page turns green/red. Where the
+// teacher's reading differs from the print (e.g. he reads בערבי שבתות where the page has בערב שבת), his wins;
+// page words he did not read are not graded. Page words outside the stretch he recorded are graded against
+// the printed text, as before.
+// Key file format (JSON): {format:"vds-teacher-key",version:1,daf,createdAt,source,listener,transcript,
+//   words:[{t:<key word as the listener spelled it>, page:<data-word-id>, pageWord, kind:"same"|"differs"|"extra", also?:[ids]}],
+//   skippedPageIds:[…]}.  Hooks: window.VDSReading.applyTeacherKey(json) / buildTeacherKey(text) / loadTeacherTranscript(text).
+const READING_KEY_DAF="Pesachim 99b",READING_KEY_STORAGE="vds-teacher-key:pesachim-99b",READING_KEY_BUILTIN="teacher-key-99b.json?build=teacher-key-1";
+const readingAnswerKey={source:"page",key:null,label:"the words printed on this page",byAnchor:null,spanStart:-1,spanEnd:-1,origin:null,builtin:null};
+const stripNikkud=value=>String(value||"").replace(/[\u0591-\u05c7]/gu,"");
+function pageGemaraWords(){return[...$("dafPage").querySelectorAll('.word-token[data-stream="gemara"]')].filter(word=>normalizeReadWord(word.textContent));}
+// Same split/filter as readingWords(), but keeps the listener's own spelling (final letters) for display and hints.
+function rawReadingTokens(value){return String(value||"").split(/\s+/u).filter(token=>normalizeReadWord(token)).map(token=>stripNikkud(token).replace(/[^\u05d0-\u05ea]/gu,""));}
+// Like alignReadingWords, but the teacher may start and stop anywhere on the page (free page skips at both ends).
+// Placing a key word on its page word: a graded cost (closer spellings pull together), unlike student scoring.
+function keyPageMatch(page,key){const base=readingMatch(page,key);if(base.kind==="correct")return base;const a=readingLooseKey(page),b=readingLooseKey(key);return{kind:"review",cost:.3+.7*Math.min(1,editDistance(a,b)/Math.max(a.length,b.length,1))};}
+function alignKeyToPage(page,key,{freeLead=true,extraCost=.9}={}){
+  const n=page.length,m=key.length,dp=Array.from({length:n+1},()=>new Float64Array(m+1)),back=Array.from({length:n+1},()=>Array(m+1).fill(null));
+  for(let i=1;i<=n;i++){dp[i][0]=freeLead?0:i*.9;back[i][0]=freeLead?"lead":"missed";}for(let j=1;j<=m;j++){dp[0][j]=j*extraCost;back[0][j]="extra";}
+  for(let i=1;i<=n;i++)for(let j=1;j<=m;j++){const match=keyPageMatch(page[i-1],key[j-1]),choices=[{cost:dp[i-1][j-1]+match.cost,op:match.kind},{cost:dp[i-1][j]+.9,op:"missed"},{cost:dp[i][j-1]+extraCost,op:"extra"}].sort((a,b)=>a.cost-b.cost);dp[i][j]=choices[0].cost;back[i][j]=choices[0].op;}
+  let end=0;for(let i=1;i<=n;i++)if(dp[i][m]<dp[end][m]-.0001)end=i;
+  const ops=[];let i=end,j=m;while(j>0||(i>0&&back[i][j]!=="lead")){if(i===0){ops.push({op:"extra",k:j-1});j--;continue;}const op=back[i][j];if(op==="lead")break;if(op==="correct"||op==="review"){ops.push({op,p:i-1,k:j-1});i--;j--;}else if(op==="missed"){ops.push({op,p:i-1});i--;}else{ops.push({op:"extra",k:j-1});j--;}}
+  return ops.reverse();
+}
+function buildTeacherKey(transcript,{source="teacher recording",createdAt=new Date().toISOString(),listener=null}={}){
+  const words=pageGemaraWords(),ids=words.map(word=>word.dataset.wordId),page=words.map(word=>normalizeReadWord(word.textContent)),raw=rawReadingTokens(transcript),norm=raw.map(normalizeReadWord);
+  const key={format:"vds-teacher-key",version:1,daf:READING_KEY_DAF,createdAt,source,listener:listener||whisperListenerSettings(),transcript:String(transcript||"").trim(),words:[],skippedPageIds:[]};
+  if(!norm.length)return key;
+  const ops=alignKeyToPage(page,norm),skipped=[];let last=null;
+  // Words the listener garbled at the very end of the recording would otherwise all pile onto the last page word
+  // he was matched to; line them up with the page words that follow instead (ordinary alignment, free stop).
+  const lastMatch=ops.reduce((at,item,i)=>item.op==="correct"?i:at,-1);
+  if(lastMatch>=0&&lastMatch<ops.length-1&&ops.slice(lastMatch+1).some(item=>item.op==="extra")){
+    const tail=ops.slice(lastMatch+1).filter(item=>item.k!=null),p0=ops[lastMatch].p+1;
+    if(p0<page.length){const sub=alignKeyToPage(page.slice(p0),tail.map(item=>norm[item.k]),{freeLead:false,extraCost:1.5}).map(item=>({op:item.op,p:item.p==null?undefined:p0+item.p,k:item.k==null?undefined:tail[item.k].k}));ops.splice(lastMatch+1,ops.length-lastMatch-1,...sub);}
+  }
+  for(const item of ops){
+    if(item.op==="correct"||item.op==="review"){key.words.push({t:raw[item.k],page:ids[item.p],pageWord:stripNikkud(words[item.p].textContent),kind:item.op==="correct"?"same":"differs"});last=item.p;}
+    else if(item.op==="extra")key.words.push({t:raw[item.k],page:last==null?null:ids[last],kind:"extra",_p:last});
+    else skipped.push(item.p);
+  }
+  const firstAnchor=key.words.find(entry=>entry.page)?.page||null;for(const entry of key.words){if(!entry.page)entry.page=firstAnchor;delete entry._p;}
+  // A page word the key has no word for: if the listener ran it together with a neighbour (הני מילי → "הנימילי"),
+  // the neighbour's key word covers both page words; otherwise the teacher did not read it and it is not graded.
+  const anchorEntry=id=>key.words.find(entry=>entry.page===id&&entry.kind!=="extra");
+  for(const p of skipped){
+    let merged=false;
+    for(const [q,joined] of [[p-1,page[p-1]+page[p]],[p+1,page[p]+page[p+1]]]){const entry=q>=0&&q<ids.length?anchorEntry(ids[q]):null;if(!entry)continue;const a=readingLooseKey(normalizeReadWord(entry.t)),b=readingLooseKey(joined);if(editDistance(a,b)<=Math.max(1,Math.floor(b.length/5))){(entry.also||(entry.also=[])).push(ids[p]);merged=true;break;}}
+    if(!merged)key.skippedPageIds.push(ids[p]);
+  }
+  return key;
+}
+// A second pass over the teacher's reading (another recording, or the same file again) adds the listener's other
+// spellings of the same words as alternatives (alt), so its run-to-run wobble on his voice is not held against the student.
+function mergeTeacherKeys(base,extra){
+  const merged=JSON.parse(JSON.stringify(base)),byPage=new Map();for(const entry of merged.words)if(entry.kind!=="extra"&&!byPage.has(entry.page))byPage.set(entry.page,entry);
+  let added=0;for(const entry of extra.words){if(entry.kind==="extra")continue;const target=byPage.get(entry.page);if(!target)continue;const known=[target.t,...(target.alt||[])].map(normalizeReadWord);if(!known.includes(normalizeReadWord(entry.t))){(target.alt||(target.alt=[])).push(entry.t);added++;}}
+  merged.passes=[...(base.passes||[{createdAt:base.createdAt,source:base.source,transcript:base.transcript}]),{createdAt:extra.createdAt,source:extra.source,transcript:extra.transcript}];merged.createdAt=extra.createdAt;
+  return{key:merged,added};
+}
+function applyTeacherKey(key,{label=null,origin="loaded"}={}){
+  if(!key||key.format!=="vds-teacher-key"||!Array.isArray(key.words))throw new Error("That file is not a teacher answer key.");
+  const words=pageGemaraWords(),index=new Map(words.map((word,i)=>[word.dataset.wordId,i]));
+  const missing=key.words.filter(entry=>!index.has(entry.page)).length;
+  if(key.words.length&&missing>key.words.length*.1&&key.transcript)key={...buildTeacherKey(key.transcript,{source:key.source,createdAt:key.createdAt,listener:key.listener}),realignedFrom:key.createdAt};
+  const byAnchor=new Map();let spanStart=Infinity,spanEnd=-1;
+  for(const entry of key.words){if(!index.has(entry.page))continue;const ids=[entry.page,...(entry.also||[]).filter(id=>index.has(id))];if(!byAnchor.has(entry.page))byAnchor.set(entry.page,[]);byAnchor.get(entry.page).push({w:[entry.t,...(entry.alt||[])].map(normalizeReadWord).filter((v,i,a)=>v&&a.indexOf(v)===i).join("|"),raw:entry.t,ids,kind:entry.kind});for(const id of ids){spanStart=Math.min(spanStart,index.get(id));spanEnd=Math.max(spanEnd,index.get(id));}}
+  Object.assign(readingAnswerKey,{source:byAnchor.size?"teacher":"page",key,byAnchor,spanStart,spanEnd,origin,label:label||key.source||"teacher recording"});
+  updateAnswerKeyNote();return readingKeySummary(key);
+}
+function readingKeySummary(key){const k=key||readingAnswerKey.key;if(!k)return null;return{words:k.words.length,same:k.words.filter(e=>e.kind==="same").length,differs:k.words.filter(e=>e.kind==="differs").length,extra:k.words.filter(e=>e.kind==="extra").length,skipped:k.skippedPageIds.length};}
+function updateAnswerKeyNote(){
+  const note=$("readingKeySource"),mode=$("readingKeyMode"),k=readingAnswerKey.key;
+  if(mode){mode.querySelector('option[value="teacher"]').disabled=!k;mode.value=readingAnswerKey.source;}
+  if($("teacherDownload"))$("teacherDownload").disabled=!k;
+  if(!note)return;
+  if(readingAnswerKey.source!=="teacher"){note.textContent=k?"Answer key: the words printed on this page (the teacher key is loaded but switched off).":"Answer key: the words printed on this page.";return;}
+  const s=readingKeySummary(),when=k.createdAt?new Date(k.createdAt).toLocaleDateString():"";
+  note.textContent=`Answer key: ${readingAnswerKey.label}${when&&!/\d{4}/.test(readingAnswerKey.label)?` (${when})`:""}: ${s.words} words as the listener heard the teacher. Students are graded against his reading, not the printed text. Page words outside his recorded stretch use the printed text.`;
+}
+function setAnswerKeyMode(mode){readingAnswerKey.source=mode==="teacher"&&readingAnswerKey.key?"teacher":"page";updateAnswerKeyNote();if(readingState.targets?.length&&!readingState.active&&readingState.startId){const start=document.querySelector(`[data-word-id="${CSS.escape(readingState.startId)}"]`);if(start){readingState.targets=buildReadingTargets(start);readingState.targetIds=readingState.targets.map(t=>t.ids[0]);if(readingState.finalTranscript)showReadingResult(readingState.finalTranscript,{final:true});}}}
+// The scoring targets from the starting word on: teacher-key words inside the stretch he recorded, page words outside it.
+function buildReadingTargets(start,{forcePage=false}={}){
+  const words=pageGemaraWords();let at=words.indexOf(start);if(at<0)at=0;const acceptPrint=Boolean($("readingAcceptPrint")?.checked)||new URLSearchParams(location.search).get("print")==="accept";const K=!forcePage&&readingAnswerKey.source==="teacher"?readingAnswerKey:null,targets=[];
+  for(let i=at;i<words.length;i++){const id=words[i].dataset.wordId;
+    if(K&&i>=K.spanStart&&i<=K.spanEnd){const list=K.byAnchor.get(id);if(list)for(const entry of list){const t={...entry,ids:[...entry.ids]};
+      // Optional (off by default): also accept the printed word, for a student whose accent the listener hears differently from the teacher's.
+      if(acceptPrint&&entry.kind!=="extra"){const alts=new Set(t.w.split("|"));for(const pid of t.ids)alts.add(normalizeReadWord(document.querySelector(`[data-word-id="${CSS.escape(pid)}"]`)?.textContent));t.w=[...alts].filter(Boolean).join("|");}
+      targets.push(t);}}
+    else targets.push({w:normalizeReadWord(words[i].textContent),raw:stripNikkud(words[i].textContent),ids:[id],kind:"page"});}
+  return targets;
+}
+function saveTeacherKeyLocally(key){try{localStorage.setItem(READING_KEY_STORAGE,JSON.stringify(key));return true;}catch{return false;}}
+function downloadTeacherKey(){const k=readingAnswerKey.key;if(!k)return;const blob=new Blob([JSON.stringify(k,null,1)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`teacher-key-pesachim-99b-${(k.createdAt||"").slice(0,10)||"key"}.json`;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000);}
+function setTeacherStatus(text,error=false){const el=$("teacherKeyStatus");if(el){el.textContent=text;el.classList.toggle("error",error);}}
+// Old hook kept: a typed transcript becomes a key the same way a recording's transcript does.
+function loadTeacherTranscript(text,{label="teacher transcript"}={}){const key=buildTeacherKey(text,{source:label,listener:{model:"typed transcript"}});const summary=applyTeacherKey(key,{label,origin:"typed"});return{matched:summary.words-summary.extra,pageWords:pageGemaraWords().length,teacherWords:summary.words};}
+window.VDSReading={loadTeacherTranscript,buildTeacherKey,applyTeacherKey,mergeTeacherKeys,setAnswerKeyMode,get answerKey(){return readingAnswerKey;},get teacherKey(){return readingAnswerKey.key;}};
+(async()=>{
+  for(let tries=0;tries<100&&!pageGemaraWords().length;tries++)await new Promise(r=>setTimeout(r,100));
+  const params=new URLSearchParams(location.search);
+  try{const response=await fetch(READING_KEY_BUILTIN,{cache:"no-cache"});if(response.ok)readingAnswerKey.builtin=await response.json();}catch{}
+  let saved=null;try{saved=JSON.parse(localStorage.getItem(READING_KEY_STORAGE)||"null");}catch{}
+  try{
+    if(params.get("transcript")){const text=await(await fetch(params.get("transcript"))).text();loadTeacherTranscript(text,{label:"teacher transcript"});}
+    else if(saved&&params.get("key")!=="builtin")applyTeacherKey(saved,{label:`your saved teacher key (${saved.source||"recording"})`,origin:"saved"});
+    else if(readingAnswerKey.builtin)applyTeacherKey(readingAnswerKey.builtin,{label:readingAnswerKey.builtin.source||"the rebbe's recording",origin:"builtin"});
+  }catch(error){setTeacherStatus(`Could not load the teacher key: ${error.message}`,true);}
+  if(params.get("key")==="page")setAnswerKeyMode("page");else updateAnswerKeyNote();
+})();
+
+function whisperListenerSettings(){const params=new URLSearchParams(location.search);return{model:"ivrit-ai/whisper-large-v3-turbo-onnx",runtime:"transformers.js 4.3.1",hint:params.get("hint")||"prev",chunking:"cut at pauses, 5–12 s, merged up to 28 s when behind",device:whisperListener?.info?.label||null};}
+
+// The hint given to Whisper for a chunk (?hint=prev default: the printed words for the ~24 targets just BEFORE the
+// first word not yet graded). "next": the words expected IN
+// this stretch (in testing it sometimes made the model skip words). "off": no hint.
+function whisperPromptFor({audioSeconds}){
+  const mode=new URLSearchParams(location.search).get("hint")||"prev";if(mode==="off")return"";
+  const alignment=readingState.lastAlignment,consumed=alignment?alignment.operations.reduce((max,item)=>item.targetIndex==null?max:Math.max(max,item.targetIndex+1),0):0;
+  const count=Math.min(70,Math.max(14,Math.round(audioSeconds*2.6)+8));
+  const from=mode==="next"?consumed:Math.max(0,consumed-24),to=mode==="next"?consumed+count:consumed;
+  // The hint is always the PRINTED words (nikkud stripped) for that stretch — the same hint the teacher's own pass got —
+  // so teacher and student are heard under the same conditions (feeding back the key's own misspellings made the listener drift).
+  const ids=[];for(const t of(readingState.targets||[]).slice(from,to))for(const id of t.ids)if(!ids.includes(id))ids.push(id);
+  return ids.map(id=>stripNikkud(document.querySelector(`[data-word-id="${CSS.escape(id)}"]`)?.textContent||"")).join(" ");
+}
+let whisperListener=null;
+function whisperModelPanel(){return $("modelProgress");}
+function getWhisperListener(){
+  if(whisperListener)return whisperListener;
+  whisperListener=new WhisperListener({
+    onPlan:plan=>{const panel=whisperModelPanel();panel.hidden=false;$("modelDevice").textContent=`Runs on this computer: ${plan.label}${plan.threads?`, ${plan.threads} thread${plan.threads===1?"":"s"}`:""}.`;$("modelProgressLabel").textContent=plan.cached?"Loading the Hebrew model from this computer…":`Downloading the Hebrew model (${Math.round(plan.bytes/1e6)} MB, one time only)…`;},
+    onProgress:p=>{const mb=x=>Math.round(x/1e6);$("modelProgressBar").value=p.progress||0;$("modelProgressLabel").textContent=`${whisperListener.info.cached?"Loading":"Downloading"} the Hebrew model (${mb(p.total)} MB)… ${mb(p.loaded)} MB${whisperListener.info.cached?"":" — one time only; it stays cached in this browser"}`;},
+    onReady:r=>{$("modelProgressBar").value=100;$("modelProgressLabel").textContent=`Hebrew model ready (${r.label}, loaded in ${r.loadSeconds.toFixed(0)} s).`;},
+    onQueue:s=>{readingState.whisperQueue=s;updateWhisperQueueStatus();},
+    onText:result=>{readingState.whisperLog.push(result);readingState.finalTranscript=`${readingState.finalTranscript} ${result.text}`.trim();showReadingResult(readingState.finalTranscript);updateWhisperQueueStatus();},
+    onError:error=>setReadingStatus(`The listener had a problem with one piece of audio: ${error.message}`,true)
+  });
+  window.VDSReading.listener=whisperListener;return whisperListener;
+}
+function updateWhisperQueueStatus(){
+  const s=readingState.whisperQueue;if(!s)return;const last=s.timings.at(-1);
+  $("modelTiming").textContent=`Graded ${s.done} of ${s.total} chunk${s.total===1?"":"s"}${s.waiting?` · ${s.waiting} waiting`:""}${last?` · last ${last.merged>1?`${last.merged} chunks together`:"chunk"}: ${last.audioSeconds.toFixed(1)} s of reading took ${last.seconds.toFixed(1)} s`:""}`;
+  if(readingState.active&&readingState.stopping&&s.waiting)setReadingStatus(`Finishing… ${s.waiting} chunk${s.waiting===1?"":"s"} left to grade.`);
+  else if(readingState.active&&!readingState.stopping)setReadingStatus(s.waiting>1?`Listening… grading is ${s.waiting} chunks behind; it will catch up when you stop.`:"Listening… keep reading. Grades appear about two lines behind you.");
+}
+async function startWhisperReading({file=null,teacher=false}={}){
+  const start=selectedGemaraWord()||(teacher?pageGemaraWords()[0]:null);if(!start||!window.WhisperListener){updateReadingControls();return;}
+  resetReadingSession({keepSelection:true});const gemaraWords=[...$("dafPage").querySelectorAll('.word-token[data-stream="gemara"]')],at=gemaraWords.indexOf(start);
+  readingState.startId=start.dataset.wordId;readingState.targets=buildReadingTargets(start,{forcePage:teacher});readingState.targetIds=readingState.targets.map(t=>t.ids[0]);readingState.teacherRun=teacher;readingState.active=true;readingState.stopping=false;readingState.whisperLog=[];readingState.whisperQueue=null;
+  setInteractionMode("navigate",{focus:false});setAnnotating(false);if(state.selecting)beginExcerpt();updateReadingControls();
+  const listener=getWhisperListener();
+  try{
+    setReadingStatus("Preparing the Hebrew listener…");await listener.ensureModel({device:new URLSearchParams(location.search).get("device")||undefined});
+    if(!readingState.active)return;
+    readingState.whisperSession=listener;
+    setReadingStatus(file?"Grading the recording as it plays…":"Requesting microphone access…");
+    await listener.start({getPrompt:whisperPromptFor,file});
+    clearReadingMarks();start.classList.add("reading-current");
+    setReadingStatus(file?"Playing the recording… grades appear about two lines behind it.":"Listening… read from the highlighted Gemara word. Grades appear about two lines behind you.");
+    if(file)listener.fileEnded.then(()=>{if(readingState.whisperSession===listener&&!readingState.stopping)finishWhisperReading();});
+  }catch(error){readingState.active=false;readingState.whisperSession=null;const denied=/denied|NotAllowed/i.test(String(error?.name)+String(error?.message));setReadingStatus(denied?"Microphone permission was denied. Allow microphone access and try again.":`Could not start the Hebrew listener: ${error.message}`,true);updateReadingControls();}
+}
+async function finishWhisperReading(){
+  const listener=readingState.whisperSession;if(!listener||readingState.stopping)return;readingState.stopping=true;
+  setReadingStatus("Finishing… grading what is left.");updateReadingControls();
+  await listener.stop();if(readingState.whisperSession!==listener)return;
+  readingState.whisperSession=null;readingState.active=false;readingState.stopping=false;
+  showReadingResult(readingState.finalTranscript,{final:true});if(!readingState.finalTranscript)setReadingStatus("No speech was heard. Check the microphone and try again.",true);
+  if(readingState.teacherRun)finishTeacherKey();updateReadingControls();
+}
+// Teacher flow: the teacher's reading goes through exactly the student pipeline (same model, chunking, hint mode),
+// then its transcript becomes the answer key, saved in this browser and offered as a .json download.
+function startTeacherKey({file=null}={}){if(readingState.active)return;setTeacherStatus(file?"Transcribing your recording with the same listener the students get… (it plays through once)":"Recording you… read from the highlighted word (or the first Gemara word), then press Stop & save key.");startWhisperReading({file,teacher:true});}
+function finishTeacherKey(){
+  readingState.teacherRun=false;const transcript=readingState.finalTranscript;
+  if(!transcript){setTeacherStatus("No speech was heard, so no key was saved.",true);return;}
+  let key=buildTeacherKey(transcript,{source:"teacher recording"}),added=null;window.VDSReading.lastPass=key;
+  if($("teacherMerge")?.checked&&readingAnswerKey.key){const result=mergeTeacherKeys(readingAnswerKey.key,key);key=result.key;added=result.added;}
+  const summary=applyTeacherKey(key,{label:added==null?"your teacher key (just recorded)":"your teacher key (merged passes)",origin:"recorded"}),stored=saveTeacherKeyLocally(key);
+  window.VDSReading.lastKey=key;
+  setTeacherStatus(added!=null?`Pass added to the key${stored?" and saved in this browser":""}: ${added} new listener spellings of your words (${(key.passes||[]).length} passes). Download it to keep it.`:`Saved as the answer key${stored?" in this browser":" (could not save in this browser — download it)"}: ${summary.words} words; ${summary.same} match the print, ${summary.differs} spelled differently by the listener, ${summary.extra} extra, ${summary.skipped} page words not read. Download it to keep it or share it.`);
+}
+
 
 function cloneAnnotations(value=state.annotations){return JSON.parse(JSON.stringify(value));}
 function syncAnnotationCanvas(){const canvas=$("annotationCanvas"),page=$("dafPage"),dpr=devicePixelRatio||1,w=page.clientWidth,h=page.clientHeight;if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);canvas.style.width=`${w}px`;canvas.style.height=`${h}px`;}const ctx=canvas.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);for(const stroke of state.annotations)drawStroke(ctx,stroke);updateAnnotationButtons();}
@@ -568,7 +779,13 @@ $("dafPage").addEventListener("click",e=>{const icon=e.target.closest(".phrase-v
 $("navigateMode").addEventListener("click",()=>setInteractionMode("navigate"));$("editMode").addEventListener("click",()=>setInteractionMode("edit"));$("wordNavigation").addEventListener("click",()=>setNavigationUnit("word"));$("phraseNavigation").addEventListener("click",()=>setNavigationUnit("phrase"));$("notesToggle").addEventListener("click",()=>toggleNotes());$("closeNoteWindow").addEventListener("click",()=>toggleNotes(false));$("nekudosToggle").addEventListener("click",()=>toggleNekudos());$("lineNumbersToggle").addEventListener("click",()=>toggleLineNumbers());
 $("pageZoomSmaller").addEventListener("click",()=>changePageZoom(-PAGE_ZOOM_STEP));$("pageZoomLarger").addEventListener("click",()=>changePageZoom(PAGE_ZOOM_STEP));
 $("whiteoutSelection").addEventListener("click",()=>setSelectionWhiteout(true));$("restoreSelection").addEventListener("click",()=>setSelectionWhiteout(false));$("clearWhiteouts").addEventListener("click",clearWordWhiteouts);document.addEventListener("selectionchange",()=>requestAnimationFrame(rememberEditSelection));
-$("startReading").addEventListener("click",startReading);$("stopReading").addEventListener("click",finishReading);$("resetReading").addEventListener("click",()=>resetReadingSession({keepSelection:true}));
+$("startReading").addEventListener("click",startReading);
+$("teacherRecord")?.addEventListener("click",()=>startTeacherKey());$("teacherStop")?.addEventListener("click",()=>finishWhisperReading());
+$("teacherFile")?.addEventListener("change",e=>{const file=e.target.files?.[0];e.target.value="";if(file)startTeacherKey({file});});
+$("teacherDownload")?.addEventListener("click",downloadTeacherKey);
+$("teacherKeyFile")?.addEventListener("change",async e=>{const file=e.target.files?.[0];e.target.value="";if(!file)return;try{const key=JSON.parse(await file.text()),summary=applyTeacherKey(key,{label:`teacher key file (${file.name})`,origin:"file"});saveTeacherKeyLocally(readingAnswerKey.key);setTeacherStatus(`Loaded ${file.name}: ${summary.words} words. Saved in this browser.`);}catch(error){setTeacherStatus(`Could not load that key: ${error.message}`,true);}});
+$("teacherReset")?.addEventListener("click",()=>{try{localStorage.removeItem(READING_KEY_STORAGE);}catch{}if(readingAnswerKey.builtin){applyTeacherKey(readingAnswerKey.builtin,{label:readingAnswerKey.builtin.source||"the rebbe's recording",origin:"builtin"});setTeacherStatus("Back to the built-in key.");}else{Object.assign(readingAnswerKey,{source:"page",key:null,byAnchor:null});updateAnswerKeyNote();setTeacherStatus("Saved key removed; grading against the printed page.");}});
+$("readingKeyMode")?.addEventListener("change",e=>setAnswerKeyMode(e.target.value));$("readingAcceptPrint")?.addEventListener("change",()=>setAnswerKeyMode(readingAnswerKey.source));$("readingFile").addEventListener("change",e=>{const file=e.target.files?.[0];e.target.value="";if(file)startWhisperReading({file});});$("readingListener").addEventListener("change",()=>updateReadingControls());$("stopReading").addEventListener("click",finishReading);$("resetReading").addEventListener("click",()=>resetReadingSession({keepSelection:true}));
 $("dafPage").addEventListener("click",e=>{if(state.mode!=="navigate"||state.selecting||state.annotating)return;const word=e.target.closest(".word-token");if(word)selectWord(word);});document.addEventListener("keydown",e=>{if(state.mode!=="navigate"||!state.selectedWordId||e.altKey||e.ctrlKey||e.metaKey||["INPUT","TEXTAREA","SELECT"].includes(e.target.tagName))return;if(e.key==="ArrowLeft"){e.preventDefault();moveSelectedUnit(1);}else if(e.key==="ArrowRight"){e.preventDefault();moveSelectedUnit(-1);}});
 $("annotationToggle").addEventListener("click",()=>setAnnotating(!state.annotating));document.querySelectorAll(".annotation-tool").forEach(button=>button.addEventListener("click",()=>selectAnnotationTool(button.dataset.tool)));$("annotationColor").addEventListener("input",e=>state.annotationColor=e.target.value);$("strokeWidth").addEventListener("input",e=>{state.strokeWidth=Number(e.target.value);$("strokeWidthValue").textContent=e.target.value;});$("annotationUndo").addEventListener("click",undoAnnotations);$("annotationRedo").addEventListener("click",redoAnnotations);$("clearAnnotations").addEventListener("click",clearAnnotations);
 $("saveProject").addEventListener("click",saveProject);$("openProject").addEventListener("click",()=>$("projectFile").click());$("projectFile").addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file)return;try{await openProjectFile(file);}catch(error){$("projectStatus").textContent=`Could not open project: ${error.message}.`;}finally{e.target.value="";}});
