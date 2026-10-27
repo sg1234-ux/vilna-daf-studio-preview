@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Vilna Daf Studio — Build 60 Draft</title>
-  <link rel="stylesheet" href="launcher.css?build=60.0">
+  <link rel="stylesheet" href="launcher.css?build=62.69">
 </head>
 <body>
   <header class="launcher-bar">
@@ -17,14 +17,16 @@
     </div>
 
     <div class="page-picker">
-      <label for="amudSelect">Amud</label>
-      <select id="amudSelect">
-        <option value="agent-builder">Build a new amud — Agent</option>
-        <option value="pesachim-99b">פסחים צט ע״ב — Pesachim 99b (Build 44.1)</option>
-        <option value="pesachim-100a">פסחים ק ע״א — Pesachim 100a</option>
-        <option value="bava-metzia-22a">בבא מציעא כב ע״א — Bava Metzia 22a</option>
-        <option value="bava-metzia-21a">בבא מציעא כא ע״א — Bava Metzia 21a (Build 51.1)</option>
-      </select>
+      <label class="tractate-picker">Berachos
+        <select id="berachosSelect" aria-label="Berachos page"><option value="">Choose amud</option></select>
+      </label>
+      <label class="tractate-picker">Pesachim
+        <select id="pesachimSelect" aria-label="Pesachim page"><option value="">Choose amud</option></select>
+      </label>
+      <label class="tractate-picker">Bava Metzia
+        <select id="bavaMetziaSelect" aria-label="Bava Metzia page"><option value="">Choose amud</option></select>
+      </label>
+      <button id="newAmud" type="button">New amud</button>
       <button id="openDirect" type="button">Open full page</button>
     </div>
   </header>
@@ -37,6 +39,6 @@
     ></iframe>
   </main>
 
-  <script src="launcher.js?build=60.21"></script>
+  <script src="launcher.js?build=62.69"></script>
 </body>
 </html>
