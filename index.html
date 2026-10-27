@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Vilna Daf Studio — Build 60 Draft</title>
-  <link rel="stylesheet" href="launcher.css?build=62.70">
+  <link rel="stylesheet" href="launcher.css?build=62.72">
 </head>
 <body>
   <header class="launcher-bar">
@@ -22,15 +22,13 @@
         <span>Choose amud ▾</span>
       </button>
       <div class="page-picker" id="pageMenu" hidden>
-      <label class="tractate-picker">Berachos
-        <select id="berachosSelect" aria-label="Berachos page"><option value="">Choose amud</option></select>
+      <label class="tractate-picker">Masechta
+        <select id="tractateSelect" aria-label="Masechta"></select>
       </label>
-      <label class="tractate-picker">Pesachim
-        <select id="pesachimSelect" aria-label="Pesachim page"><option value="">Choose amud</option></select>
+      <label class="tractate-picker">Daf / amud
+        <select id="amudSelect" aria-label="Daf and amud"></select>
       </label>
-      <label class="tractate-picker">Bava Metzia
-        <select id="bavaMetziaSelect" aria-label="Bava Metzia page"><option value="">Choose amud</option></select>
-      </label>
+      <p class="page-menu-note">All Shas Bavli pages. Only some pages have prepared scan instructions; other selections open the builder.</p>
       <button id="newAmud" type="button">New amud</button>
       <button id="openDirect" type="button">Open full page</button>
       </div>
@@ -45,6 +43,6 @@
     ></iframe>
   </main>
 
-  <script src="launcher.js?build=62.70"></script>
+  <script src="launcher.js?build=62.72"></script>
 </body>
 </html>

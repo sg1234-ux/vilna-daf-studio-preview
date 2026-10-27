@@ -17,97 +17,68 @@ const PAGES = {
   }
 };
 
-function approvedPages() {
-  try { return JSON.parse(localStorage.getItem(APPROVED_KEY) || "[]"); }
-  catch { return []; }
+PAGES["pesachim-100b"]={path:"draft-engine/index.html?ref=Pesachim%20100b&build=62.68",title:"Pesachim 100b"};
+// Bavli daf boundaries from https://www.sefaria.org/api/shape/Talmud (2026-10-27).
+const TRACTATES=[{"title":"Berakhot","label":"Berachos","heTitle":"ברכות","start":2,"end":126,"seder":"Seder Zeraim"},{"title":"Shabbat","label":"Shabbos","heTitle":"שבת","start":2,"end":313,"seder":"Seder Moed"},{"title":"Eruvin","label":"Eruvin","heTitle":"עירובין","start":2,"end":208,"seder":"Seder Moed"},{"title":"Pesachim","label":"Pesachim","heTitle":"פסחים","start":2,"end":241,"seder":"Seder Moed"},{"title":"Rosh Hashanah","label":"Rosh Hashanah","heTitle":"ראש השנה","start":2,"end":68,"seder":"Seder Moed"},{"title":"Yoma","label":"Yoma","heTitle":"יומא","start":2,"end":174,"seder":"Seder Moed"},{"title":"Sukkah","label":"Sukkah","heTitle":"סוכה","start":2,"end":111,"seder":"Seder Moed"},{"title":"Beitzah","label":"Beitzah","heTitle":"ביצה","start":2,"end":79,"seder":"Seder Moed"},{"title":"Taanit","label":"Taanit","heTitle":"תענית","start":2,"end":60,"seder":"Seder Moed"},{"title":"Megillah","label":"Megillah","heTitle":"מגילה","start":2,"end":62,"seder":"Seder Moed"},{"title":"Moed Katan","label":"Moed Katan","heTitle":"מועד קטן","start":2,"end":56,"seder":"Seder Moed"},{"title":"Chagigah","label":"Chagigah","heTitle":"חגיגה","start":2,"end":52,"seder":"Seder Moed"},{"title":"Yevamot","label":"Yevamot","heTitle":"יבמות","start":2,"end":243,"seder":"Seder Nashim"},{"title":"Ketubot","label":"Ketubot","heTitle":"כתובות","start":2,"end":223,"seder":"Seder Nashim"},{"title":"Nedarim","label":"Nedarim","heTitle":"נדרים","start":2,"end":181,"seder":"Seder Nashim"},{"title":"Nazir","label":"Nazir","heTitle":"נזיר","start":2,"end":131,"seder":"Seder Nashim"},{"title":"Sotah","label":"Sotah","heTitle":"סוטה","start":2,"end":97,"seder":"Seder Nashim"},{"title":"Gittin","label":"Gittin","heTitle":"גיטין","start":2,"end":179,"seder":"Seder Nashim"},{"title":"Kiddushin","label":"Kiddushin","heTitle":"קידושין","start":2,"end":163,"seder":"Seder Nashim"},{"title":"Bava Kamma","label":"Bava Kamma","heTitle":"בבא קמא","start":2,"end":237,"seder":"Seder Nezikin"},{"title":"Bava Metzia","label":"Bava Metzia","heTitle":"בבא מציעא","start":2,"end":236,"seder":"Seder Nezikin"},{"title":"Bava Batra","label":"Bava Batra","heTitle":"בבא בתרא","start":2,"end":351,"seder":"Seder Nezikin"},{"title":"Sanhedrin","label":"Sanhedrin","heTitle":"סנהדרין","start":2,"end":225,"seder":"Seder Nezikin"},{"title":"Makkot","label":"Makkot","heTitle":"מכות","start":2,"end":47,"seder":"Seder Nezikin"},{"title":"Shevuot","label":"Shevuot","heTitle":"שבועות","start":2,"end":97,"seder":"Seder Nezikin"},{"title":"Avodah Zarah","label":"Avodah Zarah","heTitle":"עבודה זרה","start":2,"end":151,"seder":"Seder Nezikin"},{"title":"Horayot","label":"Horayot","heTitle":"הוריות","start":2,"end":26,"seder":"Seder Nezikin"},{"title":"Zevachim","label":"Zevachim","heTitle":"זבחים","start":2,"end":239,"seder":"Seder Kodashim"},{"title":"Menachot","label":"Menachot","heTitle":"מנחות","start":2,"end":218,"seder":"Seder Kodashim"},{"title":"Chullin","label":"Chullin","heTitle":"חולין","start":2,"end":282,"seder":"Seder Kodashim"},{"title":"Bekhorot","label":"Bekhorot","heTitle":"בכורות","start":2,"end":120,"seder":"Seder Kodashim"},{"title":"Arakhin","label":"Arakhin","heTitle":"ערכין","start":2,"end":66,"seder":"Seder Kodashim"},{"title":"Temurah","label":"Temurah","heTitle":"תמורה","start":2,"end":66,"seder":"Seder Kodashim"},{"title":"Keritot","label":"Keritot","heTitle":"כריתות","start":2,"end":55,"seder":"Seder Kodashim"},{"title":"Meilah","label":"Meilah","heTitle":"מעילה","start":2,"end":42,"seder":"Seder Kodashim"},{"title":"Tamid","label":"Tamid","heTitle":"תמיד","start":49,"end":65,"seder":"Seder Kodashim"},{"title":"Niddah","label":"Niddah","heTitle":"נדה","start":2,"end":144,"seder":"Seder Tahorot"}];
+
+const tractateSelect=document.getElementById("tractateSelect"),select=document.getElementById("amudSelect"),frame=document.getElementById("studioFrame"),menuToggle=document.getElementById("pageMenuToggle"),pageMenu=document.getElementById("pageMenu");
+let currentKey="agent-builder";
+const slug=title=>title.toLowerCase().replaceAll(" ","-");
+function approvedPages(){try{const pages=JSON.parse(localStorage.getItem(APPROVED_KEY)||"[]");return Array.isArray(pages)?pages:[];}catch{return [];}}
+for(const book of TRACTATES){
+ book.slug=slug(book.title);
+ let group=[...tractateSelect.children].find(g=>g.label===book.seder);
+ if(!group){group=document.createElement("optgroup");group.label=book.seder;tractateSelect.append(group);}
+ const option=document.createElement("option");option.value=book.slug;option.textContent=book.label;group.append(option);
+ for(let i=book.start;i<=book.end;i++){
+  const amud=`${Math.floor(i/2)+1}${i%2?"b":"a"}`,key=book.slug+"-"+amud,ref=book.title+" "+amud;
+  if(!PAGES[key])PAGES[key]={path:`agent-builder/index.html?ref=${encodeURIComponent(ref)}&ui=62.72`,title:ref};
+  Object.assign(PAGES[key],{tractate:book.slug,amud});
+ }
 }
-
-const pickers = [
-  {id:"berachosSelect",tractate:"Berakhot",label:"Berachos",slug:"berakhot",start:26,end:30},
-  {id:"pesachimSelect",tractate:"Pesachim",label:"Pesachim",slug:"pesachim",start:99,end:121},
-  {id:"bavaMetziaSelect",tractate:"Bava Metzia",label:"Bava Metzia",slug:"bava-metzia",start:21,end:33}
-];
-let currentKey = "agent-builder";
-for (const picker of pickers) {
-  picker.select = document.getElementById(picker.id);
-  for(let n=picker.start;n<=picker.end;n++)for(const side of ["a","b"]){
-    if(picker.slug==="pesachim"&&n===99&&side==="a")continue;
-    const amud=`${n}${side}`,key=`${picker.slug}-${amud}`,ref=`${picker.tractate} ${amud}`;
-    if(!PAGES[key])PAGES[key]={path:`agent-builder/index.html?ref=${encodeURIComponent(ref)}&ui=62.69`,title:ref};
-    PAGES[key].picker=picker.id;
-    const option=document.createElement("option");option.value=key;option.textContent=amud;picker.select.append(option);
-  }
-  picker.select.addEventListener("change",()=>{if(picker.select.value)loadAmud(picker.select.value);});
+function refreshApprovedOptions(){
+ for(const key of Object.keys(PAGES))if(key.startsWith("approved-"))delete PAGES[key];
+ for(const page of approvedPages()){
+  if(!page?.id||typeof page.ref!=="string")continue;
+  const match=page.ref.match(/^(.+?)\s+(\d+[ab])$/i);if(!match)continue;
+  const title=match[1].replace(/^(Berachos|Berachot)$/i,"Berakhot").replace(/^Bava Metziah$/i,"Bava Metzia");
+  const book=TRACTATES.find(b=>b.title.toLowerCase()===title.toLowerCase());if(!book)continue;
+  PAGES[`approved-${page.id}`]={path:`agent-builder/index.html?approved=${encodeURIComponent(page.id)}&ui=62.72`,title:`${page.ref} — Approved Draft`,tractate:book.slug,amud:match[2].toLowerCase(),approved:true};
+ }
+ renderPages();
 }
-// The prepared 100b pack opens in the viewer; unconnected pages open the builder.
-PAGES["pesachim-100b"].path="draft-engine/index.html?ref=Pesachim%20100b&build=62.68";
-function refreshApprovedOptions() {
-  for(const picker of pickers)picker.select.querySelectorAll("optgroup").forEach(group=>group.remove());
-  for(const key of Object.keys(PAGES))if(key.startsWith("approved-"))delete PAGES[key];
-  const counts=new Map();
-  for(const page of approvedPages()){
-    if(!page?.id||typeof page.ref!=="string")continue;
-    const match=page.ref.match(/^(Berakhot|Berachos|Berachot|Pesachim|Bava Metzia|Bava Metziah)\s+(\d+[ab])$/i);
-    if(!match)continue;
-    const picker=pickers.find(p=>p.label===(/^Ber/i.test(match[1])?"Berachos":/^Bava/i.test(match[1])?"Bava Metzia":"Pesachim"));
-    const key=`approved-${page.id}`;
-    PAGES[key]={path:`agent-builder/index.html?approved=${encodeURIComponent(page.id)}&ui=62.69`,title:`${page.ref} — Approved Draft`,picker:picker.id};
-    let group=picker.select.querySelector("optgroup");if(!group){group=document.createElement("optgroup");group.label="Saved approved drafts";picker.select.append(group);}
-    const countKey=picker.id+match[2],count=(counts.get(countKey)||0)+1;counts.set(countKey,count);
-    const option=document.createElement("option");option.value=key;option.textContent=`${match[2]} — saved draft ${count}`;group.append(option);
-  }
-  syncPickers();
+function renderPages(){
+ const book=TRACTATES.find(b=>b.slug===tractateSelect.value)||TRACTATES[0];tractateSelect.value=book.slug;
+ select.replaceChildren();
+ const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent="Choose daf / amud";select.append(placeholder);
+ const counts=new Map();let savedGroup;
+ for(const [key,page]of Object.entries(PAGES).filter(([,p])=>p.tractate===book.slug).sort(([,a],[,b])=>a.amud.localeCompare(b.amud,undefined,{numeric:true}))){
+  const option=document.createElement("option");option.value=key;
+  if(page.approved){if(!savedGroup){savedGroup=document.createElement("optgroup");savedGroup.label="Saved approved drafts";}const count=(counts.get(page.amud)||0)+1;counts.set(page.amud,count);option.textContent=`${page.amud} — saved draft ${count}`;savedGroup.append(option);}
+  else{option.textContent=page.amud;select.append(option);}
+ }
+ if(savedGroup)select.append(savedGroup);
+ select.value=PAGES[currentKey]?.tractate===book.slug?currentKey:"";
 }
-function syncPickers(){for(const picker of pickers)picker.select.value=PAGES[currentKey]?.picker===picker.id?currentKey:"";}
-
-const frame = document.getElementById("studioFrame");
-const openDirect = document.getElementById("openDirect");
-
-function selectedFromUrl() {
-  const requested = new URLSearchParams(location.search).get("amud");
-  return PAGES[requested] ? requested : null;
+function selectedFromUrl(){const requested=new URLSearchParams(location.search).get("amud");return PAGES[requested]?requested:null;}
+function closePageMenu(){pageMenu.hidden=true;menuToggle.setAttribute("aria-expanded","false");}
+function loadAmud(key,{updateHistory=true}={}){
+ currentKey=PAGES[key]?key:"agent-builder";const page=PAGES[currentKey];
+ if(page.tractate)tractateSelect.value=page.tractate;renderPages();closePageMenu();
+ frame.dataset.page=page.path;frame.contentWindow.location.replace(new URL(page.path,location.href).href);frame.title=page.title+" in Vilna Daf Studio";document.title=page.title+" | Vilna Daf Studio";
+ localStorage.setItem("vilna-daf-combined-selected-amud",currentKey);
+ if(updateHistory){const url=new URL(location.href);url.searchParams.set("amud",currentKey);history.pushState({amud:currentKey},"",url);}
 }
-
-function closePageMenu(){const menu=document.getElementById("pageMenu"),toggle=document.getElementById("pageMenuToggle");menu.hidden=true;toggle.setAttribute("aria-expanded","false");}
-
-function loadAmud(key, { updateHistory = true } = {}) {
-  const safeKey = PAGES[key] ? key : "agent-builder";
-  const page = PAGES[safeKey];
-  currentKey = safeKey;
-  syncPickers();
-  closePageMenu();
-  frame.dataset.page = page.path;
-  frame.contentWindow.location.replace(new URL(page.path,location.href).href);
-  frame.title = `${page.title} in Vilna Daf Studio`;
-  document.title = `${page.title} | Combined Build ${COMBINED_BUILD}`;
-  localStorage.setItem("vilna-daf-combined-selected-amud", safeKey);
-
-  if (updateHistory) {
-    const url = new URL(location.href);
-    url.searchParams.set("amud", safeKey);
-    history.pushState({ amud: safeKey }, "", url);
-  }
-}
-
+tractateSelect.addEventListener("change",renderPages);
+select.addEventListener("change",()=>{if(select.value)loadAmud(select.value);});
 document.getElementById("newAmud").addEventListener("click",()=>loadAmud("agent-builder"));
-openDirect.addEventListener("click", () => {
-  window.open(PAGES[currentKey].path, "_blank", "noopener");
-});
-window.addEventListener("popstate", () => loadAmud(selectedFromUrl() || "agent-builder", { updateHistory: false }));
-window.addEventListener("focus", refreshApprovedOptions);
-window.addEventListener("storage",event=>{if(event.key===APPROVED_KEY)refreshApprovedOptions();});
-
-refreshApprovedOptions();
-const remembered = localStorage.getItem("vilna-daf-combined-selected-amud");
-const initial = selectedFromUrl() || (PAGES[remembered] ? remembered : "agent-builder");
-loadAmud(initial, { updateHistory: false });
-
-const canonicalUrl = new URL(location.href);
-canonicalUrl.searchParams.set("amud", initial);
-history.replaceState({ amud: initial }, "", canonicalUrl);
-
-const menuToggle=document.getElementById("pageMenuToggle"),pageMenu=document.getElementById("pageMenu");
-menuToggle.addEventListener("click",()=>{const open=pageMenu.hidden;pageMenu.hidden=!open;menuToggle.setAttribute("aria-expanded",String(open));if(open)document.getElementById(PAGES[currentKey]?.picker||"berachosSelect").focus();});
-document.addEventListener("click",event=>{if(!event.target.closest(".page-navigation"))closePageMenu();});
-document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!pageMenu.hidden){closePageMenu();menuToggle.focus();}});
+document.getElementById("openDirect").addEventListener("click",()=>window.open(PAGES[currentKey].path,"_blank","noopener"));
+menuToggle.addEventListener("click",()=>{const open=pageMenu.hidden;pageMenu.hidden=!open;menuToggle.setAttribute("aria-expanded",String(open));if(open)tractateSelect.focus();});
+document.addEventListener("click",e=>{if(!e.target.closest(".page-navigation"))closePageMenu();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!pageMenu.hidden){closePageMenu();menuToggle.focus();}});
 frame.addEventListener("load",()=>{try{frame.contentDocument.addEventListener("pointerdown",closePageMenu);}catch{}});
+window.addEventListener("popstate",()=>loadAmud(selectedFromUrl()||"agent-builder",{updateHistory:false}));
+window.addEventListener("focus",refreshApprovedOptions);
+window.addEventListener("storage",e=>{if(e.key===APPROVED_KEY)refreshApprovedOptions();});
+refreshApprovedOptions();const remembered=localStorage.getItem("vilna-daf-combined-selected-amud"),initial=selectedFromUrl()||(PAGES[remembered]?remembered:"agent-builder");loadAmud(initial,{updateHistory:false});
+const canonicalUrl=new URL(location.href);canonicalUrl.searchParams.set("amud",initial);history.replaceState({amud:initial},"",canonicalUrl);
