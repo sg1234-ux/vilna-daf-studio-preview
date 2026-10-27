@@ -114,9 +114,12 @@ body {
 
 [hidden] { display: none !important; }
 .page-navigation { position: relative; }
-#pageMenuToggle { display: flex; align-items: center; gap: 9px; border: 1px solid #8e795a; border-radius: 4px; background: #33291f; color: #fffdf7; padding: 3px 12px 3px 5px; font: 600 13px Arial,sans-serif; cursor: pointer; }
-#pageMenuToggle img { object-fit: cover; border-radius: 2px; }
-#pageMenuToggle:hover, #pageMenuToggle[aria-expanded="true"] { background: #583b1d; }
+#pageMenuToggle { display: flex; align-items: center; gap: 12px; border: 2px solid #e2bf69; border-radius: 7px; background: #fff1ce; color: #302015; padding: 6px 16px 6px 8px; font: 600 14px Arial,sans-serif; box-shadow: 0 2px 8px #0005; cursor: pointer; }
+#pageMenuToggle img { width: 44px; height: 74px; object-fit: contain; border-radius: 2px; box-shadow: 2px 3px 5px #0005; }
+#pageMenuToggle span { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
+#pageMenuToggle strong { font-size: 17px; }
+#pageMenuToggle small { font-size: 12px; }
+#pageMenuToggle:hover, #pageMenuToggle[aria-expanded="true"] { background: #ffe2a2; border-color: #ffdc85; }
 #pageMenuToggle:focus-visible { outline: 2px solid #f8de85; outline-offset: 2px; }
 #pageMenu { position: absolute; top: calc(100% + 8px); right: 0; width: 490px; max-width: calc(100vw - 28px); padding: 16px; border: 1px solid #8e795a; border-radius: 5px; background: #201d18; box-shadow: 0 6px 20px #0006; align-items: end; z-index: 5; }
 #pageMenu .tractate-picker { flex: 1; min-width: 120px; }
@@ -124,8 +127,8 @@ body {
 @media (max-width: 480px) {
  .launcher-bar { flex-wrap: nowrap; }
  .brand { flex-direction: column; align-items: flex-start; gap: 4px; }
- #pageMenuToggle { padding-right: 6px; gap: 5px; }
- #pageMenuToggle span { max-width: 70px; }
+ #pageMenuToggle { padding-right: 8px; gap: 8px; }
+ #pageMenuToggle strong { font-size: 15px; }
  #pageMenu { max-width: calc(100vw - 16px); width: 340px; }
  #pageMenu .tractate-picker { min-width: 100%; }
 }
