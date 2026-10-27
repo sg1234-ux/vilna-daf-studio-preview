@@ -22,25 +22,24 @@ function approvedPages() {
   catch { return []; }
 }
 
+PAGES["pesachim-100b"]={path:"draft-engine/index.html?ref=Pesachim%20100b&build=62.68",title:"Pesachim 100b"};
+
 const pickers = [
-  {id:"berachosSelect",tractate:"Berakhot",label:"Berachos",slug:"berakhot",start:26,end:30},
-  {id:"pesachimSelect",tractate:"Pesachim",label:"Pesachim",slug:"pesachim",start:99,end:121},
-  {id:"bavaMetziaSelect",tractate:"Bava Metzia",label:"Bava Metzia",slug:"bava-metzia",start:21,end:33}
+  {id:"berachosSelect",tractate:"Berakhot",label:"Berachos",slug:"berakhot"},
+  {id:"pesachimSelect",tractate:"Pesachim",label:"Pesachim",slug:"pesachim"},
+  {id:"bavaMetziaSelect",tractate:"Bava Metzia",label:"Bava Metzia",slug:"bava-metzia"}
 ];
 let currentKey = "agent-builder";
 for (const picker of pickers) {
   picker.select = document.getElementById(picker.id);
-  for(let n=picker.start;n<=picker.end;n++)for(const side of ["a","b"]){
-    if(picker.slug==="pesachim"&&n===99&&side==="a")continue;
-    const amud=`${n}${side}`,key=`${picker.slug}-${amud}`,ref=`${picker.tractate} ${amud}`;
-    if(!PAGES[key])PAGES[key]={path:`agent-builder/index.html?ref=${encodeURIComponent(ref)}&ui=62.69`,title:ref};
-    PAGES[key].picker=picker.id;
-    const option=document.createElement("option");option.value=key;option.textContent=amud;picker.select.append(option);
+  const pages=Object.entries(PAGES).filter(([key])=>key.startsWith(picker.slug+"-"))
+    .sort(([a],[b])=>a.localeCompare(b,undefined,{numeric:true}));
+  for(const [key,page] of pages){
+    page.picker=picker.id;
+    const option=document.createElement("option");option.value=key;option.textContent=key.slice(picker.slug.length+1);picker.select.append(option);
   }
   picker.select.addEventListener("change",()=>{if(picker.select.value)loadAmud(picker.select.value);});
 }
-// The prepared 100b pack opens in the viewer; unconnected pages open the builder.
-PAGES["pesachim-100b"].path="draft-engine/index.html?ref=Pesachim%20100b&build=62.68";
 function refreshApprovedOptions() {
   for(const picker of pickers)picker.select.querySelectorAll("optgroup").forEach(group=>group.remove());
   for(const key of Object.keys(PAGES))if(key.startsWith("approved-"))delete PAGES[key];
@@ -55,6 +54,11 @@ function refreshApprovedOptions() {
     let group=picker.select.querySelector("optgroup");if(!group){group=document.createElement("optgroup");group.label="Saved approved drafts";picker.select.append(group);}
     const countKey=picker.id+match[2],count=(counts.get(countKey)||0)+1;counts.set(countKey,count);
     const option=document.createElement("option");option.value=key;option.textContent=`${match[2]} — saved draft ${count}`;group.append(option);
+  }
+  for(const picker of pickers){
+    const available=picker.select.options.length>1;
+    picker.select.disabled=!available;
+    picker.select.options[0].textContent=available?"Choose amud":"No saved pages yet";
   }
   syncPickers();
 }
@@ -107,7 +111,7 @@ canonicalUrl.searchParams.set("amud", initial);
 history.replaceState({ amud: initial }, "", canonicalUrl);
 
 const menuToggle=document.getElementById("pageMenuToggle"),pageMenu=document.getElementById("pageMenu");
-menuToggle.addEventListener("click",()=>{const open=pageMenu.hidden;pageMenu.hidden=!open;menuToggle.setAttribute("aria-expanded",String(open));if(open)document.getElementById(PAGES[currentKey]?.picker||"berachosSelect").focus();});
+menuToggle.addEventListener("click",()=>{const open=pageMenu.hidden;pageMenu.hidden=!open;menuToggle.setAttribute("aria-expanded",String(open));if(open)(pickers.find(p=>p.id===PAGES[currentKey]?.picker&&!p.select.disabled)||pickers.find(p=>!p.select.disabled))?.select.focus();});
 document.addEventListener("click",event=>{if(!event.target.closest(".page-navigation"))closePageMenu();});
 document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!pageMenu.hidden){closePageMenu();menuToggle.focus();}});
 frame.addEventListener("load",()=>{try{frame.contentDocument.addEventListener("pointerdown",closePageMenu);}catch{}});
