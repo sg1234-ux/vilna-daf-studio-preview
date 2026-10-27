@@ -91,5 +91,31 @@
  }
  const replacements={downloadExcerpt:()=>run('svg'),downloadExactPng:()=>run('png'),copyExcerpt:()=>run('copy')};
  for(const [id,handler]of Object.entries(replacements)){const button=document.getElementById(id);if(!button)continue;button.removeEventListener('click',window[id]);window[id]=handler;button.addEventListener('click',handler);button.dataset.exportBuild=BUILD;}
- window.canvaExcerptSvg=svg;window.VilnaExcerptExport={build:BUILD,svg,png};
+ async function captureEditable(){
+  if(!state.selection)throw Error('Select an excerpt first.');await document.fonts.ready;
+  const selection={...state.selection},ref=state.ref,page=document.getElementById('dafPage'),pageRect=page.getBoundingClientRect(),zoom=normalizedPageZoom(state.pageZoom),words=[];
+  const targets=[document.getElementById('dafNumber'),document.getElementById('chapterTitle'),...page.querySelectorAll('.word-token,.tosafot-notice,.gemara-line-number')];
+  for(const element of targets){
+   if(!element||getComputedStyle(element).visibility==='hidden')continue;
+   const entries=[];
+   if(element.classList.contains('word-token'))entries.push({content:readText(element),rect:rectFor(element),owner:element,id:element.dataset.wordId});
+   else{const walker=document.createTreeWalker(element,NodeFilter.SHOW_TEXT);let index=0;while(walker.nextNode()){const node=walker.currentNode;if(node.parentElement.closest('.phrase-visual-icon'))continue;for(const match of node.data.matchAll(/\S+/gu)){const range=document.createRange();range.setStart(node,match.index);range.setEnd(node,match.index+match[0].length);entries.push({content:{text:match[0],visible:Array(match[0].length).fill(getComputedStyle(node.parentElement).visibility!=='hidden')},rect:range.getBoundingClientRect(),owner:node.parentElement,id:(element.id||'label')+':'+index++});}}}
+   for(const entry of entries){
+    const r=entry.rect,rect={left:(r.left-pageRect.left)/zoom,right:(r.right-pageRect.left)/zoom,top:(r.top-pageRect.top)/zoom,bottom:(r.bottom-pageRect.top)/zoom,width:r.width/zoom,height:r.height/zoom};
+    if(rect.right<=selection.x||rect.left>=selection.x+selection.width||rect.bottom<=selection.y||rect.top>=selection.y+selection.height)continue;
+    const content=entry.content;if(!content.text.trim())continue;
+    const cs=getComputedStyle(entry.owner),probe=document.createElement('canvas').getContext('2d');probe.font=`${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;const metrics=probe.measureText(content.text),ascent=metrics.fontBoundingBoxAscent||parseFloat(cs.fontSize)*.8,descent=metrics.fontBoundingBoxDescent||parseFloat(cs.fontSize)*.2;
+    const parts=[];for(let i=0;i<content.text.length;i++){const visible=content.visible[i],last=parts.at(-1);if(last&&last.visible===visible)last.text+=content.text[i];else parts.push({text:content.text[i],visible});}
+    words.push({text:content.text,parts,rect,baseline:element.classList.contains('word-token')?(baseline(element)-pageRect.top)/zoom:rect.top+(rect.height-ascent-descent)/2+ascent,fontAscent:ascent,fontDescent:descent,fontSize:parseFloat(cs.fontSize),fontFamily:cs.fontFamily,fontWeight:Number(cs.fontWeight)||400,italic:cs.fontStyle==='italic',letterSpacing:parseFloat(cs.letterSpacing)||0,whiteout:element.classList.contains('word-whited-out'),sourceId:entry.id||'label',stream:element.dataset.stream||'label'});
+   }
+  }
+  if(!words.length)throw Error('Select an excerpt containing text.');
+  // Editable text cannot contain half a word. Extend only to the edges of words
+  // already intersecting the selection; do not pull in neighboring words.
+  const bounds={x:Math.min(selection.x,...words.map(w=>w.rect.left)),y:Math.min(selection.y,...words.map(w=>Math.min(w.rect.top,w.baseline-w.fontAscent)))};
+  bounds.width=Math.max(selection.x+selection.width,...words.map(w=>w.rect.right))-bounds.x;
+  bounds.height=Math.max(selection.y+selection.height,...words.map(w=>Math.max(w.rect.bottom,w.baseline+w.fontDescent)))-bounds.y;
+  return {ref,selection,bounds,words,annotations:structuredClone(state.annotations||[])};
+ }
+ window.canvaExcerptSvg=svg;window.VilnaExcerptExport={build:BUILD,svg,png,captureEditable};
 })();

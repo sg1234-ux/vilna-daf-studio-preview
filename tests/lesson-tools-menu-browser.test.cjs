@@ -24,7 +24,7 @@ const handler=reader.createHandler({fetchImpl:async()=>new Response(`<section cl
    }return route.abort();
   });
   await page.goto(`http://127.0.0.1:${server.address().port}/?amud=bava-metzia-21a`,{waitUntil:'networkidle'});
-  for(const [key,ref,build]of [['bava-metzia-21a','Bava Metzia 21a','51.1'],['pesachim-99b','Pesachim 99b','44.1'],['pesachim-100a','Pesachim 100a','62.66'],['bava-metzia-22a','Bava Metzia 22a','62.66']]){
+  for(const [key,ref,build]of [['bava-metzia-21a','Bava Metzia 21a','51.1'],['pesachim-99b','Pesachim 99b','44.1'],['pesachim-100a','Pesachim 100a','62.68'],['bava-metzia-22a','Bava Metzia 22a','62.68']]){
    await page.locator('#amudSelect').selectOption(key);const frame=await(await page.locator('#studioFrame').elementHandle()).contentFrame();
    await frame.waitForFunction(ref=>typeof state!=='undefined'&&state.ref===ref&&phraseNavigationAvailable&&!document.getElementById('dafPage').classList.contains('composing'),ref,{timeout:60000});
    assert.equal(await frame.locator('#importLessonDeck').count(),1,key);assert.equal(await frame.locator('#importLessonDeck').isVisible(),true,key);assert.equal(await frame.evaluate(()=>String(window.VILNA_DAF_BUILD)),build,key);

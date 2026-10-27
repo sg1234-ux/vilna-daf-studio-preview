@@ -208,7 +208,7 @@ $("askAgent").addEventListener("click", async () => {
     const body = { ref: diagnostics.ref, diagnostics, rules: VilnaAgentBrain.rules, feedback: { targetRegion: $("targetRegion").value, note: $("feedback").value.trim(), perekHint: $("perekHint").value.trim(), perekRashbamStatus: $("perekRashbamStatus").value } };
     const requestState = reviewStateKey();
     body.evidence = frame.contentWindow.captureAgentEvidence();
-    const preparedProposal=frame.contentWindow.reviewPreparedCorrection?.(body.feedback.note,body.feedback.targetRegion);
+    const preparedProposal=frame.contentWindow.reviewTextFormatting?.(body.feedback.note,body.feedback.targetRegion)||frame.contentWindow.reviewPreparedCorrection?.(body.feedback.note,body.feedback.targetRegion);
     if(preparedProposal){proposedReview=preparedProposal;}
     else if (aiReady) {
       proposedReview = await VilnaAgentConnection.review(body);

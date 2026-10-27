@@ -87,6 +87,19 @@ const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json
     assert.equal(restoredEdits.edits.baselineAnchors[0].referenceLine,6);assert.equal(restoredEdits.nekudos,true);
     assert((await geometry()).baselineDelta<.5);assert((await geometry()).previewGap>=-.5);
     await page.evaluate(()=>{aiReady=false;renderDiagnostics();});
+    await page.evaluate(()=>{aiReady=true;renderDiagnostics();});
+    const formattingRequests=[['make the dibbur hamschilim not bold',false],['make the dibbur hamschilim bold',true],['make the dibbur hamaschilim a little bigger',true]];
+    for(const [note,bold]of formattingRequests){
+      await page.locator('#targetRegion').selectOption('whole-page');await page.locator('#feedback').fill(note);await page.locator('#askAgent').click();await page.waitForFunction(()=>proposedReview&&!reviewing);assert.equal(await page.evaluate(()=>Boolean(proposedReview.changes.textFormatting?.length)),true,note);await page.locator('#applyAgent').click();await page.waitForFunction(()=>!pendingAdjustment);console.log(note,await page.locator('#agentResult').textContent());assert.match(await page.locator('#agentResult').textContent(),/passed measured checks/);
+      const marked=await draftFrame.evaluate(()=>[...document.querySelectorAll('.word-token[data-dibbur="true"]')].map(e=>({weight:getComputedStyle(e).fontWeight,size:getComputedStyle(e).fontSize,stream:e.closest('[data-commentator]').dataset.commentator})));assert(marked.length>15);assert(marked.every(e=>Number(e.weight)===(bold?700:400)));assert.deepEqual(new Set(marked.map(e=>e.stream)),new Set(['rashi','rashbam','tosafot']));
+    }
+    await page.locator('#feedback').fill('make the Tosafos dibbur hamaschilim 14px');await page.locator('#askAgent').click();await page.waitForFunction(()=>proposedReview&&!reviewing);assert.equal(await page.evaluate(()=>proposedReview.changes.textFormatting.at(-1).fontSize),14);await page.locator('#applyAgent').click();await page.waitForFunction(()=>!pendingAdjustment&&document.getElementById('agentResult').textContent.includes('passed measured checks'));
+    await draftFrame.locator('.word-token[data-stream="inner"]:not([data-dibbur="true"])').first().click();
+    await page.locator('#feedback').fill('make the selected word bold');await page.locator('#askAgent').click();await page.waitForFunction(()=>proposedReview&&!reviewing);assert.equal(await page.evaluate(()=>proposedReview.changes.textFormatting.at(-1).scope),'words');assert.equal(await page.evaluate(()=>proposedReview.changes.textFormatting.at(-1).ids.length),1);await page.locator('#applyAgent').click();await page.waitForFunction(()=>!pendingAdjustment&&document.getElementById('agentResult').textContent.includes('passed measured checks'));
+    assert.equal(await draftFrame.evaluate(()=>getComputedStyle(selectedWordElement()).fontWeight),'700');
+    const formattedProject=await draftFrame.evaluate(async()=>{const project=projectPayload();for(const name of ['rashi','rashbam','tosafot'])for(const token of project.daf.scanProfile.physical.streams[name].tokens)delete token.dibbur;await openProjectFile({name:'formatted.vds',text:async()=>JSON.stringify(project)});await nextPaint();await nextPaint();return {settings:state.agentSettings,failures:state.composition.failures,marked:document.querySelectorAll('.word-token[data-dibbur="true"]').length};});assert(formattedProject.settings.textFormatting.length>=2);assert.deepEqual(formattedProject.failures,[]);assert(formattedProject.marked>15);
+    assert.equal(await page.evaluate(()=>testModelReviews),0,'Text formatting is local even with a model connected');
+    await page.evaluate(()=>{aiReady=false;renderDiagnostics();});
     const blocked=await page.evaluate(async()=>{
       const w=document.getElementById('draftFrame').contentWindow,before=w.projectPayload();
       await w.updateAgentSettings({targetLineCounts:{gemara:10}});

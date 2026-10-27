@@ -26,6 +26,12 @@
   return [...new Set(errors)];
  }
  function source(model,name){return model.streams[name].lines.map(l=>l.displayText).join(' ');}
+ function markDibbur(model,snapshot,borrowed={}){
+  for(const name of ['rashi','rashbam','tosafot']){const prefixes=new Map();
+   const visit=(value,path=[])=>{if(Array.isArray(value)){value.forEach((v,i)=>visit(v,[...path,i]));return;}const plain=String(value||'').replace(/<[^>]*>/g,' '),match=plain.match(/[–—-]/u);if(match)prefixes.set(path.join('.'),plain.slice(0,match.index).split(/\s+/).filter(norm).length);};visit(snapshot.streams?.[name]?.he);
+   for(const token of model.streams[name].tokens){const count=prefixes.get(token.leafPath?.join('.'));token.dibbur=Number.isInteger(count)&&token.wordInLeaf<count;if(token.nextAmud&&borrowed[token.ref]){const flags=[];const add=value=>{if(Array.isArray(value)){value.forEach(add);return;}const plain=String(value||'').replace(/<[^>]*>/g,' '),dash=plain.match(/[–—-]/u),count=dash?plain.slice(0,dash.index).split(/\s+/).filter(norm).length:0;plain.split(/\s+/).filter(norm).forEach((word,i)=>flags.push(i<count));};add(borrowed[token.ref].streams?.[name]?.he);token.dibbur=flags[token.wordInNextAmud]===true;}}
+  }return model;
+ }
  function pack(spec){const model=spec.renderInstructions,errors=audit(model);if(spec.preparationComplete!==true||errors.length)throw Error('Prepared page rejected: '+errors.join(', '));
   return {ref:spec.ref,profile:{source:'Saved E-Daf instructions for '+spec.ref,prepared:true,physical:model,layout:{openingLines:4},typography:{pageHeight:1264}},source:{gemaraHtml:esc(source(model,'gemara')),rashiHtml:esc(source(model,'rashi')),rashbamHtml:esc(source(model,'rashbam')),tosafotHtml:esc(source(model,'tosafot'))}};
  }
@@ -34,6 +40,7 @@
   page.classList.add('prepared-physical');topLeft.replaceChildren();topRight.replaceChildren();body.replaceChildren();
   const scale=body.clientWidth/(model.coreBox[2]-model.coreBox[0]),height=(model.coreBox[3]-model.coreBox[1])*scale;
   body.style.height=height+'px';page.style.setProperty('--page-height',(height+105)+'px');
+  const wordCounters={gemara:0,inner:0,tosafot:0};
   for(const [index,b] of model.blocks.entries()){
    const band=document.createElement('div'),region=document.createElement('div');band.className='geometry-band physical-band';region.className='flow-region reference-mapped '+(b.stream==='gemara'?'gemara':'commentary');region.dataset.stream=logical(b.stream);region.dataset.commentator=b.stream;region.dataset.band=String(index);region.contentEditable=mode==='edit';region.spellcheck=false;
    region.style.padding='0';region.style.margin='0';
@@ -43,18 +50,20 @@
     const pitch=(l.lineBox[3]-l.lineBox[1])*scale;Object.assign(el.style,{height:pitch+'px',lineHeight:pitch+'px',fontSize:(b.stream==='gemara'?19:15)*scale+'px',textAlign:l.alignment,textAlignLast:l.alignment});
     if(l.leftInsetPixels&&l.leftInsetPixels<x2-x){el.style.paddingLeft=l.leftInsetPixels*scale+'px';el.dataset.preparedInset=el.style.paddingLeft;}
     el.dataset.physicalFont=String((b.stream==='gemara'?19:15)*scale*(b.stream==='gemara'?(settings.gemaraScale||1):(settings.commentaryScale||1)));
-    el.textContent=nekudos?pointed(l,model.streams[b.stream]):l.displayText;region.append(el);
+    const display=nekudos?pointed(l,model.streams[b.stream]):l.displayText,parts=display.split(/(\s+)/);let sourceIndex=l.sourceSpan[0];
+    for(const part of parts){if(!part)continue;if(/^\s+$/.test(part)){el.append(part);continue;}const token=model.streams[b.stream].tokens[sourceIndex++],span=document.createElement('span');span.className='layout-token';span.dataset.wordId=logical(b.stream)+':'+wordCounters[logical(b.stream)]++;span.dataset.stream=logical(b.stream);span.dataset.sourceWordId=token?.sourceWordId||'';if(token?.dibbur){span.dataset.dibbur='true';span.style.fontWeight='700';}span.textContent=part;el.append(span);}
+    region.append(el);
    }
   }
   for(const t of model.titles){const el=document.createElement('div');el.className='physical-title';el.textContent=t.text;const [x,y,x2,y2]=t.box;Object.assign(el.style,{left:(x-model.coreBox[0])*scale+'px',top:(y-model.coreBox[1])*scale+'px',width:(x2-x)*scale+'px',height:(y2-y)*scale+'px',fontSize:18*scale+'px'});body.append(el);}
-  apply(settings,page);fit(page);return {scale,height};
+  apply(settings,page);if(globalThis.VilnaTextFormatting)VilnaTextFormatting.apply(page,settings);fit(page);return {scale,height};
  }
  function fit(page){for(const line of page.querySelectorAll('.physical-band .mapped-line')){
   line.style.fontSize=line.dataset.physicalFont+'px';
   line.style.letterSpacing='0';line.style.fontStretch='normal';line.style.transform='';line.style.width='';
   // Word boundaries are fixed. Fit the font size to the measured cell if necessary.
-  const span=document.createElement('span');span.style.whiteSpace='nowrap';span.textContent=line.textContent;line.append(span);const width=span.getBoundingClientRect().width,available=line.clientWidth-parseFloat(line.style.paddingLeft||0);span.remove();
-  const factor=Math.max(.1,Math.min(1,available/Math.max(1,width)));if(factor<1)line.style.fontSize=(parseFloat(line.style.fontSize)*factor)+'px';line.dataset.physicalFit=String(factor);
+  const span=document.createElement('span');span.style.whiteSpace='nowrap';span.innerHTML=line.innerHTML;span.style.display='inline-block';line.append(span);const width=span.getBoundingClientRect().width,available=line.clientWidth-parseFloat(line.style.paddingLeft||0);span.remove();
+  const rowScale=line.getBoundingClientRect().width/Math.max(1,line.clientWidth),tallest=Math.max(1,...[...line.querySelectorAll(':scope > .layout-token,:scope > .word-token')].map(word=>word.getBoundingClientRect().height/rowScale));const factor=Math.max(.1,Math.min(1,available/Math.max(1,width),(line.clientHeight-.5)/tallest));if(factor<1)line.style.fontSize=(parseFloat(line.style.fontSize)*factor)+'px';for(let attempt=0;attempt<5&&line.scrollWidth>line.clientWidth+.5;attempt++)line.style.fontSize=(parseFloat(line.style.fontSize)*line.clientWidth/line.scrollWidth*.995)+'px';line.dataset.physicalFit=String(parseFloat(line.style.fontSize)/Number(line.dataset.physicalFont));
  }}
  function apply(settings,page){
   const gem=[...page.querySelectorAll('[data-stream="gemara"] > .mapped-line:not([data-prepared-role="next-amud-preview"])')];
@@ -121,5 +130,5 @@
    });
   }return [...new Set(failures)];
  }
- return {audit,pack,render,apply,fit,validate,pointed,sanitizeEdits,settle,review,baseline};
+ return {audit,pack,render,apply,fit,validate,pointed,sanitizeEdits,settle,review,baseline,markDibbur};
 });
