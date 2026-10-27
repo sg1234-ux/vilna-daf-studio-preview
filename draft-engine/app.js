@@ -1,4 +1,4 @@
-const BUILD_VERSION="62.68";window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="62.76";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const SOLVER_REGRESSION_MODE=new URLSearchParams(location.search).get("solver-regression")==="1";
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
@@ -1099,8 +1099,8 @@ async function compose(){
     await document.fonts.ready;VilnaPhysicalPage.fit($("dafPage"));
     await nextPaint();
     const placementFailures=VilnaPhysicalPage.settle(prepared,$("dafPage"),state.agentSettings);
-    const failures=[...placementFailures,...VilnaPhysicalPage.validate(prepared,$("dafPage"))],final={pattern:{name:"Saved scan instructions — Pesachim 100b",mapped:true,physical:true,bands:[]},overflow:failures.some(f=>f.includes("clipping")),failures,blankRatio:0,minOccupancy:1,transitionGap:0,scale:1};
-    state.composition=final;state.dirty=false;$("patternReport").textContent=final.pattern.name;$("fillReport").textContent="Prepared amud";$("rulesReport").textContent=failures.length?failures.join(", "):"Prepared source and line checks passed";setComposing(false);afterCompose();status(failures.length?failures.join(", "):"100b composed from saved instructions — no AI call.",Boolean(failures.length));return final;
+    const failures=[...placementFailures,...VilnaPhysicalPage.validate(prepared,$("dafPage"))],final={pattern:{name:"Saved scan instructions — "+state.ref,mapped:true,physical:true,bands:[]},overflow:failures.some(f=>f.includes("clipping")),failures,blankRatio:0,minOccupancy:1,transitionGap:0,scale:1};
+    state.composition=final;state.dirty=false;$("patternReport").textContent=final.pattern.name;$("fillReport").textContent="Prepared amud";$("rulesReport").textContent=failures.length?failures.join(", "):"Prepared source and line checks passed";setComposing(false);afterCompose();status(failures.length?failures.join(", "):state.ref+" composed from saved instructions — no AI call.",Boolean(failures.length));return final;
   }
   $("dafPage").classList.remove("prepared-physical");$("bodyGeometry").style.height="";
   const tokens=streamTokens(),profile=referenceProfile(),originalBodyVisibility=$("bodyGeometry").style.visibility;
@@ -1175,7 +1175,7 @@ async function compose(){
 const LOCAL_PESACHIM_DATA={"pesachim 100a": "assets/data/pesachim-100a-gemara.json", "rashi on pesachim 100a": "assets/data/pesachim-100a-rashi.json", "rashbam on pesachim 100a": "assets/data/pesachim-100a-rashbam.json", "tosafot on pesachim 100a": "assets/data/pesachim-100a-tosafot.json"};
 const LOCAL_BAVA_DATA={"bava metzia 21a":"assets/data/bava-metzia-21a-gemara.json","rashi on bava metzia 21a":"assets/data/bava-metzia-21a-rashi.json","tosafot on bava metzia 21a":"assets/data/bava-metzia-21a-tosafot.json"};
 async function fetchText(ref,{commentary=false}={}){const url=`https://www.sefaria.org/api/texts/${encodeURIComponent(ref)}?context=0&commentary=0&pad=0&stripItags=0&alts=1`,local=LOCAL_BAVA_DATA[ref.trim().toLowerCase()],pinned=LOCAL_PESACHIM_DATA[ref.trim().toLowerCase()];if(pinned){const res=await fetch(pinned);if(!res.ok)throw new Error("The saved Sefaria source could not be loaded");const data=await res.json();return{html:flattenSefaria(data.he,{commentary}),heRef:data.heRef||ref,heTitle:data.heTitle||""};}let data;try{const res=await fetch(url);if(!res.ok)throw new Error(`Sefaria returned ${res.status}`);data=await res.json();}catch(error){if(!local)throw error;const fallback=await fetch(local);if(!fallback.ok)throw error;data=await fallback.json();}if(data.error&&!local)return{html:"",heRef:ref,heTitle:""};return{html:flattenSefaria(data.he,{commentary}),heRef:data.heRef||ref,heTitle:data.heTitle||""};}
-function headerFor(ref,g){if(/^Pesachim\s+(99b|100a|100b)$/i.test(ref))return"ערבי פסחים פרק עשירי פסחים";if(/^Bava\s+Metzia\s+(?:21[ab]|22a)$/i.test(ref))return"אלו מציאות פרק שני בבא מציעא";return g.heTitle||g.heRef.replace(/[\d.:]+/g,"").trim()||ref;}
+function headerFor(ref,g){const prepared=knownReferenceProfile(ref)?.physical;if(prepared){const title=prepared.headers?.find(h=>h.role==="page-heading")?.text||prepared.headers?.[0]?.text;if(title)return title;if(/^Bava Metzia /i.test(ref))return "אלו מציאות פרק שני בבא מציעא";if(/^Berakhot /i.test(ref))return "תפלת השחר פרק רביעי ברכות";if(/^Pesachim /i.test(ref))return "ערבי פסחים פרק עשירי פסחים";}if(/^Pesachim\s+(99b|100a|100b)$/i.test(ref))return"ערבי פסחים פרק עשירי פסחים";if(/^Bava\s+Metzia\s+(?:21[ab]|22a)$/i.test(ref))return"אלו מציאות פרק שני בבא מציעא";return g.heTitle||String(g.heRef||ref).replace(/[\d.:]+/g,"").trim()||ref;}
 function normalizeOpeningGemara(html,ref){if(!/^Pesachim\s+99b$/i.test(ref))return html;const marks="[\\u0591-\\u05C7]*",marker=new RegExp(`^\\s*מ${marks}ת${marks}(?:נ${marks}י${marks})?[׳']?\\s*[.:׃-]?\\s*`,"u"),box=document.createElement("div");box.innerHTML=html.replace(marker,"");const opening=box.querySelector("strong,b");if(opening)opening.replaceWith(...opening.childNodes);return box.innerHTML.replace(/^(\s*)(\S+\s+\S+)/u,"$1<strong>$2</strong>");}
 function normalizeGemaraForRef(html,ref){let normalized=normalizeOpeningGemara(html,ref);if(!/^Bava\s+Metzia\s+21a$/i.test(ref)||/הדרן\s+עלך\s+שנים\s+אוחזין/u.test(stripNekudos(htmlToPlain(normalized))))return normalized;const marks="[\\u0591-\\u05C7]*",mishnah=new RegExp(`מ${marks}ת${marks}נ${marks}י${marks}[׳']?`,"u");return normalized.replace(mishnah,match=>`<strong>הדרן עלך שנים אוחזין</strong> ${match}`);}
 function normalizeCommentaryForRef(html,ref,stream){if(stream!=="inner"||!/^Bava\s+Metzia\s+21a$/i.test(ref)||/הדרן\s+עלך\s+שנים\s+אוחזין/u.test(html))return html;return html.replace(/(?=<(?:strong|b)>\s*מתני[׳']?\s+אלו\s+מציאות)/u,"<strong>הדרן עלך שנים אוחזין</strong> ");}
@@ -1201,9 +1201,8 @@ async function applyScanGuidance(ref){
   // Explicit teacher corrections replace these defaults; other amudim are unaffected.
 }
 async function loadScanReferencePack(ref){
-  if(/^Pesachim\s+100b$/i.test(ref)){
-    const pack=await VilnaPreparedLibrary.load(ref);if(!pack)throw Error("The prepared 100b instructions are not enabled.");REFERENCE_PROFILES[ref.trim().toLowerCase()]=pack.profile;state.rashbamHeadingMode="short";return pack;
-  }
+  const prepared=await VilnaPreparedLibrary.load(ref);
+  if(prepared){REFERENCE_PROFILES[ref.trim().toLowerCase()]=prepared.profile;if(prepared.source.rashbamHtml)state.rashbamHeadingMode="short";return prepared;}
   const params=new URLSearchParams(location.search);
   if(!/^Bava\s+Metzia\s+22a$/i.test(ref)||(params.has("builder")&&params.get("scan")!=="1"))return null;
   const response=await fetch("assets/guidance/bava-metzia-22a.json");
@@ -1461,9 +1460,9 @@ function projectPayload(){if(state.dirty)capturePageEdits();return{format:"vilna
 function downloadBlob(blob,name){const a=document.createElement("a"),url=URL.createObjectURL(blob);a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);}
 function saveProject(){const payload=projectPayload(),name=`${state.ref.replace(/\s+/g,"-")}.vds`;downloadBlob(new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),name);$("projectStatus").textContent=`Saved ${name}.`;}
 async function ensurePreparedTextMetadata(ref,profile){
-  const model=profile?.physical;if(!model||['rashi','rashbam','tosafot'].every(name=>model.streams[name].tokens.every(token=>typeof token.dibbur==='boolean')))return;
+  const model=profile?.physical;if(!model||['rashi','rashbam','tosafot'].filter(name=>model.streams[name]).every(name=>model.streams[name].tokens.every(token=>typeof token.dibbur==='boolean')))return;
   const fresh=await VilnaPreparedLibrary.load(ref);if(!fresh?.profile?.physical)return;
-  for(const name of ['rashi','rashbam','tosafot']){const byId=new Map(fresh.profile.physical.streams[name].tokens.map(token=>[token.sourceWordId,token]));for(const token of model.streams[name].tokens){const original=byId.get(token.sourceWordId);if(!original||original.sourceText!==token.sourceText)throw Error('The saved commentary source does not match the prepared page.');token.dibbur=original.dibbur===true;}}
+  for(const name of ['rashi','rashbam','tosafot']){if(!model.streams[name])continue;const byId=new Map(fresh.profile.physical.streams[name].tokens.map(token=>[token.sourceWordId,token]));for(const token of model.streams[name].tokens){const original=byId.get(token.sourceWordId);if(!original||original.sourceText!==token.sourceText)throw Error('The saved commentary source does not match the prepared page.');token.dibbur=original.dibbur===true;}}
 }
 async function openProjectFile(file){const data=JSON.parse(await file.text());if(data?.format!=="vilna-daf-studio-project"||data.version!==1||!data.daf?.ref)throw new Error("This is not a supported Vilna Daf Studio project");const projectRef=String(data.daf.ref);if(data.daf.scanProfile){if(auditReferenceProfile(data.daf.scanProfile).length)throw new Error("Invalid saved scan map");await ensurePreparedTextMetadata(projectRef,data.daf.scanProfile);REFERENCE_PROFILES[projectRef.trim().toLowerCase()]=data.daf.scanProfile;}Object.assign(state,{agentSettings:safeAgentSettings(data.view?.agentSettings),agentSettingsRef:projectRef,ref:projectRef,header:String(data.daf.header||""),gemaraHtml:normalizeGemaraForRef(cleanHtml(data.daf.gemaraHtml),projectRef),rashiHtml:normalizeCommentaryForRef(cleanHtml(data.daf.rashiHtml),projectRef,"inner"),rashbamHtml:cleanHtml(data.daf.rashbamHtml),tosafotHtml:cleanHtml(data.daf.tosafotHtml),isSample:Boolean(data.daf.isSample),typography:TYPOGRAPHY_PRESETS[data.view?.typography]?data.view.typography:"archival-open",mode:data.view?.mode==="edit"?"edit":"navigate",navigationUnit:data.view?.navigationUnit==="phrase"?"phrase":"word",selectedWordId:data.view?.selectedWordId||null,editSelectedWordIds:[],wordFontScales:data.view?.wordFontScales&&typeof data.view.wordFontScales==="object"?data.view.wordFontScales:{},whitedWordIds:data.view?.whitedWordIds&&typeof data.view.whitedWordIds==="object"?data.view.whitedWordIds:{},focusEnabled:Boolean(data.view?.focusEnabled),focusWindow:clamp(Number(data.view?.focusWindow)||1,1,12),visualLinks:data.lesson?.visualLinks&&typeof data.lesson.visualLinks==="object"?data.lesson.visualLinks:{},notesEnabled:Boolean(data.view?.notesEnabled),nekudosEnabled:data.view?.nekudosEnabled!==false,punctuationEnabled:data.view?.punctuationEnabled!==false,lineNumbersEnabled:Boolean(data.view?.lineNumbersEnabled),pageZoom:normalizedPageZoom(data.view?.pageZoom),noteWindowPosition:data.view?.noteWindowPosition||null,selection:data.view?.selection||null,notes:data.notes&&typeof data.notes==="object"?data.notes:{},annotations:Array.isArray(data.annotations)?data.annotations:[],annotationTool:["pen","highlighter","eraser"].includes(data.annotationSettings?.tool)?data.annotationSettings.tool:"pen",annotationColor:data.annotationSettings?.color||"#b32424",strokeWidth:Number(data.annotationSettings?.width)||3,annotationUndo:[],annotationRedo:[]});$("dafRef").value=state.ref;syncRegistrySelection(state.ref);$("focusWindowSize").value=[1,2,3].includes(state.focusWindow)?String(state.focusWindow):"custom";$("focusWindowCustom").value=state.focusWindow;$("focusWindowCustom").hidden=$("focusWindowSize").value!=="custom";$("annotationColor").value=state.annotationColor;$("strokeWidth").value=state.strokeWidth;$("strokeWidthValue").textContent=state.strokeWidth;updateDisplayToggles();selectAnnotationTool(state.annotationTool);setAnnotating(false);await applyTypography(state.typography,{recompose:false});await compose();toggleNotes(state.notesEnabled);if(state.selection){const b=$("selectionBox");b.hidden=false;Object.assign(b.style,{left:`${state.selection.x}px`,top:`${state.selection.y}px`,width:`${state.selection.width}px`,height:`${state.selection.height}px`});["downloadExactPng","copyExcerpt","downloadExcerpt","clearExcerpt"].forEach(id=>$(id).disabled=false);}$("projectStatus").textContent=`Opened ${file.name}.`;}
 function wordCount(html){return htmlToPlain(html||"").trim().split(/\s+/u).filter(Boolean).length;}
@@ -1487,8 +1486,8 @@ async function applyScanPack(pack,{cached=false}={}){
   }
 }
 async function applyCachedScan(){
-  if(/^Pesachim\s+100b$/i.test(state.ref)){
-    if(!referenceProfile()?.physical)throw Error('Build Pesachim 100b before using its saved scan.');
+  if(referenceProfile()?.physical){
+    
     const result=await compose();await nextPaint();await nextPaint();
     if(result.failures.length)throw Error('Saved scan failed measured checks: '+result.failures.join(', '));
     return {counts:currentRenderedLineCounts(),cached:true};
@@ -1528,7 +1527,7 @@ function captureAgentEvidence(){
 function postAgentDiagnostics(extraFailures=[]){
   if(window.parent===window)return;
   const final=state.composition,diagnostics={
-    ref:state.ref,scanStatus:referenceProfile()?.scanRead?"ai-read":referenceProfile()?"reference-map":"not-read", patternName:final?.pattern?.name||"not composed", solverMode:final?.pattern?.eventDriven?"completion-event":referenceProfile()?"protected-map":"guided", regressionMode:SOLVER_REGRESSION_MODE,
+    ref:state.ref,preparedScan:Boolean(referenceProfile()?.prepared),scanStatus:referenceProfile()?.scanRead?"ai-read":referenceProfile()?"reference-map":"not-read", patternName:final?.pattern?.name||"not composed", solverMode:final?.pattern?.eventDriven?"completion-event":referenceProfile()?"protected-map":"guided", regressionMode:SOLVER_REGRESSION_MODE,
     failures:[...new Set([...(final?.failures||[]),...extraFailures])],
     textOverflow:Boolean(final?.overflow), rashbamPresent:Boolean(state.rashbamHtml),
     headingMode:state.rashbamHeadingMode, settings:{...state.agentSettings},
@@ -1659,7 +1658,9 @@ async function updateAgentSettings(value,replace=false){
 window.addEventListener("message",async event=>{
   if(event.origin!==location.origin||event.source!==window.parent)return;
   const data=event.data||{};
-  if(data.type==="vilna-agent-load"){
+  if(data.type==="vilna-agent-ready-request"){
+    await document.fonts.ready;window.parent.postMessage({type:"vilna-agent-ready"},location.origin);
+  }else if(data.type==="vilna-agent-load"){
     state.approvedSnapshotLoaded=false;state.teacherApproved=data.approved===true;state.agentSettings=safeAgentSettings(data.settings);state.agentSettingsRef=String(data.ref||"").trim();state.rashbamHeadingMode=data.rashbamHeadingMode||"unresolved";state.rashbamAllowed=data.rashbamAllowed!==false;$("dafRef").value=String(data.ref||"").trim();await loadDaf();
   }else if(data.type==="vilna-agent-replace-settings"){
     await updateAgentSettings(data.settings,true);
@@ -1670,7 +1671,7 @@ window.addEventListener("message",async event=>{
     if(next!==state.rashbamHeadingMode){state.rashbamHeadingMode=next;await compose();}
   }
 });
-$("dafPage").addEventListener("input",e=>{if(!e.target.closest(".flow-region,.top-commentary"))return;state.dirty=true;status("Page edited directly. Choose Reflow page edits when ready.");requestAnimationFrame(renderGemaraLineNumbers);});window.addEventListener("resize",()=>{syncAnnotationCanvas();renderGemaraLineNumbers();if(!state.approvedSnapshotLoaded&&!state.dirty&&!$("dafPage").classList.contains("composing"))requestAnimationFrame(()=>compose());});document.fonts.ready.then(async()=>{updateDisplayToggles();await applyTypography(state.typography,{recompose:false});if(new URLSearchParams(location.search).has("builder"))window.parent.postMessage({type:"vilna-agent-ready"},location.origin);else{const requested=new URLSearchParams(location.search).get("ref");if(requested&&registryEntry(requested))$("dafRef").value=requested;await loadDaf({automatic:true});}});
+$("dafPage").addEventListener("input",e=>{if(!e.target.closest(".flow-region,.top-commentary"))return;state.dirty=true;status("Page edited directly. Choose Reflow page edits when ready.");requestAnimationFrame(renderGemaraLineNumbers);});window.addEventListener("resize",()=>{syncAnnotationCanvas();renderGemaraLineNumbers();if(state.isSample&&new URLSearchParams(location.search).has("builder"))return;if(!state.approvedSnapshotLoaded&&!state.dirty&&!$("dafPage").classList.contains("composing"))requestAnimationFrame(()=>compose());});document.fonts.ready.then(async()=>{updateDisplayToggles();await applyTypography(state.typography,{recompose:false});if(new URLSearchParams(location.search).has("builder"))window.parent.postMessage({type:"vilna-agent-ready"},location.origin);else{const requested=new URLSearchParams(location.search).get("ref");if(requested&&/\d+[ab]$/i.test(requested))$("dafRef").value=requested;await loadDaf({automatic:true});}});
 
 
 function reviewPreparedCorrection(note,target){return referenceProfile()?.physical?VilnaPhysicalPage.review(note,target,state.agentSettings):null;}

@@ -59,7 +59,7 @@ function renderPages(){
  for(const [key,page]of Object.entries(PAGES).filter(([,p])=>p.tractate===book.slug).sort(([,a],[,b])=>a.amud.localeCompare(b.amud,undefined,{numeric:true}))){
   const option=document.createElement("option");option.value=key;
   if(page.approved){if(!savedGroup){savedGroup=document.createElement("optgroup");savedGroup.label="Saved approved drafts";}const count=(counts.get(page.amud)||0)+1;counts.set(page.amud,count);option.textContent=`${page.amud} ✓ — approved version ${count}`;savedGroup.append(option);}
-  else{option.textContent=page.amud+(page.preferredApprovedKey||page.builtinApproved?" ✓":"");if(page.preferredApprovedKey)option.title="Opens the latest saved approved layout";select.append(option);}
+  else{option.textContent=page.amud+(page.preferredApprovedKey||page.builtinApproved?" ✓":page.preparedReady?" · prepared":" · unprepared");if(page.preferredApprovedKey)option.title="Opens the latest saved approved layout";select.append(option);}
  }
  if(savedGroup)select.append(savedGroup);
  select.value=PAGES[currentKey]?.tractate===book.slug?currentKey:"";
@@ -89,3 +89,10 @@ window.addEventListener("focus",refreshApprovedOptions);
 window.addEventListener("storage",e=>{if(e.key===APPROVED_KEY)refreshApprovedOptions();});
 refreshApprovedOptions();const remembered=localStorage.getItem("vilna-daf-combined-selected-amud"),initial=selectedFromUrl()||(PAGES[remembered]?remembered:"agent-builder");loadAmud(initial,{updateHistory:false});
 const canonicalUrl=new URL(location.href);canonicalUrl.searchParams.set("amud",initial);history.replaceState({amud:initial},"",canonicalUrl);
+
+// Preparation is distinct from teacher approval; it never replaces a saved snapshot.
+fetch('preparation/manifest.json').then(r=>{if(!r.ok)throw Error('Preparation status unavailable');return r.json();}).then(manifest=>{
+ if(manifest.format!=='vilna-daf-preparation-library')return;
+ for(const chapter of manifest.chapters||[])for(const entry of chapter.pages||[]){const page=PAGES[slug(entry.ref)];if(page)page.preparedReady=entry.engineReady===true;}
+ renderPages();
+}).catch(()=>{});

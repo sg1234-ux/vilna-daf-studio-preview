@@ -4,7 +4,7 @@ const lex=t=>String(t).replace(/<[^>]+>/g,' ').split(/\s+/).filter(norm);
 const leaves=(x,p=[])=>Array.isArray(x)?x.flatMap((v,i)=>leaves(v,[...p,i])):[[p,x]];
 function validate(slug,expectedCounts){
  const root=path.resolve(__dirname,'../preparation'),spec=JSON.parse(fs.readFileSync(path.join(root,'pages',slug+'.json'))),raw=fs.readFileSync(path.join(root,'sources',slug+'.json')),source=JSON.parse(raw),model=spec.renderInstructions;
- assert.equal(spec.preparationComplete,true);assert.deepEqual(spec.remainingPreparation,[]);assert.equal(crypto.createHash('sha256').update(raw).digest('hex'),spec.verification.sourceSnapshotSha256);assert.equal(spec.engineReady,false);
+ assert.equal(spec.preparationComplete,true);assert.deepEqual(spec.remainingPreparation,[]);assert.equal(crypto.createHash('sha256').update(raw).digest('hex'),spec.verification.sourceSnapshotSha256);const manifest=JSON.parse(fs.readFileSync(path.join(root,'manifest.json'))),entry=manifest.chapters.flatMap(c=>c.pages).find(p=>p.ref===spec.ref);assert.equal(entry.engineReady,true);assert.equal(entry.rendererAdapter,'physical-page-v1');assert.deepEqual(require('../draft-engine/physical-page.js').audit(model),[]);
  for(const [name,s]of Object.entries(model.streams)){
   const expected=leaves(source.streams[name].he).flatMap(([p,t])=>lex(t).map((text,i)=>({id:`${name}:${p.join('.')}:${i}`,text}))),base=s.tokens.filter(t=>!t.nextAmud&&!t.incomingFromPreviousAmud),byId=new Map(expected.map(w=>[w.id,w.text]));
   assert.equal(base.length,s.sourceWordCount);

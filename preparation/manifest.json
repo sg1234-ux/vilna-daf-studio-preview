@@ -50,88 +50,96 @@
           "slug": "bava-metzia-22b",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=3069&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=3069&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/bava-metzia-22b.json",
-          "engineReady": false,
+          "engineReady": true,
           "specification": "pages/bava-metzia-22b.json",
-          "preparationComplete": true
+          "preparationComplete": true,
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Bava Metzia 23a",
           "slug": "bava-metzia-23a",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=3070&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=3070&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/bava-metzia-23a.json",
-          "engineReady": false,
+          "engineReady": true,
           "preparationComplete": true,
-          "specification": "pages/bava-metzia-23a.json"
+          "specification": "pages/bava-metzia-23a.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Bava Metzia 23b",
           "slug": "bava-metzia-23b",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=3071&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=3071&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/bava-metzia-23b.json",
-          "engineReady": false,
+          "engineReady": true,
           "preparationComplete": true,
-          "specification": "pages/bava-metzia-23b.json"
+          "specification": "pages/bava-metzia-23b.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Bava Metzia 24a",
           "slug": "bava-metzia-24a",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=3072&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=3072&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/bava-metzia-24a.json",
-          "engineReady": false,
+          "engineReady": true,
           "preparationComplete": true,
-          "specification": "pages/bava-metzia-24a.json"
+          "specification": "pages/bava-metzia-24a.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Bava Metzia 24b",
           "slug": "bava-metzia-24b",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=3073&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=3073&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/bava-metzia-24b.json",
-          "engineReady": false,
+          "engineReady": true,
           "preparationComplete": true,
-          "specification": "pages/bava-metzia-24b.json"
+          "specification": "pages/bava-metzia-24b.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Bava Metzia 25a",
           "slug": "bava-metzia-25a",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=3074&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=3074&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/bava-metzia-25a.json",
-          "engineReady": false,
+          "engineReady": true,
           "preparationComplete": true,
-          "specification": "pages/bava-metzia-25a.json"
+          "specification": "pages/bava-metzia-25a.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Bava Metzia 25b",
           "slug": "bava-metzia-25b",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=3075&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=3075&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/bava-metzia-25b.json",
-          "engineReady": false,
+          "engineReady": true,
           "preparationComplete": true,
-          "specification": "pages/bava-metzia-25b.json"
+          "specification": "pages/bava-metzia-25b.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Bava Metzia 26a",
           "slug": "bava-metzia-26a",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=3076&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=3076&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/bava-metzia-26a.json",
-          "engineReady": false,
+          "engineReady": true,
           "preparationComplete": true,
-          "specification": "pages/bava-metzia-26a.json"
+          "specification": "pages/bava-metzia-26a.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Bava Metzia 26b",
@@ -308,38 +316,41 @@
           "sourceSnapshot": "sources/pesachim-100b.json",
           "engineReady": true,
           "specification": "pages/pesachim-100b.json",
-          "preparationComplete": true
+          "preparationComplete": true,
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Pesachim 101a",
           "slug": "pesachim-101a",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=843&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=843&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/pesachim-101a.json",
-          "engineReady": false,
+          "engineReady": true,
           "preparationComplete": true,
-          "specification": "pages/pesachim-101a.json"
+          "specification": "pages/pesachim-101a.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Pesachim 101b",
           "slug": "pesachim-101b",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=844&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=844&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/pesachim-101b.json",
-          "engineReady": false,
+          "engineReady": true,
           "preparationComplete": true,
-          "specification": "pages/pesachim-101b.json"
+          "specification": "pages/pesachim-101b.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Pesachim 102a",
           "slug": "pesachim-102a",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=845&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=845&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/pesachim-102a.json",
-          "engineReady": false,
+          "engineReady": true,
           "incomingSourceContinuation": {
             "specification": "pages/pesachim-101b.json",
             "stream": "tosafot",
@@ -351,38 +362,41 @@
             "previewWord": "לברך"
           },
           "preparationComplete": true,
-          "specification": "pages/pesachim-102a.json"
+          "specification": "pages/pesachim-102a.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Pesachim 102b",
           "slug": "pesachim-102b",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=846&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=846&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/pesachim-102b.json",
-          "engineReady": false,
+          "engineReady": true,
           "preparationComplete": true,
-          "specification": "pages/pesachim-102b.json"
+          "specification": "pages/pesachim-102b.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Pesachim 103a",
           "slug": "pesachim-103a",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=847&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=847&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/pesachim-103a.json",
-          "engineReady": false,
+          "engineReady": true,
           "preparationComplete": true,
-          "specification": "pages/pesachim-103a.json"
+          "specification": "pages/pesachim-103a.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Pesachim 103b",
           "slug": "pesachim-103b",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=848&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=848&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/pesachim-103b.json",
-          "engineReady": false,
+          "engineReady": true,
           "incomingSourceContinuation": {
             "specification": "pages/pesachim-103a.json",
             "stream": "tosafot",
@@ -395,16 +409,17 @@
             "isolatedPreviewOmitted": true
           },
           "preparationComplete": true,
-          "specification": "pages/pesachim-103b.json"
+          "specification": "pages/pesachim-103b.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Pesachim 104a",
           "slug": "pesachim-104a",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=849&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=849&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/pesachim-104a.json",
-          "engineReady": false,
+          "engineReady": true,
           "sourcePrefixPrintedOnPreviousAmud": {
             "specification": "pages/pesachim-103b.json",
             "stream": "rashbam",
@@ -417,7 +432,8 @@
             "instruction": "Retain canonical prefix identities; do not print this complete comment twice."
           },
           "preparationComplete": true,
-          "specification": "pages/pesachim-104a.json"
+          "specification": "pages/pesachim-104a.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Pesachim 104b",
@@ -753,88 +769,96 @@
           "slug": "berakhot-26a",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=49&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=49&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/berakhot-26a.json",
-          "engineReady": false,
+          "engineReady": true,
           "specification": "pages/berakhot-26a.json",
-          "preparationComplete": true
+          "preparationComplete": true,
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Berakhot 26b",
           "slug": "berakhot-26b",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=50&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=50&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/berakhot-26b.json",
-          "engineReady": false,
+          "engineReady": true,
           "preparationComplete": true,
-          "specification": "pages/berakhot-26b.json"
+          "specification": "pages/berakhot-26b.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Berakhot 27a",
           "slug": "berakhot-27a",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=51&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=51&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/berakhot-27a.json",
-          "engineReady": false,
+          "engineReady": true,
           "preparationComplete": true,
-          "specification": "pages/berakhot-27a.json"
+          "specification": "pages/berakhot-27a.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Berakhot 27b",
           "slug": "berakhot-27b",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=52&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=52&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/berakhot-27b.json",
-          "engineReady": false,
+          "engineReady": true,
           "preparationComplete": true,
-          "specification": "pages/berakhot-27b.json"
+          "specification": "pages/berakhot-27b.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Berakhot 28a",
           "slug": "berakhot-28a",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=53&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=53&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/berakhot-28a.json",
-          "engineReady": false,
+          "engineReady": true,
           "preparationComplete": true,
-          "specification": "pages/berakhot-28a.json"
+          "specification": "pages/berakhot-28a.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Berakhot 28b",
           "slug": "berakhot-28b",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=54&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=54&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/berakhot-28b.json",
-          "engineReady": false,
+          "engineReady": true,
           "preparationComplete": true,
-          "specification": "pages/berakhot-28b.json"
+          "specification": "pages/berakhot-28b.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Berakhot 29a",
           "slug": "berakhot-29a",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=55&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=55&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/berakhot-29a.json",
-          "engineReady": false,
+          "engineReady": true,
           "preparationComplete": true,
-          "specification": "pages/berakhot-29a.json"
+          "specification": "pages/berakhot-29a.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Berakhot 29b",
           "slug": "berakhot-29b",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=56&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=56&size=2",
-          "status": "preparation-complete-renderer-adapter-pending",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/berakhot-29b.json",
-          "engineReady": false,
+          "engineReady": true,
           "preparationComplete": true,
-          "specification": "pages/berakhot-29b.json"
+          "specification": "pages/berakhot-29b.json",
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Berakhot 30a",

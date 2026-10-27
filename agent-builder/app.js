@@ -96,7 +96,7 @@ function renderDiagnostics() {
   $("approvalValue").textContent = diagnostics ? (failures.length ? "Blocked" : "Eligible for teacher approval") : "Not tested";
   $("approveDraft").disabled = !diagnostics || failures.length > 0;
   $("buildDraft").disabled = Boolean(pendingAdjustment) || reviewing;
-  const savedScan=/^(?:Bava Metzia 22a|Pesachim 100b)$/i.test(diagnostics?.ref||"");
+  const savedScan=Boolean(diagnostics?.preparedScan)||/^(?:Bava Metzia 22a)$/i.test(diagnostics?.ref||"");
   $("readScan").disabled=!diagnostics||reviewing||Boolean(pendingAdjustment)||(!savedScan&&!aiReady);
   $("readScan").textContent=savedScan?`Build from saved ${diagnostics.ref.split(' ').at(-1)} scan (free)`:"Build from the real daf scan (AI)";
   $("askAgent").disabled = !diagnostics || Boolean(pendingAdjustment) || reviewing;
@@ -112,6 +112,7 @@ function renderDiagnostics() {
 }
 
 async function resolvePolicy(ref, rashbamPresent) {
+  if(diagnostics?.ref===ref&&diagnostics.preparedScan)return {ref,resolved:true,rashbam:diagnostics.rashbamPresent?"present":"absent",headingMode:diagnostics.rashbamPresent?"short":"none",confidence:"prepared-scan",reason:"Commentary headings follow the saved scan instructions."};
   if(/^Pesachim\s+100b$/i.test(ref))return {ref,resolved:true,rashbam:"present",headingMode:"short",confidence:"prepared-scan",reason:"Prepared Rashi-to-Rashbam transition."};
   const query = new URLSearchParams({ ref });
   if (typeof rashbamPresent === "boolean") query.set("rashbamPresent", String(rashbamPresent));
@@ -178,7 +179,7 @@ $("applyExactLines").addEventListener("click",()=>{
 $("readScan").addEventListener("click",async()=>{
   if(!diagnostics||reviewing||pendingAdjustment)return;
   reviewing=true;proposedReview=null;proposedReviewState=null;$("applyAgent").disabled=true;renderDiagnostics();
-  const ref=diagnostics.ref,cached=/^(?:Bava Metzia 22a|Pesachim 100b)$/i.test(ref),stateKey=reviewStateKey();
+  const ref=diagnostics.ref,cached=Boolean(diagnostics?.preparedScan)||/^Bava Metzia 22a$/i.test(ref),stateKey=reviewStateKey();
   const evidence=frame.contentWindow.captureScanEvidence(),sourceKey=JSON.stringify(Object.values(evidence.streams).map(s=>s.tokens));
   $("scanResult").textContent=cached?"Loading the saved scan map. No AI request…":"Retrieving the real daf and reading its Hebrew lines with your connected AI account…";
   try{
@@ -587,6 +588,7 @@ window.addEventListener("message", async event => {
     return;
   }
   if (event.data?.type === "vilna-agent-ready") {
+    if(frameReady)return;
     frameReady = true;
     const approvedId = new URLSearchParams(location.search).get("approved");
     const saved = approved().find(page => page.id === approvedId);
@@ -711,3 +713,8 @@ $("perekRashbamStatus").addEventListener("change", async () => {
 });
 start();
 
+
+// Fast cached iframe loads can finish before the parent listener is installed.
+function requestDraftReady(){frame.contentWindow.postMessage({type:"vilna-agent-ready-request"},location.origin);}
+frame.addEventListener("load",requestDraftReady);
+if(frame.contentDocument?.readyState==="complete")requestDraftReady();

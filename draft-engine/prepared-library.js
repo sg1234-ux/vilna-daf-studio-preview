@@ -18,13 +18,13 @@
     if(!specification.ok)throw Error('The prepared page could not be loaded.');
     const pack=await specification.json();
     if(pack.renderInstructions){
-      if(key(pack.ref)!==key(ref)||pack.engineReady!==true||pack.rendererAdapter!=='physical-page-v1')throw Error('This prepared page is not enabled for this renderer.');
+      if(key(pack.ref)!==key(ref)||pack.preparationComplete!==true||(entry.rendererAdapter||pack.rendererAdapter)!=='physical-page-v1')throw Error('This prepared page is not enabled for this renderer.');
       const adapter=typeof module==='object'&&module.exports?require('./physical-page.js'):globalThis.VilnaPhysicalPage;
       if(!/^sources\/[a-z0-9-]+\.json$/.test(entry.sourceSnapshot))throw Error('Invalid prepared source path.');
       const original=await fetcher('../preparation/'+entry.sourceSnapshot);if(!original.ok)throw Error('The saved commentary source could not be loaded.');
       const snapshot=await original.json();if(key(snapshot.ref)!==key(ref))throw Error('The saved commentary source belongs to another page.');
-      const borrowed={};for(const name of ['rashi','rashbam','tosafot'])for(const token of pack.renderInstructions.streams[name].tokens){
-        if(!token.nextAmud||!token.ref||borrowed[token.ref])continue;
+      const borrowed={};for(const name of ['rashi','rashbam','tosafot'])for(const token of (pack.renderInstructions.streams[name]?.tokens||[])){
+        if((!token.nextAmud&&!token.incomingFromPreviousAmud)||!token.ref||borrowed[token.ref])continue;
         const sourceEntry=manifest.chapters.flatMap(c=>c.pages||[]).find(p=>key(p.ref)===key(token.ref));
         if(!sourceEntry||!/^sources\/[a-z0-9-]+\.json$/.test(sourceEntry.sourceSnapshot))throw Error('The borrowed commentary source is unavailable.');
         const next=await fetcher('../preparation/'+sourceEntry.sourceSnapshot);if(!next.ok)throw Error('The borrowed commentary source could not be loaded.');borrowed[token.ref]=await next.json();if(key(borrowed[token.ref].ref)!==key(token.ref))throw Error('The borrowed commentary source belongs to another page.');
