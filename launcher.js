@@ -68,12 +68,16 @@ function selectedFromUrl() {
   return PAGES[requested] ? requested : null;
 }
 
+function closePageMenu(){const menu=document.getElementById("pageMenu"),toggle=document.getElementById("pageMenuToggle");menu.hidden=true;toggle.setAttribute("aria-expanded","false");}
+
 function loadAmud(key, { updateHistory = true } = {}) {
   const safeKey = PAGES[key] ? key : "agent-builder";
   const page = PAGES[safeKey];
   currentKey = safeKey;
   syncPickers();
-  frame.src = page.path;
+  closePageMenu();
+  frame.dataset.page = page.path;
+  frame.contentWindow.location.replace(new URL(page.path,location.href).href);
   frame.title = `${page.title} in Vilna Daf Studio`;
   document.title = `${page.title} | Combined Build ${COMBINED_BUILD}`;
   localStorage.setItem("vilna-daf-combined-selected-amud", safeKey);
@@ -101,3 +105,9 @@ loadAmud(initial, { updateHistory: false });
 const canonicalUrl = new URL(location.href);
 canonicalUrl.searchParams.set("amud", initial);
 history.replaceState({ amud: initial }, "", canonicalUrl);
+
+const menuToggle=document.getElementById("pageMenuToggle"),pageMenu=document.getElementById("pageMenu");
+menuToggle.addEventListener("click",()=>{const open=pageMenu.hidden;pageMenu.hidden=!open;menuToggle.setAttribute("aria-expanded",String(open));if(open)document.getElementById(PAGES[currentKey]?.picker||"berachosSelect").focus();});
+document.addEventListener("click",event=>{if(!event.target.closest(".page-navigation"))closePageMenu();});
+document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!pageMenu.hidden){closePageMenu();menuToggle.focus();}});
+frame.addEventListener("load",()=>{try{frame.contentDocument.addEventListener("pointerdown",closePageMenu);}catch{}});
