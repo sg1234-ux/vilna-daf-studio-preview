@@ -134,3 +134,5 @@ body {
 }
 
 .page-menu-note { flex-basis: 100%; margin: 4px 0; color: #e0d7c7; font: 12px/1.4 Arial,sans-serif; }
+
+.approval-badge { display: inline-block; color: #e5f4df; background: #29442b; border: 1px solid #9ab78b; border-radius: 4px; padding: 4px 7px; margin-bottom: 5px; font: 700 12px/1.2 Arial,sans-serif; }

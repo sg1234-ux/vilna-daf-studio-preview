@@ -5,6 +5,7 @@ try{browser=await chromium.launch({headless:true,executablePath:process.env.PLAY
 
 assert.equal(await page.locator('#tractateSelect option').count(),37);
 assert.equal(await page.locator('#tractateSelect').inputValue(),'bava-metzia');assert.equal(await page.locator('#amudSelect').inputValue(),'bava-metzia-21a');
+await page.locator('#pageMenuToggle').click();await page.locator('#tractateSelect').selectOption('pesachim');assert.match(await page.locator('#amudSelect option[value="pesachim-100b"]').textContent(),/✓/);await page.locator('#amudSelect').selectOption('pesachim-100b');assert.match(await page.locator('#studioFrame').getAttribute('data-page'),/approved=two/);
 for(const [book,first,last]of [['berakhot','2a','64a'],['pesachim','2a','121b'],['bava-metzia','2a','119a'],['tamid','25b','33b'],['niddah','2a','73a']]){
  await page.locator('#pageMenuToggle').click();await page.locator('#tractateSelect').selectOption(book);const values=await page.locator('#amudSelect > option').evaluateAll(es=>es.slice(1).map(e=>e.value));assert.equal(values[0],book+'-'+first);assert.equal(values.at(-1),book+'-'+last);await page.locator('#amudSelect').selectOption(book+'-'+last);assert.match(await page.locator('#studioFrame').getAttribute('data-page'),new RegExp(last));assert.equal(await page.locator('#pageMenu').isVisible(),false);
 }

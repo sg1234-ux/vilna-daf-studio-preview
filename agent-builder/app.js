@@ -9,8 +9,7 @@ let aiReady = false;
 let reviewing = false;
 let frameReady = false;
 let pendingAdjustment=null,lastAdjustment=null;
-let migratingApprovedPage = null;
-let migrationSaving = false;
+let approvedLoadFailed=false;
 const snapshotRequests = new Map();
 function reviewStateKey() {
   return JSON.stringify({ref:diagnostics?.ref,settings:diagnostics?.settings,wordCounts:diagnostics?.wordCounts,unplacedCounts:diagnostics?.unplacedCounts,geometry:diagnostics?.geometry,failures:diagnostics?.failures});
@@ -135,6 +134,7 @@ function localCommentaryPolicy(ref, rashbamPresent) {
 }
 
 async function build(ref, saved = null) {
+  approvedLoadFailed=false;document.getElementById("approvedLoadError")?.remove();frame.hidden=false;
   VilnaAgentConnection.reset();
   pendingAdjustment=null;lastAdjustment=null;
   diagnostics = null; proposedReview = null; renderDiagnostics();
@@ -564,12 +564,17 @@ $("approveDraft").addEventListener("click", async () => {
   }
 });
 
+function showApprovedLoadFailure(){
+  approvedLoadFailed=true;frame.hidden=true;
+  let notice=document.getElementById("approvedLoadError");if(!notice){notice=document.createElement("div");notice.id="approvedLoadError";notice.setAttribute("role","alert");notice.className="approved-load-error";frame.insertAdjacentElement("beforebegin",notice);}
+  notice.textContent="The saved approved layout could not be restored. Its saved data has been left unchanged. Choose New amud to open your downloaded project with Open project, or choose a different saved approved version from the Shas menu. This page has not been rebuilt or re-approved.";
+  message("The approved snapshot is missing or cannot be read. No replacement was saved.",true);
+}
+
 window.addEventListener("message", async event => {
   if (event.origin !== location.origin || event.source !== frame.contentWindow) return;
   if (event.data?.type === "vilna-approved-restore-failed") {
-    const id = new URLSearchParams(location.search).get("approved");
-    const saved = approved().find(page => page.id === id);
-    if (saved) { migratingApprovedPage = saved; await build(saved.ref, saved); }
+    showApprovedLoadFailure();
     return;
   }
   if (event.data?.type === "vilna-approved-captured") {
@@ -598,9 +603,9 @@ window.addEventListener("message", async event => {
       } catch (error) {
         console.warn("Approved page cache could not be read.", error);
       }
-      migratingApprovedPage = saved;
-      await build(saved.ref, saved);
+      showApprovedLoadFailure();
     } else {
+      if(approvedId){showApprovedLoadFailure();return;}
       const requested=new URLSearchParams(location.search).get('ref');
       if(requested&&requested.length<100&&/\d+[ab]$/i.test(requested.trim())){
         $("dafRef").value=requested.trim();
@@ -610,24 +615,8 @@ window.addEventListener("message", async event => {
     return;
   }
   if (event.data?.type !== "vilna-agent-diagnostics") return;
+  if(approvedLoadFailed)return;
   diagnostics = event.data.diagnostics;
-  if (migratingApprovedPage) {
-    if (migrationSaving || diagnostics.ref !== migratingApprovedPage.ref) return;
-    if (!diagnostics.wordCounts?.gemara || Object.values(diagnostics.unplacedCounts || {}).some(count => count > 0) || diagnostics.failures?.some(failure => failure.startsWith("source load:"))) return;
-    migrationSaving = true;
-    try {
-      const snapshot = await requestApprovedSnapshot();
-      await ApprovedPageStore.put(migratingApprovedPage.id, snapshot);
-      const pages = approved();
-      const page = pages.find(item => item.id === migratingApprovedPage.id);
-      if (page) page.snapshotVersion = 1;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(pages));
-      migratingApprovedPage = null;
-    } catch (error) {
-      frame.contentWindow.postMessage({ type: "vilna-approved-cache-error", message: `Could not save this page for quick opening: ${error.message}` }, location.origin);
-    } finally { migrationSaving = false; }
-    return;
-  }
   try { policy = await resolvePolicy(diagnostics.ref, diagnostics.rashbamPresent); }
   catch (error) { policy = { resolved: false, headingMode: "unresolved", reason: error.message }; }
   const adjustmentHandled=Boolean(pendingAdjustment);
