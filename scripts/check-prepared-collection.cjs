@@ -81,7 +81,7 @@ function validate(slug,expectedCounts,{connected=true}={}){
  }else if(slug==='pesachim-101a'){
   assert.equal(model.blocks.find(b=>b.id==='rashbam-wide').lineCount,21);assert.equal(model.blocks.find(b=>b.id==='tosafot-full-footer').lineCount,6);assert.equal(model.streams.rashi.lines.at(-1).displayText,'אין');assert.equal(model.titles[0].stream,'rashbam');
  }
- console.log('PASS' ,spec.ref,JSON.stringify(expectedCounts),'complete source identities, print variants, and four broad opening rows and measured physical blocks.');
+ console.log('PASS' ,spec.ref,JSON.stringify(expectedCounts),'complete source identities, print variants, and observed opening allocation and measured physical blocks.');
 }
 validate('bava-metzia-22b',{gemara:52,rashi:70,tosafot:70});
 
@@ -133,3 +133,7 @@ validate('berakhot-30b',{gemara:51,rashi:37,tosafot:70},{connected:false});
 validate('bava-metzia-26b',{gemara:51,rashi:67,tosafot:66},{connected:false});
 
 validate('pesachim-104b',{gemara:17,rashi:16,rashbam:31,tosafot:69},{connected:false});
+
+validate('bava-metzia-27a',{gemara:55,rashi:54,tosafot:65},{connected:false});
+
+validate('pesachim-105a',{gemara:37,rashi:34,rashbam:26,tosafot:46},{connected:false});

@@ -157,9 +157,11 @@
           "slug": "bava-metzia-27a",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=3078&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=3078&size=2",
-          "status": "queued-for-scan-mapping",
+          "status": "preparation-complete-renderer-adapter-pending",
           "sourceSnapshot": "sources/bava-metzia-27a.json",
-          "engineReady": false
+          "engineReady": false,
+          "preparationComplete": true,
+          "specification": "pages/bava-metzia-27a.json"
         },
         {
           "ref": "Bava Metzia 27b",
@@ -453,9 +455,11 @@
           "slug": "pesachim-105a",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=851&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=851&size=2",
-          "status": "queued-for-scan-mapping",
+          "status": "preparation-complete-renderer-adapter-pending",
           "sourceSnapshot": "sources/pesachim-105a.json",
-          "engineReady": false
+          "engineReady": false,
+          "preparationComplete": true,
+          "specification": "pages/pesachim-105a.json"
         },
         {
           "ref": "Pesachim 105b",
@@ -464,7 +468,18 @@
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=852&size=2",
           "status": "queued-for-scan-mapping",
           "sourceSnapshot": "sources/pesachim-105b.json",
-          "engineReady": false
+          "engineReady": false,
+          "incomingSourceContinuation": {
+            "specification": "pages/pesachim-105a.json",
+            "stream": "gemara",
+            "sourceRef": "Pesachim 105a",
+            "sourceSpan": [
+              270,
+              276
+            ],
+            "firstWord": "לו",
+            "isolatedPreviewOmitted": true
+          }
         },
         {
           "ref": "Pesachim 106a",
