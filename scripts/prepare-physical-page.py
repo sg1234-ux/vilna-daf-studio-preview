@@ -45,7 +45,7 @@ def compile_page(o):
   mainWordCount=len(words)-sum(len(lex(original[int(i)][1]))for i in duplicates)
   printedWordCount=obs.get('printedSourceWordCount',mainWordCount)
   assert 0<printedWordCount<=mainWordCount
-  lines=[dict(line=i+1,firstWord=(ws:=r.split())[0],lastWord=ws[-1],role='text')for i,r in enumerate(obs['rows'])]
+  lines=[dict(line=i+1,firstWord=(ws:=r.split())[0],lastWord=ws[-1],role=obs.get('roles',{}).get(str(i+1),'text'))for i,r in enumerate(obs['rows'])]
   aliases={**o.get('aliases',{}),**obs.get('aliases',{})}
   def endpoint(i,key):
    value=lines[i][key];return list(map(norm,obs.get('endpointSource',{}).get(str(i+1)+':'+key,aliases.get(value,[value]))))
@@ -101,7 +101,7 @@ def compile_page(o):
    for i,l in enumerate(s['lines'][cursor:cursor+b['lineCount']]):l['block']=b['id'];l['lineBox']=[x,round(y+i*pitch,3),x2,round(y+(i+1)*pitch,3)]
    cursor+=b['lineCount']
   assert cursor==len(s['lines']),(name,cursor,len(s['lines']))
- idx=json.loads((ROOT/'reference-images.json').read_text());refimg=next(i for i in idx['images']if i['slug']==slug)
+ idx=json.loads((ROOT/'reference-images.json').read_text());refimg=o.get('referenceImage') or next(i for i in idx['images']if i['slug']==slug)
  spec=dict(format='vilna-daf-preparation-page',version=1,ref=src['ref'],status='preparation-complete-renderer-adapter-pending',preparationComplete=True,engineReady=False,scan=dict(url=refimg['url'],sha256=refimg['sha256'],width=o['width'],height=o['height'],contentBox=o['coreBox']),coordinateSystem='Pixels in the pinned reference image; measured region boxes and interpolated row cells, not glyph outlines.',renderInstructions=dict(format='vilna-prepared-physical-page',version=1,direction='rtl',coreBox=o['coreBox'],openingLines=4,nextPagePreviewPolicy='omit-isolated-preview-words',streams=streams,blocks=o['blocks'],headers=o.get('headers',[]),titles=o.get('titles',[]),measuredGemaraGuttersPixels=o['gutters'],scaling='Scale boxes and gutter measurements consistently; preserve observed row boundaries.',editingPolicy={'appearance':'Explicit local appearance edits override defaults while preserving source spans.','source':'Keep canonical source identities and document printed variants separately.'}),notes=o.get('notes',[]),remainingPreparation=[],pendingIntegration=['Batch builder integration remains paused until the preparation collection is complete.'],verification=dict(method='Manual enlarged-scan endpoint observations; globally reconciled unique source spans; source snapshot and image hashes pinned.',reviewedOn=o['reviewedOn'],sourceSnapshotSha256=hashlib.sha256(rawfile.read_bytes()).hexdigest(),observationFile='observations/'+slug+'.json'))
  for name,stream in streams.items():
   if o['streams'][name].get('incomingFrom'):

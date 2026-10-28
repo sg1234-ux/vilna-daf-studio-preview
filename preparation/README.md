@@ -170,3 +170,22 @@ tested through both the viewer toggle and the local Ask/Apply path.
 
 The browser test includes the teacher's exact three correction requests,
 measured baselines and gaps, and zero connected-model review calls.
+
+## Resumed preparation — Berachos 30a and 30b (2026-10-28)
+
+The requested Berachos chapter is now fully prepared through the physical 30b amud. New records omit isolated next-page previews and remain preparation-only until separately connected to the renderer. Previously connected pages are unchanged.
+
+| Page | Gemara rows | Rashi rows | Tosafos rows |
+|---|---:|---:|---:|
+| Berachos 30a | 61 | 76 | 50 |
+| Berachos 30b | 51 | 37 | 70 |
+
+These two records use explicitly cited alternate Vilna scans from talmud-bavli.com because E-Daf refused access during this session. Their own image URLs, SHA-256 hashes and dimensions are recorded in the observations and compiled specifications; the original E-Daf reference catalog is preserved. Dimensions and gutter measurements apply to the cited image, not to the old E-Daf image.
+
+30a has four broad Tosafos opening rows beside four narrow Rashi opening rows; the following overhangs belong to the side columns. Gemara widens left after Tosafos ends. Rashi's final row spans the full width below Gemara. All 552 Gemara, 437 Rashi and 281 Tosafos source words are accounted for exactly once.
+
+30b preserves the complete physical page, including the beginning of Ein Omdin and each stream's independently placed Hadran. Rashi's whole-comment order is explicitly reconciled with print. Tosafos's 36-word canonical במקום גילה comment belongs to main text on physical 31a and is retained as a deferred span; its isolated במקום preview is omitted here. All 504 Gemara, 219 Rashi and 503 Tosafos source words are preserved, with 467 Tosafos words assigned to this page.
+
+`node scripts/check-prepared-collection.cjs` validates both new pages alongside existing prepared records. Preparation does not imply teacher approval or a new builder run. Remaining scope after these two pages: BM 26b–33b (15 amudim), Pesachim 104b–121b (35 amudim).
+
+BM 26b is additionally complete: 51 Gemara rows, 67 Rashi rows and 66 Tosafos rows, omitting isolated previews. Gemara stays narrow throughout; below it, two wider Rashi rows and two wider Tosafos rows occupy adjacent halves of the page. The canonical text is completely retained (360 Gemara, 417 Rashi and 417 Tosafos words). The printed נכרים / canonical עכו״ם difference is explicit. Observations and specification cite and hash the alternate 676×1015 Vilna scan actually inspected. It remains preparation-only. Remaining scope: BM 27a–33b (14 amudim), Pesachim 104b–121b (35 amudim).

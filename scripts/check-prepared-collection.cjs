@@ -2,9 +2,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const norm=s=>String(s).normalize('NFD').replace(/[\u0591-\u05c7]/g,'').replace(/[^\u05d0-\u05ea]/g,'');
 const lex=t=>String(t).replace(/<[^>]+>/g,' ').split(/\s+/).filter(norm);
 const leaves=(x,p=[])=>Array.isArray(x)?x.flatMap((v,i)=>leaves(v,[...p,i])):[[p,x]];
-function validate(slug,expectedCounts){
+function validate(slug,expectedCounts,{connected=true}={}){
  const root=path.resolve(__dirname,'../preparation'),spec=JSON.parse(fs.readFileSync(path.join(root,'pages',slug+'.json'))),raw=fs.readFileSync(path.join(root,'sources',slug+'.json')),source=JSON.parse(raw),model=spec.renderInstructions;
- assert.equal(spec.preparationComplete,true);assert.deepEqual(spec.remainingPreparation,[]);assert.equal(crypto.createHash('sha256').update(raw).digest('hex'),spec.verification.sourceSnapshotSha256);const manifest=JSON.parse(fs.readFileSync(path.join(root,'manifest.json'))),entry=manifest.chapters.flatMap(c=>c.pages).find(p=>p.ref===spec.ref);assert.equal(entry.engineReady,true);assert.equal(entry.rendererAdapter,'physical-page-v1');assert.deepEqual(require('../draft-engine/physical-page.js').audit(model),[]);
+ assert.equal(spec.preparationComplete,true);assert.deepEqual(spec.remainingPreparation,[]);assert.equal(crypto.createHash('sha256').update(raw).digest('hex'),spec.verification.sourceSnapshotSha256);const manifest=JSON.parse(fs.readFileSync(path.join(root,'manifest.json'))),entry=manifest.chapters.flatMap(c=>c.pages).find(p=>p.ref===spec.ref);assert.equal(entry.engineReady,connected);if(connected)assert.equal(entry.rendererAdapter,'physical-page-v1');else assert.equal(entry.preparationComplete,true);assert.deepEqual(require('../draft-engine/physical-page.js').audit(model),[]);
  for(const [name,s]of Object.entries(model.streams)){
   const expected=leaves(source.streams[name].he).flatMap(([p,t])=>lex(t).map((text,i)=>({id:`${name}:${p.join('.')}:${i}`,text}))),base=s.tokens.filter(t=>!t.nextAmud&&!t.incomingFromPreviousAmud),byId=new Map(expected.map(w=>[w.id,w.text]));
   assert.equal(base.length,s.sourceWordCount);
@@ -25,7 +25,7 @@ function validate(slug,expectedCounts){
   let accountedEnd=cursor;
   if(s.deferredSourceSpan){
    const [a,b]=s.deferredSourceSpan;assert.equal(a,accountedEnd);assert(b>a&&b<=s.tokens.length);accountedEnd=b;
-   assert.equal(s.deferredTo,slug==='pesachim-101b'?'Pesachim 102a':'Pesachim 103b');
+   const ref=spec.ref.match(/^(.*) (\d+)([ab])$/);assert(ref);assert.equal(s.deferredTo,ref[1]+' '+(ref[3]==='a'?ref[2]+'b':(Number(ref[2])+1)+'a'));
    const c=model.sourceContinuations.find(c=>c.stream===name);assert.deepEqual(c.sourceSpan,[a,b]);assert.deepEqual(c.sourceWordIds,s.tokens.slice(a,b).map(t=>t.sourceWordId));assert.equal(c.sourceText,s.tokens.slice(a,b).map(t=>t.sourceText).join(' '));
   }
   if(s.unprintedDuplicateSourceSpan){
@@ -125,3 +125,9 @@ validate('berakhot-29b',{gemara:52,rashi:42,tosafot:72});
 validate('bava-metzia-26a',{gemara:32,rashi:56,tosafot:67});
 
 validate('pesachim-104a',{gemara:49,rashi:21,rashbam:47,tosafot:58});
+
+validate('berakhot-30a',{gemara:61,rashi:76,tosafot:50},{connected:false});
+
+validate('berakhot-30b',{gemara:51,rashi:37,tosafot:70},{connected:false});
+
+validate('bava-metzia-26b',{gemara:51,rashi:67,tosafot:66},{connected:false});

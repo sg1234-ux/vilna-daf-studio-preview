@@ -146,9 +146,11 @@
           "slug": "bava-metzia-26b",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=3077&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=3077&size=2",
-          "status": "queued-for-scan-mapping",
+          "status": "preparation-complete-renderer-adapter-pending",
           "sourceSnapshot": "sources/bava-metzia-26b.json",
-          "engineReady": false
+          "engineReady": false,
+          "preparationComplete": true,
+          "specification": "pages/bava-metzia-26b.json"
         },
         {
           "ref": "Bava Metzia 27a",
@@ -865,18 +867,22 @@
           "slug": "berakhot-30a",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=57&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=57&size=2",
-          "status": "queued-for-scan-mapping",
+          "status": "preparation-complete-renderer-adapter-pending",
           "sourceSnapshot": "sources/berakhot-30a.json",
-          "engineReady": false
+          "engineReady": false,
+          "preparationComplete": true,
+          "specification": "pages/berakhot-30a.json"
         },
         {
           "ref": "Berakhot 30b",
           "slug": "berakhot-30b",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=58&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=58&size=2",
-          "status": "queued-for-scan-mapping",
+          "status": "preparation-complete-renderer-adapter-pending",
           "sourceSnapshot": "sources/berakhot-30b.json",
-          "engineReady": false
+          "engineReady": false,
+          "preparationComplete": true,
+          "specification": "pages/berakhot-30b.json"
         }
       ]
     }
