@@ -131,3 +131,5 @@ validate('berakhot-30a',{gemara:61,rashi:76,tosafot:50},{connected:false});
 validate('berakhot-30b',{gemara:51,rashi:37,tosafot:70},{connected:false});
 
 validate('bava-metzia-26b',{gemara:51,rashi:67,tosafot:66},{connected:false});
+
+validate('pesachim-104b',{gemara:17,rashi:16,rashbam:31,tosafot:69},{connected:false});

@@ -442,9 +442,11 @@
           "slug": "pesachim-104b",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=850&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=850&size=2",
-          "status": "queued-for-scan-mapping",
+          "status": "preparation-complete-renderer-adapter-pending",
           "sourceSnapshot": "sources/pesachim-104b.json",
-          "engineReady": false
+          "engineReady": false,
+          "preparationComplete": true,
+          "specification": "pages/pesachim-104b.json"
         },
         {
           "ref": "Pesachim 105a",
