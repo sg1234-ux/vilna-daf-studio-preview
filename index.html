@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Vilna Daf Studio — Build 60 Draft</title>
-  <link rel="stylesheet" href="launcher.css?build=60.0">
+  <link rel="stylesheet" href="launcher.css?build=62.76">
 </head>
 <body>
   <header class="launcher-bar">
@@ -16,15 +16,23 @@
       <span class="build-badge">Build 60 Draft</span>
     </div>
 
-    <div class="page-picker">
-      <label for="amudSelect">Amud</label>
-      <select id="amudSelect">
-        <option value="agent-builder">Build a new amud — Agent</option>
-        <option value="pesachim-99b">פסחים צט ע״ב — Pesachim 99b (Build 44)</option>
-        <option value="pesachim-100a">פסחים ק ע״א — Pesachim 100a</option>
-        <option value="bava-metzia-21a">בבא מציעא כא ע״א — Bava Metzia 21a (Build 51)</option>
-      </select>
+    <div class="page-navigation">
+      <span id="currentApproval" class="approval-badge" hidden title="Saved approved layout">✓ Approved</span>
+      <button id="pageMenuToggle" type="button" aria-label="Choose masechta and amud" aria-expanded="false" aria-controls="pageMenu">
+        <img src="assets/gemara-cover.svg" alt="" width="44" height="74">
+        <span><strong>Shas Bavli</strong><small>Choose daf ▾</small></span>
+      </button>
+      <div class="page-picker" id="pageMenu" hidden>
+      <label class="tractate-picker">Masechta
+        <select id="tractateSelect" aria-label="Masechta"></select>
+      </label>
+      <label class="tractate-picker">Daf / amud
+        <select id="amudSelect" aria-label="Daf and amud"></select>
+      </label>
+      <p class="page-menu-note">All Shas Bavli pages. Only some pages have prepared scan instructions; other selections open the builder.</p>
+      <button id="newAmud" type="button">New amud</button>
       <button id="openDirect" type="button">Open full page</button>
+      </div>
     </div>
   </header>
 
@@ -36,6 +44,6 @@
     ></iframe>
   </main>
 
-  <script src="launcher.js?build=60.10"></script>
+  <script src="launcher.js?build=62.76"></script>
 </body>
 </html>

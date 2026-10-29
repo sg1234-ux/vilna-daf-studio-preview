@@ -1,4 +1,4 @@
-const BUILD_VERSION=44;window.VILNA_DAF_BUILD=BUILD_VERSION;
+const BUILD_VERSION="44.1";window.VILNA_DAF_BUILD=BUILD_VERSION;
 const sample={ref:"Pesachim 99b",header:"ערבי פסחים פרק עשירי פסחים",isSample:true,
 gemaraHtml:`<strong>ערב פסחים סמוך למנחה לא יאכל אדם עד שתחשך ואפילו עני שבישראל לא יאכל עד שיסב ולא יפחתו לו מארבע כוסות של יין ואפילו מן התמחוי.</strong> מאי איריא ערבי פסחים אפילו ערבי שבתות וימים טובים נמי דתניא לא יאכל אדם בערבי שבתות וימים טובים מן המנחה ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר רב הונא לא צריכא אלא לרבי יוסי דאמר אוכל והולך עד שתחשך הני מילי בערבי שבתות וימים טובים אבל בערב הפסח משום חיובא דמצה מודה. רב פפא אמר אפילו תימא רבי יהודה התם בערבי שבתות וימים טובים מן המנחה ולמעלה הוא דאסיר סמוך למנחה שרי אבל בערב הפסח אפילו סמוך למנחה נמי אסור. ובערב שבת סמוך למנחה שרי והתניא לא יאכל אדם בערב שבת וימים טובים מתשע שעות ולמעלה כדי שיכנס לשבת כשהוא תאוה דברי רבי יהודה רבי יוסי אומר אוכל והולך עד שתחשך. אמר מר זוטרא מאן לימא לן דמתרצתא היא.`,
 rashiHtml:`<strong>סמוך למנחה.</strong> מעט קודם למנחה: <strong>לא יאכל.</strong> כדי שיאכל מצה של מצוה לתיאבון משום הידור מצוה: <strong>ואפילו עני שבישראל.</strong> לא יאכל עד שיסב כדרך בני חורין זכר לחירות במטה ועל השלחן: <strong>ארבע כוסות.</strong> כנגד ארבעה לשוני גאולה האמורים בגלות מצרים והוצאתי והצלתי וגאלתי ולקחתי:`,
@@ -361,9 +361,9 @@ function updateFocusNavigatorControls(){
   $("focusNavigatorStatus").textContent=!available?"Phrase navigation becomes available when Gemara text is loaded.":!state.focusEnabled?"Turn Focus on to fade the full page outside the active phrase window.":current==null?"Select a Gemara phrase to begin.":`Phrase ${current+1} of ${profile.length}; ${focusWindowCount()} phrase${focusWindowCount()===1?"":"s"} remain visible.`;
 }
 function updateVisualControls(){
-  const index=selectedPhraseIndex(),links=index==null?[]:visualLinksFor(index),valid=index!=null&&state.navigationUnit==="phrase";
-  $("attachVisual").disabled=!valid;$("openVisual").disabled=!links.length;$("removeVisual").disabled=!links.length;
-  $("visualStatus").textContent=!valid?"Select a Gemara phrase to attach a visual.":links.length?`Phrase ${index+1} has ${links.length} linked visual${links.length===1?"":"s"}.`:`Phrase ${index+1} has no linked visual.`;
+  const index=selectedPhraseIndex(),links=index==null?[]:visualLinksFor(index);
+  $("attachVisual").disabled=!phraseNavigationAvailable;$("openVisual").disabled=!links.length;$("removeVisual").disabled=!links.length;
+  $("visualStatus").textContent=!phraseNavigationAvailable?"Load Gemara text to attach a visual.":index==null?"Click a word in the Gemara, paste your slide link, then choose Attach.":links.length?`Phrase ${index+1} has ${links.length} linked visual${links.length===1?"":"s"}.`:`Ready to attach a visual to phrase ${index+1}.`;
 }
 function setFocusEnabled(force){
   state.focusEnabled=typeof force==="boolean"?force:!state.focusEnabled;
@@ -371,11 +371,12 @@ function setFocusEnabled(force){
   applySelectionAppearance();applyFocusAppearance();updateVisualControls();
 }
 function addVisualLink(){
-  const index=selectedPhraseIndex(),raw=$("visualUrl").value.trim();if(index==null)return;
+  const index=selectedPhraseIndex(),raw=$("visualUrl").value.trim();if(index==null){$("visualStatus").textContent=state.mode==="edit"?"Choose Navigate, click a word in the Gemara, then choose Attach. Your link is still here.":"Click a word in the Gemara, then choose Attach. Your link is still here.";return;}
   let url;try{url=new URL(raw);if(!/^https?:$/.test(url.protocol))throw new Error();}catch{$("visualStatus").textContent="Enter a complete Google Slides, Canva, or other https link.";return;}
+  setNavigationUnit("phrase");
   const links=visualLinksFor(index),value=url.toString();if(!links.includes(value))state.visualLinks[index]=[...links,value];$("visualUrl").value="";renderPhraseVisualMarkers();updateVisualControls();
 }
-function openPhraseVisual(index=selectedPhraseIndex()){const links=visualLinksFor(index);if(links.length)window.open(links.at(-1),"_blank","noopener,noreferrer");}
+function openPhraseVisual(index=selectedPhraseIndex()){const links=visualLinksFor(index);if(links.length>1&&window.VilnaLessonDeckUI)return window.VilnaLessonDeckUI.openLinks(index);if(links.length){try{const url=new URL(links[0]);if(/^https?:$/.test(url.protocol))window.open(url.href,"_blank","noopener,noreferrer");}catch{}}}
 function removeVisualLink(){const index=selectedPhraseIndex(),links=visualLinksFor(index);if(index==null||!links.length)return;const next=links.slice(0,-1);if(next.length)state.visualLinks[index]=next;else delete state.visualLinks[index];renderPhraseVisualMarkers();updateVisualControls();}
 function isDisplayPunctuation(text){return /^[.,:;!?׃…()[\]{}«»“”„–—]+$/u.test(text);}
 function punctuationParts(text){return String(text).split(/([.,:;!?׃…()[\]{}«»“”„–—]+)/u).filter(Boolean);}
