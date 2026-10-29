@@ -30,10 +30,12 @@
           "slug": "bava-metzia-21b",
           "scanUrl": "https://images.e-daf.com/DafImg.asp?ID=3067&size=2",
           "scanPageUrl": "https://www.e-daf.com/index.asp?ID=3067&size=2",
-          "status": "existing-layout-with-gemara-anchors",
+          "status": "renderer-connected",
           "sourceSnapshot": "sources/bava-metzia-21b.json",
-          "engineReady": false,
-          "specification": "existing/bava-metzia-21b.json"
+          "engineReady": true,
+          "specification": "pages/bava-metzia-21b.json",
+          "preparationComplete": true,
+          "rendererAdapter": "physical-page-v1"
         },
         {
           "ref": "Bava Metzia 22a",

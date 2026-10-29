@@ -137,3 +137,5 @@ validate('pesachim-104b',{gemara:17,rashi:16,rashbam:31,tosafot:69},{connected:f
 validate('bava-metzia-27a',{gemara:55,rashi:54,tosafot:65},{connected:false});
 
 validate('pesachim-105a',{gemara:37,rashi:34,rashbam:26,tosafot:46},{connected:false});
+
+validate('bava-metzia-21b',{gemara:54,rashi:63,tosafot:70});

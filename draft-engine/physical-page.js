@@ -45,7 +45,7 @@
   }return model;
  }
  function pack(spec){const model=spec.renderInstructions,errors=audit(model);if(spec.preparationComplete!==true||errors.length)throw Error('Prepared page rejected: '+errors.join(', '));
-  return {ref:spec.ref,profile:{source:'Saved E-Daf instructions for '+spec.ref,prepared:true,physical:model,layout:{openingLines:4},typography:{pageHeight:1264}},source:{gemaraHtml:esc(source(model,'gemara')),rashiHtml:esc(source(model,'rashi')),rashbamHtml:esc(source(model,'rashbam')),tosafotHtml:esc(source(model,'tosafot'))}};
+  return {ref:spec.ref,profile:{source:'Saved scan instructions for '+spec.ref,prepared:true,physical:model,layout:{openingLines:4},typography:{pageHeight:1264}},source:{gemaraHtml:esc(source(model,'gemara')),rashiHtml:esc(source(model,'rashi')),rashbamHtml:esc(source(model,'rashbam')),tosafotHtml:esc(source(model,'tosafot'))}};
  }
  function render(model,{page,body,topLeft,topRight,settings,mode,nekudos=false}){
   const errors=audit(model);if(errors.length)throw Error(errors.join(', '));
