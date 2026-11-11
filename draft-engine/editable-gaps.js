@@ -20,7 +20,7 @@
         const rect=word.getBoundingClientRect(),cs=win.getComputedStyle(word);
         const mapped=word.closest('.mapped-line');
         let row=rows.at(-1);
-        if(!row||row.mapped!==mapped||Math.abs(rect.bottom-row.bottom)>Math.max(2,rect.height*.35)){
+        if(!row||row.mapped!==mapped||(!mapped&&Math.abs(rect.bottom-row.bottom)>Math.max(2,rect.height*.35))){
           row={mapped,bottom:rect.bottom,words:[]};rows.push(row);
         }
         row.words.push({word,rect,font:cs.font,fontFamily:cs.fontFamily,fontSize:cs.fontSize,fontWeight:cs.fontWeight,fontStyle:cs.fontStyle,letterSpacing:cs.letterSpacing});
