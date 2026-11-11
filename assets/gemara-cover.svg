@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="144" viewBox="0 0 96 144" role="img" aria-label="Talmud Bavli book cover">
+ <defs>
+  <linearGradient id="leather" x2="1" y2=".6"><stop stop-color="#6b283a"/><stop offset=".5" stop-color="#491b2b"/><stop offset="1" stop-color="#301320"/></linearGradient>
+  <linearGradient id="spine"><stop stop-color="#240e17"/><stop offset=".5" stop-color="#6d3041"/><stop offset="1" stop-color="#32121f"/></linearGradient>
+  <linearGradient id="gold" x2=".6" y2="1"><stop stop-color="#ffeab0"/><stop offset=".5" stop-color="#d6ac57"/><stop offset="1" stop-color="#fff0b9"/></linearGradient>
+ </defs>
+ <path d="M12 7h73q6 0 6 7v119q0 5-6 5H12z" fill="#24111b" opacity=".22"/>
+ <path d="M12 4h72q7 0 7 7v121H12z" fill="#d8c5a0"/>
+ <path d="M18 127h67v7H18" fill="#f9edce"/>
+ <path d="M18 130h67m-67 3h67" stroke="#c4ae87" stroke-width=".7"/>
+ <path d="M9 4h73q6 0 6 6v118H9q-5 0-5 5V10q0-6 5-6" fill="url(#leather)"/>
+ <path d="M9 4h8v124H9q-5 0-5 5V10q0-6 5-6" fill="url(#spine)"/>
+ <path d="M19 5v122" stroke="#ac6f68" opacity=".55"/>
+ <path d="M25 13h54v104H25z" fill="none" stroke="url(#gold)" stroke-width="1.5"/>
+ <path d="M29 18h46v94H29z" fill="none" stroke="#d7ad62" stroke-width=".55"/>
+ <g fill="none" stroke="url(#gold)" stroke-width="1.1">
+  <path d="M25 27q14 0 14-14m26 0q0 14 14 14M25 103q14 0 14 14m26 0q0-14 14-14"/>
+  <path d="M36 39q16-19 32 0M36 91q16 17 32 0"/>
+  <path d="m45 32 7-5 7 5-7 5zM43 98h18m-14 4h10"/>
+ </g>
+ <g fill="url(#gold)" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="bold" direction="rtl">
+  <text x="52" y="58" font-size="18">תלמוד</text>
+  <text x="52" y="80" font-size="22">בבלי</text>
+ </g>
+ <path d="M6 21h9M6 28h9M6 102h9M6 109h9" stroke="#c59a56" stroke-width="2"/>
+</svg>

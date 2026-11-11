@@ -43,6 +43,8 @@ function restoreApprovedRegion(element, saved) {
 async function restoreApprovedSnapshot(snapshot) {
   if (snapshot?.version !== 1 || !snapshot.ref || snapshot.project?.daf?.ref !== snapshot.ref || !snapshot.layout?.body?.html) throw new Error("The saved approved page is incomplete.");
   const project = snapshot.project, view = project.view || {}, layout = snapshot.layout;
+  const typography=TYPOGRAPHY_PRESETS[view.typography]?view.typography:"archival-open";
+  if(project.daf.scanProfile){if(auditReferenceProfile(project.daf.scanProfile).length)throw new Error("Invalid saved scan profile.");REFERENCE_PROFILES[snapshot.ref.trim().toLowerCase()]=project.daf.scanProfile;}
   // Validate all rendered markup before replacing any visible page region.
   for (const region of [layout.body, layout.right, layout.left]) {
     safeApprovedHtml(region.html);
@@ -54,7 +56,7 @@ async function restoreApprovedSnapshot(snapshot) {
     agentSettings: safeAgentSettings(snapshot.settings), agentSettingsRef: snapshot.ref,
     agentLockedStreams: snapshot.lockedStreams || {}, rashbamHeadingMode: snapshot.headingMode || "none",
     rashbamAllowed: snapshot.rashbamAllowed !== false,
-    typography: "archival-open", mode: "navigate", selecting: false, selection: null,
+    typography, mode: "navigate", selecting: false, selection: null,
     notes: project.notes || {}, visualLinks: project.lesson?.visualLinks || {},
     annotations: Array.isArray(project.annotations) ? project.annotations : [], annotationUndo: [], annotationRedo: [],
     annotationTool: project.annotationSettings?.tool || "pen", annotationColor: project.annotationSettings?.color || "#b32424",
@@ -81,7 +83,7 @@ async function restoreApprovedSnapshot(snapshot) {
   $("strokeWidthValue").textContent = state.strokeWidth;
   $("selectionBox").hidden = true;
   ["downloadExactPng", "copyExcerpt", "downloadExcerpt", "clearExcerpt"].forEach(id => $(id).disabled = true);
-  await applyTypography("archival-open", { recompose: false });
+  await applyTypography(typography, { recompose: false });
   activateWordNavigation();
   updateDisplayToggles();
   applyPageZoom();
@@ -89,6 +91,7 @@ async function restoreApprovedSnapshot(snapshot) {
   syncAnnotationCanvas();
   renderGemaraLineNumbers();
   toggleNotes(Boolean(view.notesEnabled));
+  updateVerificationStatus(snapshot.ref);
   status("Approved page ready.");
 }
 window.addEventListener("message", async event => {
@@ -111,3 +114,4 @@ window.addEventListener("message", async event => {
     status(data.message, true);
   }
 });
+

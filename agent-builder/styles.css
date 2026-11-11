@@ -44,3 +44,7 @@ button:disabled { cursor: not-allowed; opacity: .48; }
 .approved-view body { grid-template-rows: minmax(0, 1fr); }
 .approved-view .builder-header, .approved-view .builder-panel { display: none; }
 .approved-view .builder-layout { grid-template-columns: minmax(0, 1fr); }
+
+.approved-load-error { align-self: start; margin: 24px; padding: 20px; color: #5c301d; background: #fff4db; border: 1px solid #b18b55; border-radius: 6px; font: 16px/1.6 Arial,sans-serif; }
+
+[hidden] { display: none !important; }

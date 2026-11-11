@@ -1,0 +1,52 @@
+{
+  "ref": "Pesachim 121b",
+  "format": "vilna-preparation-source-snapshot",
+  "version": 1,
+  "snapshotOrigin": "Sefaria public Hebrew text export; catalog generated 2026-10-02",
+  "streams": {
+    "gemara": {
+      "title": "Pesachim",
+      "language": "Hebrew",
+      "versionTitle": "merged",
+      "versionSource": "https://www.sefaria.org/Pesachim",
+      "license": null,
+      "he": [
+        "רַבִּי שִׂמְלַאי אִיקְּלַע לְפִדְיוֹן הַבֵּן, בְּעוֹ מִינֵּיהּ: פְּשִׁיטָא עַל פִּדְיוֹן הַבֵּן ״אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל פִּדְיוֹן הַבֵּן״ — אֲבִי הַבֵּן מְבָרֵךְ. ״בָּרוּךְ ... שֶׁהֶחֱיָינוּ וְקִיְּימָנוּ וְהִגִּיעָנוּ לַזְּמַן הַזֶּה״, כֹּהֵן מְבָרֵךְ, אוֹ אֲבִי הַבֵּן מְבָרֵךְ?",
+        "כֹּהֵן מְבָרַךְ — דְּקָמָטֵי הֲנָאָה לִידֵיהּ, אוֹ אֲבִי הַבֵּן מְבָרֵךְ — דְּקָא עָבֵיד מִצְוָה? לָא הֲוָה בִּידֵיהּ, אֲתָא שְׁאֵיל בֵּיהּ מִדְרְשָׁא. אֲמַרוּ לֵיהּ: אֲבִי הַבֵּן מְבָרֵךְ שְׁתַּיִם. וְהִלְכְתָא: אֲבִי הַבֵּן מְבָרֵךְ שְׁתַּיִם.",
+        "<br><br><big><strong>הֲדַרַן עֲלָךְ עַרְבֵי פְסָחִים וּסְלִיקָא לַהּ מַסֶּכֶת פְּסָחִים<br><br></strong></big>"
+      ],
+      "exportSha256": "ad4208f73908de9ea86d8186bfd393c3533d96a7f0e4fe2654fb839dd5912ac6"
+    },
+    "rashi": {
+      "title": "Rashi on Pesachim",
+      "language": "Hebrew",
+      "versionTitle": "Vilna Edition",
+      "versionSource": "https://www.nli.org.il/he/books/NNL_ALEPH001300957",
+      "license": "Public Domain",
+      "he": [],
+      "exportSha256": "5fd65f8d1cd7392db3cdc161268e2749c284aa56e57a9c6cd34a99809e552d6d"
+    },
+    "tosafot": {
+      "title": "Tosafot on Pesachim",
+      "language": "Hebrew",
+      "versionTitle": "Vilna Edition",
+      "versionSource": "https://www.nli.org.il/he/books/NNL_ALEPH001300957",
+      "license": "Public Domain",
+      "he": [],
+      "exportSha256": "8eef23558a7212e7230e68b4421510d198444b327ea6b2beebdcf4fa865fbf6f"
+    },
+    "rashbam": {
+      "title": "Rashbam on Pesachim",
+      "language": "Hebrew",
+      "versionTitle": "Vilna Edition",
+      "versionSource": "https://he.wikisource.org/wiki/%D7%AA%D7%9C%D7%9E%D7%95%D7%93_%D7%91%D7%91%D7%9C%D7%99",
+      "license": "Public Domain",
+      "he": [
+        [
+          "רבי שמלאי איקלע כו' - משום דאיירי מתניתין בשני מיני ברכות באדם אחד ומעשה אחד התלוי זה בזה כגון פסח וזבח שחגיגה באה עם הפסח משום הכי נקט נמי להאי עובדא דאבי הבן מברך שתים:"
+        ]
+      ],
+      "exportSha256": "7caaa522c1de480228afeaf6c7fceac576da3db5251ce67f86dec324418b268a"
+    }
+  }
+}

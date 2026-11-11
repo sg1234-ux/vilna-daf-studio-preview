@@ -1,0 +1,453 @@
+{
+  "slug": "berakhot-30b",
+  "width": 672,
+  "height": 1035,
+  "coreBox": [
+    56,
+    38,
+    585,
+    1017
+  ],
+  "gutters": {
+    "left": 17,
+    "right": 15
+  },
+  "reviewedOn": "2026-10-28",
+  "referenceImage": {
+    "url": "https://il.talmud-bavli.com/talmud/medias/images/daf/Berachot/30b.webp",
+    "sha256": "0a1dc1475c61340183f4c183eee8d436729479bda46be61e323f68d53d6fb123"
+  },
+  "aliases": {
+    "א״ל": [
+      "אמר",
+      "ליה"
+    ],
+    "א״ר": [
+      "אמר",
+      "רבי"
+    ],
+    "ר׳": [
+      "רבי"
+    ],
+    "ור׳": [
+      "ורבי"
+    ],
+    "ראב״ע": [
+      "רבי",
+      "אלעזר",
+      "בן",
+      "עזריה"
+    ],
+    "ר״א": [
+      "רבי",
+      "אליעזר"
+    ],
+    "ה״מ": [
+      "הני",
+      "מילי"
+    ]
+  },
+  "streams": {
+    "gemara": {
+      "rows": [
+        "בנהרדעא פולמוסא",
+        "דמלכא וצלי",
+        "לי יתיב",
+        "רבי וקאמר",
+        "הלכה בן",
+        "עזריה דאין",
+        "הלכה א״ר",
+        "יוחנן צלי",
+        "א״ל מעיקרא",
+        "לא חזי",
+        "מאן אמי",
+        "ור׳ כנישתא",
+        "בטבריא היכא",
+        "דהוו משום",
+        "רבינו משום",
+        "ראב״ע א״ל",
+        "רבי אילימא",
+        "משום ר״א",
+        "לעולם לכוין",
+        "את דלא",
+        "אדכר ולא",
+        "הזכיר אותו",
+        "מפני אין",
+        "מחזירין במוספין",
+        "במוספין שיכול",
+        "לאומרה א״ר",
+        "יוחנן תפלה",
+        "לתפלה כדי",
+        "שתתחונן שתתחולל",
+        "דעתו דעתו",
+        "עליו ויחל",
+        "משה אותו",
+        "לפי מילתא",
+        "דרב מכדי",
+        "רב שנא",
+        "הדרן השחר",
+        "אין שוהין",
+        "שעה המלך",
+        "שואל מנא",
+        "ה״מ דהות",
+        "מרירא אבא",
+        "ביתך דהוה",
+        "מצער השתחוו",
+        "לה׳ אימא",
+        "לך א״ר",
+        "נחמן ברעדה",
+        "א״ר הוה",
+        "יתיב כתיב",
+        "א״ל קא",
+        "בדח מנחנא",
+        "מר טובא"
+      ],
+      "endpointSource": {
+        "37:firstWord": [
+          "מתני׳",
+          "אין"
+        ],
+        "41:lastWord": [
+          "אבוא"
+        ],
+        "45:lastWord": [
+          "אמר",
+          "רב"
+        ],
+        "47:firstWord": [
+          "אמר",
+          "רב"
+        ]
+      },
+      "printedText": {
+        "30": "דעתו עליו מאן דאמר כדי שתתחונן דעתו"
+      },
+      "roles": {
+        "36": "heading"
+      },
+      "alignments": {
+        "36": "center"
+      }
+    },
+    "rashi": {
+      "rows": [
+        "בנהרדעא חיל",
+        "דצלי של",
+        "מוספין דעתיה",
+        "ותרווייהו יוחנן",
+        "שהעיד שבשביל",
+        "תפלת רבינו",
+        "רב משום",
+        "דשמע הזכרה",
+        "אבל מפרש",
+        "לה אבל",
+        "יחיד במוספין",
+        "שהתפלל ישהה",
+        "בין עליו",
+        "לחזור או",
+        "משום לזו",
+        "שתתחונן מיושבת",
+        "לערוך שתתחולל",
+        "לשון בלישנא",
+        "בעלמא כשהחדש",
+        "שעבר ימים",
+        "הלכך דערבית",
+        "של הראשון",
+        "מכדי מקדשין",
+        "את בלילה",
+        "הדרן השחר",
+        "כובד שעה",
+        "אחת להתפלל",
+        "גמ׳ קדשך",
+        "ביראתך נפשיה",
+        "מקשט ה׳",
+        "ביראה במקום",
+        "עבודה בכל",
+        "עצב מראה",
+        "את דהוה",
+        "קא ונראה",
+        "כפורק והם",
+        "עדות עלי"
+      ],
+      "commentOrder": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        6,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        21,
+        19,
+        20
+      ],
+      "printedText": {
+        "14": "לחזור ולהתפלל או משום דטעה או"
+      },
+      "roles": {
+        "25": "heading"
+      },
+      "alignments": {
+        "25": "center"
+      }
+    },
+    "tosafot": {
+      "rows": [
+        "ה״ג הלכה",
+        "כרבנן אסי",
+        "שהיו דהלכה",
+        "כרבנן מחזירין",
+        "אותו בסמוך",
+        "טעה מחזירין",
+        "אותו נמי",
+        "אי ליה",
+        "כמה לתפלה",
+        "כגון ורוצה",
+        "להתפלל שחרית",
+        "לתפלת שתתחולל",
+        "דעתו דהיינו",
+        "כשילך שאין",
+        "מקדשין לעיל",
+        "בריש שמקשין",
+        "ותיפוק מצוה",
+        "אחרת עוברת",
+        "וי״מ אין",
+        "מחזירין שאין",
+        "מקדשין שניה",
+        "מחזירין מיום",
+        "שלפניו לחלק",
+        "מסתברא בחדש",
+        "מלא שלפניו",
+        "מלא לאומרה",
+        "בערבית והיה",
+        "אומר שאמרו",
+        "חכמים יעלה",
+        "ויבא מיבעיא",
+        "אם בברכה",
+        "שלאחריה אלא",
+        "אפילו אותה",
+        "ברכה אין",
+        "מחזירין לרבינו",
+        "אלחנן המזון",
+        "דאותן וגם",
+        "אותן היכא",
+        "דלא מט",
+        "אם הברכה",
+        "כולה בברכת",
+        "הטוב אשר",
+        "נתן וקאמר",
+        "נמי הזכיר",
+        "של דהיינו",
+        "קודם והמטיב",
+        "דאותה אומר",
+        "ברוך וכו׳",
+        "אלמא ואלו",
+        "שוין שהתחיל",
+        "בברכת שבת",
+        "חוזר יוכל",
+        "לתקון באותה",
+        "ברכה בברכה",
+        "שלאחריה מהתם",
+        "דשאני שכבר",
+        "בירך והמטיב",
+        "לאו מחזירין",
+        "אותו הפסק",
+        "כל לי״ח",
+        "ברכות לו",
+        "לחזור דאין",
+        "להביא אומר",
+        "היכא ברכות",
+        "שהיה לחזור",
+        "לרצה דבר",
+        "הדרן השחר",
+        "אל דכתיב",
+        "במזמור וי״ח",
+        "ברכות פרשה"
+      ],
+      "printedSourceWordCount": 467,
+      "deferredToRef": "Berakhot 31a",
+      "aliases": {
+        "ראב״ע": [
+          "ראב\"ע"
+        ]
+      },
+      "endpointSource": {
+        "39:lastWord": [
+          "מט",
+          "א"
+        ]
+      },
+      "roles": {
+        "67": "heading"
+      },
+      "alignments": {
+        "67": "center"
+      }
+    }
+  },
+  "blocks": [
+    {
+      "id": "gemara-narrow",
+      "stream": "gemara",
+      "box": [
+        216,
+        109,
+        424,
+        574
+      ],
+      "lineCount": 30
+    },
+    {
+      "id": "gemara-wide",
+      "stream": "gemara",
+      "box": [
+        56,
+        574,
+        424,
+        649
+      ],
+      "lineCount": 5
+    },
+    {
+      "id": "gemara-hadran",
+      "stream": "gemara",
+      "box": [
+        56,
+        650,
+        424,
+        677
+      ],
+      "lineCount": 1
+    },
+    {
+      "id": "gemara-new-chapter",
+      "stream": "gemara",
+      "box": [
+        56,
+        679,
+        424,
+        917
+      ],
+      "lineCount": 15
+    },
+    {
+      "id": "rashi-opening",
+      "stream": "rashi",
+      "box": [
+        56,
+        38,
+        322,
+        96
+      ],
+      "lineCount": 4
+    },
+    {
+      "id": "rashi-side",
+      "stream": "rashi",
+      "box": [
+        56,
+        96,
+        199,
+        366
+      ],
+      "lineCount": 20
+    },
+    {
+      "id": "rashi-hadran",
+      "stream": "rashi",
+      "box": [
+        56,
+        369,
+        199,
+        391
+      ],
+      "lineCount": 1
+    },
+    {
+      "id": "rashi-new-chapter",
+      "stream": "rashi",
+      "box": [
+        56,
+        394,
+        199,
+        558
+      ],
+      "lineCount": 12
+    },
+    {
+      "id": "tosafot-opening",
+      "stream": "tosafot",
+      "box": [
+        322,
+        38,
+        585,
+        96
+      ],
+      "lineCount": 4
+    },
+    {
+      "id": "tosafot-side",
+      "stream": "tosafot",
+      "box": [
+        439,
+        96,
+        585,
+        926
+      ],
+      "lineCount": 61
+    },
+    {
+      "id": "tosafot-footer",
+      "stream": "tosafot",
+      "box": [
+        56,
+        926,
+        585,
+        944
+      ],
+      "lineCount": 1
+    },
+    {
+      "id": "tosafot-hadran",
+      "stream": "tosafot",
+      "box": [
+        56,
+        946,
+        585,
+        966
+      ],
+      "lineCount": 1
+    },
+    {
+      "id": "tosafot-new-chapter",
+      "stream": "tosafot",
+      "box": [
+        56,
+        973,
+        585,
+        1017
+      ],
+      "lineCount": 3
+    }
+  ],
+  "notes": [
+    "Full physical amud, including the end of Tefillas Hashachar, each stream’s independent Hadran and the opening of Ein Omdin.",
+    "Measured on the cited alternate 672×1035 Vilna scan. Original E-Daf reference catalog remains unchanged; E-Daf refused access.",
+    "Rashi is on the left, Tosafot on the right. Four broad opening rows followed by separate side-column overhangs. Gemara widens left after Rashi ends.",
+    "Rashi whole comments are reordered to match print: בצבור שנו precedes טעה ולא הזכיר במוספין, and בכל עצב precedes דהוה קא בדח and תפילין מנחנא. Canonical words and IDs are preserved.",
+    "Tosafot’s final canonical במקום גילה comment is not printed as main text on this physical amud. Its 36 words are explicitly deferred to Berakhot 31a; the isolated במקום preview is omitted. Other isolated previews אייתי and כמא are omitted.",
+    "Preparation only, independent of building and teacher approval; no paid inference used."
+  ]
+}
