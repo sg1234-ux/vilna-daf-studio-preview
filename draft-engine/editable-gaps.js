@@ -69,7 +69,7 @@
         }
       });
       const changed=after.length!==before.length||after.some((w,i)=>{const r=w.getBoundingClientRect(),b=before[i].rect;return Math.abs(r.left-b.left)>zoom*.1||Math.abs(r.top-b.top)>zoom*.1||Math.abs(r.width-b.width)>zoom*.5;});
-      if(changed){region.innerHTML=original;region.style.cssText=style;delete region.dataset.editableGaps;}
+      if(changed){const i=after.findIndex((w,i)=>{const r=w.getBoundingClientRect(),b=before[i]?.rect;return !b||Math.abs(r.left-b.left)>zoom*.1||Math.abs(r.top-b.top)>zoom*.1||Math.abs(r.width-b.width)>zoom*.5;});const r=after[i]?.getBoundingClientRect(),b=before[i]?.rect;region.innerHTML=original;region.style.cssText=style;delete region.dataset.editableGaps;region.dataset.editableGapFallback=JSON.stringify({before:before.length,after:after.length,index:i,dx:r&&b?(r.left-b.left)/zoom:null,dy:r&&b?(r.top-b.top)/zoom:null,dw:r&&b?(r.width-b.width)/zoom:null});}
     }
     const hint=doc.getElementById('editGapStatus');
     if(hint){const regions=[...page.querySelectorAll('.flow-region,.top-commentary')].filter(r=>r.querySelector('.word-token'));
