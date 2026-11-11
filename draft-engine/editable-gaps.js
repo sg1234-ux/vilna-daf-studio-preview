@@ -59,7 +59,16 @@
       // Revert rather than move any words if a page uses an unsupported layout.
       const after=[...region.querySelectorAll('.word-token')];
       const before=rows.flatMap(r=>r.words);
-      const changed=after.length!==before.length||after.some((w,i)=>{const r=w.getBoundingClientRect(),b=before[i].rect;return Math.abs(r.left-b.left)>zoom*.8||Math.abs(r.top-b.top)>zoom*.8;});
+      // Removing ancestor formatting can shift an inline baseline or rounding by
+      // a few pixels. Keep that visual offset on the word, not in the blank gap.
+      if(after.length===before.length)after.forEach((word,i)=>{
+        const r=word.getBoundingClientRect(),b=before[i].rect;
+        const dx=(b.left-r.left)/zoom,dy=(b.top-r.top)/zoom;
+        if(Math.abs(dx)<32&&Math.abs(dy)<32&&(Math.abs(dx)>.01||Math.abs(dy)>.01)){
+          word.style.position='relative';word.style.left=dx+'px';word.style.top=dy+'px';
+        }
+      });
+      const changed=after.length!==before.length||after.some((w,i)=>{const r=w.getBoundingClientRect(),b=before[i].rect;return Math.abs(r.left-b.left)>zoom*.1||Math.abs(r.top-b.top)>zoom*.1||Math.abs(r.width-b.width)>zoom*.5;});
       if(changed){region.innerHTML=original;region.style.cssText=style;delete region.dataset.editableGaps;}
     }
     const hint=doc.getElementById('editGapStatus');
